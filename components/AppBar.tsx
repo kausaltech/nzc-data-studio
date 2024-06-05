@@ -1,6 +1,9 @@
 'use client';
 
 import {
+  Button,
+  Menu,
+  MenuItem,
   AppBar as MuiAppBar,
   Stack,
   SxProps,
@@ -10,6 +13,11 @@ import {
 } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import { useState } from 'react';
+import { PersonCircle } from 'react-bootstrap-icons';
+
+import { getUserDisplay } from '@/utils/session';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
@@ -18,6 +26,31 @@ const APP_BAR_STYLES: SxProps<Theme> = {
 };
 
 export function AppBar() {
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const session = useSession();
+
+  const isAuthenticated = session.status === 'authenticated';
+
+  const handleOpenAuthMenu = (event: React.MouseEvent<HTMLElement>) =>
+    setMenuAnchorEl(event.currentTarget);
+
+  const handleCloseAuthMenu = () => setMenuAnchorEl(null);
+
+  const handleSignUp = () => {
+    alert('Coming soon!');
+    handleCloseAuthMenu();
+  };
+
+  const handleLogIn = () => {
+    handleCloseAuthMenu();
+    signIn();
+  };
+
+  const handleSignOut = () => {
+    handleCloseAuthMenu();
+    signOut();
+  };
+
   return (
     <MuiAppBar position="sticky" sx={APP_BAR_STYLES}>
       <Toolbar>
@@ -26,8 +59,12 @@ export function AppBar() {
           href="/"
           direction="row"
           spacing={4}
-          alignItems="center"
-          sx={{ color: 'inherit', textDecoration: 'none' }}
+          sx={{
+            color: 'inherit',
+            textDecoration: 'none',
+            alignItems: 'center',
+            flexGrow: 1,
+          }}
         >
           <Image
             src="/images/net-zero-cities-logo.png"
@@ -42,6 +79,51 @@ export function AppBar() {
             </Typography>
           </Typography>
         </Stack>
+
+        <div>
+          <Button
+            size="small"
+            variant="text"
+            aria-controls="appbar-auth-menu"
+            aria-haspopup="true"
+            onClick={handleOpenAuthMenu}
+            color="inherit"
+            endIcon={<PersonCircle size={22} />}
+          >
+            {isAuthenticated
+              ? getUserDisplay(session.data)
+              : 'Create Your City Plan'}
+          </Button>
+
+          <Menu
+            id="appbar-auth-menu"
+            anchorEl={menuAnchorEl}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={!!menuAnchorEl}
+            onClose={handleCloseAuthMenu}
+          >
+            {!isAuthenticated ? (
+              [
+                <MenuItem key="sign-up" onClick={handleSignUp}>
+                  Sign up
+                </MenuItem>,
+                <MenuItem key="log-in" onClick={handleLogIn}>
+                  Log in
+                </MenuItem>,
+              ]
+            ) : (
+              <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+            )}
+          </Menu>
+        </div>
       </Toolbar>
     </MuiAppBar>
   );
