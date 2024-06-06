@@ -31,37 +31,31 @@ export const typography: ThemeOptions['typography'] = {
   h1: {
     fontWeight: 800,
     lineHeight: 80 / 64,
-    fontSize: pxToRem(40),
     ...responsiveFontSizes({ sm: 32, md: 40, lg: 48 }),
   },
   h2: {
     fontWeight: 800,
     lineHeight: 64 / 48,
-    fontSize: pxToRem(32),
     ...responsiveFontSizes({ sm: 29, md: 34, lg: 40 }),
   },
   h3: {
     fontWeight: 700,
     lineHeight: 1.5,
-    fontSize: pxToRem(24),
     ...responsiveFontSizes({ sm: 26, md: 30, lg: 33 }),
   },
   h4: {
     fontWeight: 700,
     lineHeight: 1.5,
-    fontSize: pxToRem(20),
     ...responsiveFontSizes({ sm: 23, md: 25, lg: 28 }),
   },
   h5: {
     fontWeight: 700,
     lineHeight: 1.5,
-    fontSize: pxToRem(18),
     ...responsiveFontSizes({ sm: 20, md: 22, lg: 23 }),
   },
   h6: {
     fontWeight: 700,
     lineHeight: 28 / 18,
-    fontSize: pxToRem(17),
     ...responsiveFontSizes({ sm: 18, md: 18, lg: 19 }),
   },
   subtitle1: {
