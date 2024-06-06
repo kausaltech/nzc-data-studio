@@ -101,6 +101,9 @@ export function getOverrides(theme: Theme): ThemeOptions['components'] {
         root: {
           boxShadow: theme.customShadows.card,
           borderRadius: Number(theme.shape.borderRadius) * 2,
+          borderWidth: 1,
+          borderStyle: 'solid',
+          borderColor: theme.palette.grey[200],
           position: 'relative',
           zIndex: 0, // Fix Safari overflow: hidden with border radius
         },

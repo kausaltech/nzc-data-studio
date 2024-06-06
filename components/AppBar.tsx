@@ -43,7 +43,7 @@ export function AppBar() {
 
   const handleLogIn = () => {
     handleCloseAuthMenu();
-    signIn();
+    signIn(undefined, { callbackUrl: '/' });
   };
 
   const handleSignOut = () => {
