@@ -14,8 +14,11 @@
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.19",
     "@mui/material-nextjs": "^5.15.11",
+    "@next/bundle-analyzer": "^14.2.3",
     "next": "14.2.3",
+    "next-auth": "^5.0.0-beta.19",
     "react": "^18",
+    "react-bootstrap-icons": "^1.11.4",
     "react-dom": "^18"
   },
   "devDependencies": {

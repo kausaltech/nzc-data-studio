@@ -44,6 +44,18 @@ Before you begin, ensure you have the following installed on your machine:
    npm install
    ```
 
+4. **Add necessary environment variables:**
+
+   Generate an auth secret for next-auth:
+
+   ```sh
+   npx auth secret
+   ```
+
+   Copy the output to `.env.local`.
+
+   To test authentication in development, add an `AUTH_TEST_PASSWORD` environment variable to `.env.local`. The value of this can be used to log in as a test user.
+
 ## Development
 
 To start the development server:
@@ -73,6 +85,10 @@ npm run start
 ```
 
 The application will be available on [http://localhost:3000](http://localhost:3000).
+
+### Analyzing the Next Bundle
+
+To analyze the bundle size, add `ANALYZE=true` to `.env.local` and run a production build. A treemap of the build output will open in your browser upon build.
 
 ## Folder Structure
 
