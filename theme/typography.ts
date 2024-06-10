@@ -12,10 +12,8 @@ type FontBreakpoints = {
 
 export function responsiveFontSizes({ sm, md, lg }: FontBreakpoints) {
   return {
+    fontSize: pxToRem(sm),
     '@media (min-width:600px)': {
-      fontSize: pxToRem(sm),
-    },
-    '@media (min-width:900px)': {
       fontSize: pxToRem(md),
     },
     '@media (min-width:1200px)': {
@@ -33,38 +31,32 @@ export const typography: ThemeOptions['typography'] = {
   h1: {
     fontWeight: 800,
     lineHeight: 80 / 64,
-    fontSize: pxToRem(40),
-    ...responsiveFontSizes({ sm: 52, md: 58, lg: 64 }),
+    ...responsiveFontSizes({ sm: 32, md: 40, lg: 48 }),
   },
   h2: {
     fontWeight: 800,
     lineHeight: 64 / 48,
-    fontSize: pxToRem(32),
-    ...responsiveFontSizes({ sm: 40, md: 44, lg: 48 }),
+    ...responsiveFontSizes({ sm: 29, md: 34, lg: 40 }),
   },
   h3: {
     fontWeight: 700,
     lineHeight: 1.5,
-    fontSize: pxToRem(24),
-    ...responsiveFontSizes({ sm: 26, md: 30, lg: 32 }),
+    ...responsiveFontSizes({ sm: 26, md: 30, lg: 33 }),
   },
   h4: {
     fontWeight: 700,
     lineHeight: 1.5,
-    fontSize: pxToRem(20),
-    ...responsiveFontSizes({ sm: 20, md: 24, lg: 24 }),
+    ...responsiveFontSizes({ sm: 23, md: 25, lg: 28 }),
   },
   h5: {
     fontWeight: 700,
     lineHeight: 1.5,
-    fontSize: pxToRem(18),
-    ...responsiveFontSizes({ sm: 19, md: 20, lg: 20 }),
+    ...responsiveFontSizes({ sm: 20, md: 22, lg: 23 }),
   },
   h6: {
     fontWeight: 700,
     lineHeight: 28 / 18,
-    fontSize: pxToRem(17),
-    ...responsiveFontSizes({ sm: 18, md: 18, lg: 18 }),
+    ...responsiveFontSizes({ sm: 18, md: 18, lg: 19 }),
   },
   subtitle1: {
     fontWeight: 600,
