@@ -11,8 +11,9 @@ import {
   Button,
   ButtonProps,
   Typography,
-  styled,
 } from '@mui/material';
+
+import { DatasheetEditor } from '@/components/DatasheetEditor';
 
 export const metadata: Metadata = {
   robots: {
@@ -108,6 +109,11 @@ export default function Playground() {
             <ExampleButtons size="small" />
           </Stack>
         </div>
+        <Card>
+          <CardContent>
+            <DatasheetEditor />
+          </CardContent>
+        </Card>
       </Stack>
     </Container>
   );
