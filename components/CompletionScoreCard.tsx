@@ -1,4 +1,7 @@
+'use client';
+
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -9,7 +12,67 @@ import Chip from '@mui/material/Chip';
 
 interface CompletionScoreCardProps {}
 
-const CompletionScoreCard: React.FC<CompletionScoreCardProps> = () => {
+interface MockData {
+  title: string;
+  linkText: string;
+  linkHref: string;
+  scoreData: scoreData[];
+}
+
+interface scoreData {
+  status: 'High' | 'Medium' | 'Low';
+  total: number;
+  completed: number;
+}
+
+const mockData = {
+  title: 'Zero COventry',
+  linkText: 'netzerocities.kausal.tech/coventry-netzero',
+  linkHref: '#',
+  scoreData: [
+    { status: 'High', total: 13, completed: 10 } as scoreData,
+    { status: 'Medium', total: 10, completed: 7 } as scoreData,
+    { status: 'Low', total: 8, completed: 2 } as scoreData,
+  ],
+};
+
+const calculateScores = (scoreData: scoreData[]) => {
+  return scoreData.map((data) => ({
+    status: data.status,
+    score: `${data.completed}/${data.total}`,
+  }));
+};
+
+const calculatePercentage = (scoreData: scoreData[]) => {
+  const totalCompleted = scoreData.reduce(
+    (acc, curr) => acc + curr.completed,
+    0
+  );
+  const totalItems = scoreData.reduce((acc, curr) => acc + curr.total, 0);
+  return totalItems === 0 ? 0 : (totalCompleted / totalItems) * 100;
+};
+
+export const CompletionScoreCard: React.FC<CompletionScoreCardProps> = () => {
+  const [data, setData] = useState<MockData | null>(null);
+  const [scores, setScores] = useState<
+    { status: 'High' | 'Medium' | 'Low'; score: string }[]
+  >([]);
+  const [completionPercentage, setCompletionPercentage] = useState<number>(0);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setData(mockData);
+      const calculatedScores = calculateScores(mockData.scoreData);
+      setScores(calculatedScores);
+      const percentage = calculatePercentage(mockData.scoreData);
+      setCompletionPercentage(percentage);
+    }, 1000);
+  }, []);
+
+if (!data) {
+  return <Typography>Loading...</Typography>;
+}
+
   return (
     <Box
       sx={{
@@ -32,7 +95,7 @@ const CompletionScoreCard: React.FC<CompletionScoreCardProps> = () => {
         }}
       >
         <Box>
-          <Typography variant="h5">Zero COventry</Typography>
+          <Typography variant="h5">{data.title}</Typography>
           <Box
             component="span"
             sx={{
@@ -45,7 +108,7 @@ const CompletionScoreCard: React.FC<CompletionScoreCardProps> = () => {
             }}
           >
             <Link
-              href="#"
+              href={data.linkHref}
               variant="body2"
               sx={{
                 display: 'inline-flex',
@@ -53,7 +116,7 @@ const CompletionScoreCard: React.FC<CompletionScoreCardProps> = () => {
                 textDecoration: 'none',
               }}
             >
-              Click here for more info
+              {data.linkText}
               <ArrowUpwardIcon
                 sx={{
                   fontSize: '1.1em',
@@ -101,7 +164,9 @@ const CompletionScoreCard: React.FC<CompletionScoreCardProps> = () => {
           sx={{ display: 'flex', alignItems: 'center', marginBottom: '0.5em' }}
         >
           <FiberManualRecordIcon sx={{ color: 'red', marginRight: '0.5em' }} />
-          <Typography variant="subtitle1">Data completion score: 1%</Typography>
+          <Typography variant="subtitle1">
+            Data completion score: {completionPercentage.toFixed(0)}%
+          </Typography>
         </Box>
         <Typography variant="body1" paragraph>
           Your score assesses the completeness of city data, assigning weights
@@ -110,33 +175,35 @@ const CompletionScoreCard: React.FC<CompletionScoreCardProps> = () => {
           boost your score and enable more accurate projections.
         </Typography>
         <Box sx={{ display: 'flex', gap: '0.5em' }}>
-          <Chip
-            icon={<FiberManualRecordIcon sx={{ color: 'red !important' }} />}
-            label="1/83 High"
-            sx={{
-              '& .MuiChip-icon': {
-                color: 'red !important',
-              },
-            }}
-          />
-          <Chip
-            icon={<FiberManualRecordIcon sx={{ color: 'orange !important' }} />}
-            label="0/21 Medium"
-            sx={{
-              '& .MuiChip-icon': {
-                color: 'orange !important',
-              },
-            }}
-          />
-          <Chip
-            icon={<FiberManualRecordIcon sx={{ color: 'green !important' }} />}
-            label="0/13 Low"
-            sx={{
-              '& .MuiChip-icon': {
-                color: 'green !important',
-              },
-            }}
-          />
+          {scores.map((score) => (
+            <Chip
+              key={score.status}
+              icon={
+                <FiberManualRecordIcon
+                  sx={{
+                    color:
+                      score.status === 'High'
+                        ? 'red'
+                        : score.status === 'Medium'
+                        ? 'orange'
+                        : 'green',
+                  }}
+                />
+              }
+              label={`${score.status}: ${score.score}`}
+              sx={{
+                '& .MuiChip-icon': {
+                  color: `${
+                    score.status === 'High'
+                      ? 'red'
+                      : score.status === 'Medium'
+                      ? 'orange'
+                      : 'green'
+                  } !important`,
+                },
+              }}
+            />
+          ))}
         </Box>
       </Box>
     </Box>
