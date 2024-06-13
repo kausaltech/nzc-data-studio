@@ -26,16 +26,31 @@ import { NumberFormatValues } from 'react-number-format';
 
 const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
   '& .row-title': {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.grey[400],
     '&:hover': {
-      backgroundColor: theme.palette.grey[300],
+      backgroundColor: theme.palette.grey[400],
     },
     '&.Mui-selected': {
       borderWidth: 0,
-      backgroundColor: theme.palette.grey[300],
+      backgroundColor: theme.palette.grey[400],
       '&:hover': {
         borderWidth: 0,
+        backgroundColor: theme.palette.grey[400],
+      },
+    },
+
+    '&.row-title--subtitle': {
+      backgroundColor: theme.palette.grey[300],
+      '&:hover': {
         backgroundColor: theme.palette.grey[300],
+      },
+      '&.Mui-selected': {
+        borderWidth: 0,
+        backgroundColor: theme.palette.grey[300],
+        '&:hover': {
+          borderWidth: 0,
+          backgroundColor: theme.palette.grey[300],
+        },
       },
     },
   },
@@ -184,13 +199,20 @@ const GRID_COL_DEFS: GridColDef[] = [
     field: 'label',
     flex: 2,
     renderCell: (params) => (
-      <Typography sx={{ my: 1 }} variant="body2">
+      <Typography
+        sx={{
+          my: 1,
+          ml: params.row.depth,
+          fontWeight: params.row.isTitle ? 'fontWeightMedium' : undefined,
+        }}
+        variant="body2"
+      >
         {params.value}
       </Typography>
     ),
     // Stretch title rows to the full width of the table
     colSpan: (value, row) => {
-      if (row.type === 'TITLE') {
+      if (row.isTitle) {
         return GRID_COL_DEFS.length;
       }
 
@@ -203,6 +225,7 @@ const GRID_COL_DEFS: GridColDef[] = [
     field: 'value',
     editable: true,
     type: 'number',
+    headerAlign: 'left',
     flex: 1,
     ...EDITABLE_COL,
   },
@@ -239,18 +262,20 @@ const GRID_COL_DEFS: GridColDef[] = [
 type Row =
   | {
       id: string;
+      isTitle: false;
       label: string;
       value: number | null;
       unit: string;
       fallback: number;
       priority: string;
       notes: string | null;
-      type?: string;
+      depth: number;
     }
   | {
+      isTitle: true;
       id: string;
-      type: 'TITLE';
       label: string;
+      depth: number;
     };
 
 function mapDataMeasuresToRows(
@@ -273,7 +298,11 @@ function mapDataMeasuresToRows(
     return isNaN(parsed) ? null : parsed;
   }
 
-  function extractRows(items: InputItem[], parentId: string = ''): Row[] {
+  function extractRows(
+    items: InputItem[],
+    parentId: string = '',
+    depth = 0
+  ): Row[] {
     let rows: Row[] = [];
 
     items.forEach((item, index) => {
@@ -286,25 +315,26 @@ function mapDataMeasuresToRows(
 
           item.label && item.referenceType === 'SECTION'
             ? {
+                isTitle: true,
                 id: `${id}-SECTION`,
-                type: 'TITLE',
                 label: item.label,
+                depth,
               }
             : undefined,
 
-          ...extractRows(item.items, `${id}-`),
+          ...extractRows(item.items, `${id}-`, depth + 1),
         ].filter((row): row is Row => !!row);
-
-        rows.concat(extractRows(item.items, `${id}-`));
       } else {
         rows.push({
           id,
+          isTitle: false,
           label: item.label,
           value: parseValue(item.value),
           unit: item.unit || '',
           fallback: parseValue(item.fallbackValue) || 0,
           priority: item.priority || '',
           notes: item.comment || null,
+          depth,
         });
       }
     });
@@ -328,7 +358,9 @@ export function DatasheetEditor() {
         {...singleClickEditProps}
         sx={DATA_GRID_SX}
         getRowClassName={(params) =>
-          params.row.type === 'TITLE' ? 'row-title' : ''
+          params.row.isTitle
+            ? `row-title ${params.row.depth > 0 ? 'row-title--subtitle' : ''}`
+            : ''
         }
         getRowHeight={() => 'auto'}
         rows={rowData}
@@ -337,6 +369,7 @@ export function DatasheetEditor() {
         disableColumnSorting
         disableColumnFilter
         disableColumnMenu
+        disableVirtualization
         processRowUpdate={(updatedRow, originalRow) => {
           console.log('PERSIST ROW CHANGE', updatedRow, originalRow);
 
