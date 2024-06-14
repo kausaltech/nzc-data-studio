@@ -1,0 +1,2008 @@
+{
+  "dataCollection": {
+    "items": [
+      {
+        "label": "Demographic data",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "Population",
+            "unit": "Capita",
+            "value": "820,000",
+            "fallbackValue": "820,000",
+            "fallbackSource": "801,545",
+            "priority": "HIGH"
+          },
+          {
+            "label": "Expected annual population growth (up until 2030)",
+            "unit": "% per year",
+            "value": "0.2%",
+            "fallbackValue": "0.2%"
+          },
+          {
+            "label": "City Area",
+            "unit": "km2",
+            "value": "139",
+            "fallbackValue": "139",
+            "priority": "HIGH"
+          }
+        ]
+      },
+      {
+        "label": "Passenger transportation",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "Transportation need",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Transport need - passenger cars + motorcycles",
+                "unit": "Million passenger-kilometers / year",
+                "value": "3,003",
+                "fallbackValue": "3,003",
+                "fallbackSource": "2,935",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Transport need - buses",
+                "unit": "Million passenger-kilometers / year",
+                "value": "482",
+                "fallbackValue": "482",
+                "fallbackSource": "471",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Transport need - trains/metro",
+                "unit": "Million passenger-kilometers / year",
+                "value": "476",
+                "fallbackValue": "476",
+                "fallbackSource": "465",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Transport need - walking/cycling",
+                "unit": "Million passenger-kilometers / year",
+                "value": "2,063",
+                "fallbackValue": "2,063",
+                "fallbackSource": "2,017",
+                "priority": "LOW",
+                "comment": "No impact on model"
+              }
+            ]
+          },
+          {
+            "label": "Number of passengers per vehicle",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Average passengers per car + motorcycle",
+                "unit": "passengers / car + motorcycle",
+                "value": "1.2",
+                "fallbackValue": "1.2",
+                "fallbackSource": "Valencia estimate - 2019",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Average passengers per bus",
+                "unit": "passengers / bus",
+                "value": "21",
+                "fallbackValue": "21",
+                "fallbackSource": "Valencia estimate - 2019",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Average passengers per metro train",
+                "unit": "passengers / metro train",
+                "value": "40",
+                "fallbackValue": "40",
+                "fallbackSource": "Valencia estimate - 2019",
+                "priority": "HIGH"
+              }
+            ]
+          },
+          {
+            "label": "Emission factors",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Passenger car / motorcycle fleet (current average fleet)",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "CO2e emissions",
+                    "unit": "grams / kilometer",
+                    "value": "130",
+                    "fallbackValue": "130",
+                    "fallbackSource": "Calculated based on Eurostat data, DATASET: Greenhouse gas emissions by source sector (source: EEA) [env_air_gge] & DATASET: Motor vehicle movements on national territory, by vehicles registration [road_tf_vehmov]",
+                    "priority": "HIGH",
+                    "comment": "Includes electricity emissions from electric cars"
+                  },
+                  {
+                    "label": "NOx emissions",
+                    "unit": "grams / kilometer",
+                    "value": "0.61",
+                    "fallbackValue": "0.61",
+                    "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Motor vehicle movements on national territory, by vehicles registration [road_tf_vehmov]",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 2.5 emissions",
+                    "unit": "grams / kilometer",
+                    "value": "0.02",
+                    "fallbackValue": "0.02",
+                    "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Motor vehicle movements on national territory, by vehicles registration [road_tf_vehmov]",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 10 emissions",
+                    "unit": "grams / kilometer",
+                    "value": "0.03",
+                    "fallbackValue": "0.03",
+                    "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Motor vehicle movements on national territory, by vehicles registration [road_tf_vehmov]",
+                    "priority": "LOW"
+                  }
+                ]
+              },
+              {
+                "label": "Buses (average fleet)",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "CO2e emissions",
+                    "unit": "grams / kilometer",
+                    "value": "800",
+                    "fallbackValue": "800",
+                    "fallbackSource": "Atmospheric emissions Inventory of Madrid City, 2017. Municipal buses + other buses",
+                    "priority": "HIGH",
+                    "comment": "Includes electricity emissions from electric busses"
+                  },
+                  {
+                    "label": "NOx emissions",
+                    "unit": "grams / kilometer",
+                    "value": "3.22",
+                    "fallbackValue": "3.22",
+                    "fallbackSource": "Atmospheric emissions Inventory of Madrid City, 2017. Municipal buses + other buses",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 2.5 emissions",
+                    "unit": "grams / kilometer",
+                    "value": "0.07",
+                    "fallbackValue": "0.07",
+                    "fallbackSource": "Atmospheric emissions Inventory of Madrid City, 2017. Municipal buses + other buses. Including tyre wear and brake wear. Not including road wear ",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 10 emissions",
+                    "unit": "grams / kilometer",
+                    "value": "0.10",
+                    "fallbackValue": "0.10",
+                    "fallbackSource": "Atmospheric emissions Inventory of Madrid City, 2017. Municipal buses + other buses. Including tyre wear and brake wear. Not including road wear ",
+                    "priority": "LOW"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Passenger cars - other data",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Total number of cars + motorcycles in city",
+                "unit": "Number of cars + motorcycles",
+                "value": "360,259",
+                "fallbackValue": "360,259",
+                "fallbackSource": "352,151",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Share of fleet that is less than 2 years old",
+                "unit": "% of fleet",
+                "value": "10%",
+                "fallbackValue": "10%",
+                "fallbackSource": "Eurostat, DATASET: Passenger cars, by age [road_eqs_carage]",
+                "priority": "MODERATE"
+              },
+              {
+                "label": "Share of fleet fully electric (not including hybrids)",
+                "unit": "% of fleet",
+                "value": "0.3%",
+                "fallbackValue": "0.3%",
+                "fallbackSource": "Eurostat, DATASET: Passenger cars, by type of motor energy [road_eqs_carpda]",
+                "priority": "MODERATE"
+              }
+            ]
+          },
+          {
+            "label": "Buses - other data",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Number of buses in city bus fleet",
+                "unit": "Nmbr of buses",
+                "value": "934",
+                "fallbackValue": "934",
+                "fallbackSource": "913",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Share of bus fleet as fully electric buses (not including hybrids)",
+                "unit": "% of bus fleet",
+                "value": "0.0%",
+                "fallbackValue": "0.0%",
+                "fallbackSource": "Eurostat, DATASET: Motor coaches, buses and trolley buses, by type of motor energy [road_eqs_busmot]",
+                "priority": "MODERATE"
+              },
+              {
+                "label": "Share of bus fleet - biobased",
+                "unit": "% of bus fleet",
+                "value": "0.0%",
+                "fallbackValue": "0.0%",
+                "fallbackSource": "Eurostat, DATASET: Motor coaches, buses and trolley buses, by type of motor energy [road_eqs_busmot]",
+                "priority": "MODERATE"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Freight transport (road)",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "Transportation need",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Light duty trucks <3.5 tonnes",
+                "unit": "Million tonne-kilometers/year",
+                "value": "118",
+                "fallbackValue": "118",
+                "fallbackSource": "115",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Heavy duty trucks >3.5 tonnes",
+                "unit": "Million tonne-kilometers/year",
+                "value": "337",
+                "fallbackValue": "337",
+                "fallbackSource": "329",
+                "priority": "HIGH"
+              }
+            ]
+          },
+          {
+            "label": "Utilisation/loading",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Light duty trucks <3.5 tonnes",
+                "unit": "% of max load",
+                "value": "23%",
+                "fallbackValue": "23%",
+                "fallbackSource": "Average utilisation urban trucks, based on ACEA (2010) Commercial vehicles and CO2",
+                "priority": "MODERATE"
+              },
+              {
+                "label": "Heavy duty trucks >3.5 tonnes",
+                "unit": "% of max load",
+                "value": "45%",
+                "fallbackValue": "45%",
+                "fallbackSource": "Average utilisation urban trucks, based on ACEA (2010) Commercial vehicles and CO2",
+                "priority": "MODERATE"
+              }
+            ]
+          },
+          {
+            "label": "Emission factors from transportation",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Light duty trucks <3.5 tonnes",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "CO2e emissions",
+                    "unit": "grams / kilometer",
+                    "value": "216",
+                    "fallbackValue": "216",
+                    "fallbackSource": "Atmospheric emissions Inventory of Madrid City, 2017.",
+                    "priority": "HIGH",
+                    "comment": "Includes electricity emissions from electric trucks"
+                  },
+                  {
+                    "label": "NOx emissions",
+                    "unit": "grams / kilometer",
+                    "value": "0.68",
+                    "fallbackValue": "0.68",
+                    "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Motor vehicle movements on national territory, by vehicles registration [road_tf_vehmov]",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 2.5 emissions",
+                    "unit": "grams / kilometer",
+                    "value": "0.04",
+                    "fallbackValue": "0.04",
+                    "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Motor vehicle movements on national territory, by vehicles registration [road_tf_vehmov]",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 10 emissions",
+                    "unit": "grams / kilometer",
+                    "value": "0.05",
+                    "fallbackValue": "0.05",
+                    "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Motor vehicle movements on national territory, by vehicles registration [road_tf_vehmov]",
+                    "priority": "LOW"
+                  }
+                ]
+              },
+              {
+                "label": "Heavy duty trucks >3.5 tonnes",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "CO2e emissions",
+                    "unit": "grams / kilometer",
+                    "value": "374",
+                    "fallbackValue": "374",
+                    "fallbackSource": "Atmospheric emissions Inventory of Madrid City, 2017.",
+                    "priority": "HIGH",
+                    "comment": "Includes electricity emissions from electric trucks"
+                  },
+                  {
+                    "label": "NOx emissions",
+                    "unit": "grams / kilometer",
+                    "value": "1.61",
+                    "fallbackValue": "1.61",
+                    "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Motor vehicle movements on national territory, by vehicles registration [road_tf_vehmov]",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 2.5 emissions",
+                    "unit": "grams / kilometer",
+                    "value": "0.05",
+                    "fallbackValue": "0.05",
+                    "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Motor vehicle movements on national territory, by vehicles registration [road_tf_vehmov]",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 10 emissions",
+                    "unit": "grams / kilometer",
+                    "value": "0.07",
+                    "fallbackValue": "0.07",
+                    "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Motor vehicle movements on national territory, by vehicles registration [road_tf_vehmov]",
+                    "priority": "LOW"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Other data",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Light duty trucks <3.5 tonnes",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Light duty trucks <3.5 tonnes",
+                    "unit": "Number of trucks",
+                    "value": "17,641",
+                    "fallbackValue": "17,641",
+                    "fallbackSource": "17,244",
+                    "priority": "MODERATE"
+                  },
+                  {
+                    "label": "Of which less than 2 years old",
+                    "unit": "%",
+                    "value": "7%",
+                    "fallbackValue": "7%",
+                    "fallbackSource": "Eurostat, DATASET: Lorries and road tractors, by age [road_eqs_lorroa]",
+                    "priority": "MODERATE"
+                  }
+                ]
+              },
+              {
+                "label": "Heavy duty trucks >3.5 tonnes",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Heavy duty trucks >3.5 tonnes",
+                    "unit": "Number of trucks",
+                    "value": "4,410",
+                    "fallbackValue": "4,410",
+                    "fallbackSource": "4,311",
+                    "priority": "MODERATE"
+                  },
+                  {
+                    "label": "Of which less than 2 years old",
+                    "unit": "%",
+                    "value": "4%"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Buildings",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "Existing building stock",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Total floor area",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Total floor area (residental & non-residential)",
+                    "unit": "Thousand squaremeters",
+                    "value": "78,276",
+                    "fallbackValue": "78,276",
+                    "fallbackSource": "76,514",
+                    "priority": "HIGH"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Energy use in existing buildings",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Average heat use in existing buildings (space heating + domestic hot water)",
+                "unit": "kWh/m2 & year",
+                "value": "140",
+                "fallbackValue": "140",
+                "fallbackSource": "Average EU28. Odysee-Mure (2015). Energy Efficiency Trends and Policies in the Household and Tertiary Sectors",
+                "priority": "MODERATE"
+              },
+              {
+                "label": "Average electricity use for lighting & appliances",
+                "unit": "kWh/m2 & year",
+                "value": "41",
+                "fallbackValue": "41",
+                "fallbackSource": "Average EU28. Odysee-Mure (2015). Energy Efficiency Trends and Policies in the Household and Tertiary Sectors",
+                "priority": "MODERATE"
+              }
+            ]
+          },
+          {
+            "label": "Renovation rate (building envelope)",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Share of building stock renovated each year",
+                "unit": "%",
+                "value": "1.0%",
+                "fallbackValue": "1.0%",
+                "fallbackSource": "BPIE (2011) - \"Europe's buildings under the microscope\". http://bpie.eu/wp-content/uploads/2015/10/HR_EU_B_under_microscope_study.pdf",
+                "priority": "HIGH"
+              }
+            ]
+          },
+          {
+            "label": "New buildings",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Building standards for new buildings",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Minimum building standard (heat use)",
+                    "unit": "kWh / m2 & year",
+                    "value": "38",
+                    "fallbackValue": "38",
+                    "fallbackSource": "Madrid standard since 2019",
+                    "priority": "MODERATE"
+                  },
+                  {
+                    "label": "Top performing building standard (heat use)",
+                    "unit": "kWh / m2 & year",
+                    "value": "10",
+                    "fallbackValue": "10",
+                    "priority": "LOW",
+                    "comment": "No impact on model"
+                  }
+                ]
+              },
+              {
+                "label": "Share of new buildings built with minimum standard (today)",
+                "unit": "% of new buildings",
+                "value": "100%",
+                "fallbackValue": "100%",
+                "priority": "MODERATE"
+              },
+              {
+                "label": "Share of new buildings built with \"better than minimum\" standard (today)",
+                "unit": "% of new buildings",
+                "value": "0%",
+                "fallbackValue": "0%",
+                "priority": "MODERATE"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Heating (of buildings)",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "Heat demand & production",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Total heating demand (space heating + domestic hot water + heat for cooking)",
+                "unit": "GWh / y",
+                "value": "1,630",
+                "fallbackValue": "1,630",
+                "fallbackSource": "1,593",
+                "priority": "HIGH"
+              }
+            ]
+          },
+          {
+            "label": "Heating technologies",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Share of heating as district heating",
+                "unit": "%",
+                "value": "1%",
+                "fallbackValue": "1%",
+                "fallbackSource": "Valencia - 2019",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Share of heating as local heating",
+                "unit": "%",
+                "value": "99%",
+                "fallbackValue": "99%",
+                "fallbackSource": "Valencia - 2019",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Share of district heating as",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Fossil (oil, coal, gas) + inefficient electric heating (not heat pumps)",
+                    "unit": "%",
+                    "value": "60%",
+                    "fallbackValue": "60%",
+                    "fallbackSource": "Valencia - 2019",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Electric heat pumps / geothermal",
+                    "unit": "%",
+                    "value": "20%",
+                    "fallbackValue": "20%",
+                    "fallbackSource": "Valencia - 2019",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Bio (biogas, biomass)",
+                    "unit": "%",
+                    "value": "20%",
+                    "fallbackValue": "20%",
+                    "fallbackSource": "Valencia - 2019",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Waste (fossil & non-fossil waste)",
+                    "unit": "%",
+                    "value": "0%",
+                    "fallbackValue": "0%",
+                    "fallbackSource": "Valencia - 2019",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Share of waste used in district heating that is fossil / non-fossil",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Fossil share",
+                    "unit": "%",
+                    "value": "30%",
+                    "fallbackValue": "30%",
+                    "fallbackSource": "Valencia - 2019",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Non-fossil share",
+                    "unit": "%",
+                    "value": "70%",
+                    "fallbackValue": "70%",
+                    "fallbackSource": "Valencia - 2019",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Share of local heating as",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Fossil (oil, gas, coal) + inefficient electric heating (not heat pumps)",
+                    "unit": "%",
+                    "value": "70%",
+                    "fallbackValue": "70%",
+                    "fallbackSource": "Valencia - 2019",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Electric (heat pumps)",
+                    "unit": "%",
+                    "value": "30%",
+                    "fallbackValue": "30%",
+                    "fallbackSource": "Valencia - 2019",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Biobased / solar water heating",
+                    "unit": "%",
+                    "value": "0%",
+                    "fallbackValue": "0%",
+                    "fallbackSource": "Valencia - 2019",
+                    "priority": "HIGH"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Emission factors from heat production",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "District heating",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "CO2e emissions",
+                    "unit": "g / kWh",
+                    "value": "200",
+                    "fallbackValue": "200",
+                    "fallbackSource": "Weighted average based on Valencia 2019 District Heating fuel mix (rows 130-133)",
+                    "priority": "HIGH",
+                    "comment": "Weighted average based on fuel mix for District Heating (rows 130-133)"
+                  },
+                  {
+                    "label": "NOx emissions",
+                    "unit": "g / kWh",
+                    "value": "0.139",
+                    "fallbackValue": "0.139",
+                    "fallbackSource": "Assumption based on data for Italy ",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 2.5 emissions",
+                    "unit": "g / kWh",
+                    "value": "0.003",
+                    "fallbackValue": "0.003",
+                    "fallbackSource": "Assumption based on data for Italy ",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 10 emissions",
+                    "unit": "g / kWh",
+                    "value": "0.005",
+                    "fallbackValue": "0.005",
+                    "fallbackSource": "Assumption based on data for Italy ",
+                    "priority": "LOW"
+                  }
+                ]
+              },
+              {
+                "label": "Local heating",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "CO2e emissions",
+                    "unit": "g / kWh",
+                    "value": "213",
+                    "fallbackValue": "213",
+                    "fallbackSource": "Weighted average based on Valencia 2019 Local Heating fuel mix (rows 141-143)",
+                    "priority": "HIGH",
+                    "comment": "Weighted average based on fuel mix for Local Heating (rows 141-143)"
+                  },
+                  {
+                    "label": "NOx emissions",
+                    "unit": "g / kWh",
+                    "value": "0.24",
+                    "fallbackValue": "0.24",
+                    "fallbackSource": "Atmospheric emissions Inventory of Madrid City, 2017. SNAP 02: residential, commercial and institutional buildings",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 2.5 emissions",
+                    "unit": "g / kWh",
+                    "value": "0.02",
+                    "fallbackValue": "0.02",
+                    "fallbackSource": "Atmospheric emissions Inventory of Madrid City, 2017. SNAP 02: residential, commercial and institutional buildings",
+                    "priority": "LOW"
+                  },
+                  {
+                    "label": "PM 10 emissions",
+                    "unit": "g / kWh",
+                    "value": "0.03",
+                    "fallbackValue": "0.03",
+                    "fallbackSource": "Atmospheric emissions Inventory of Madrid City, 2017. SNAP 02: residential, commercial and institutional buildings",
+                    "priority": "LOW"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Electricity",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "Demand of electricity",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Total demand",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Total electricity demand within city boundaries",
+                    "unit": "GWh / y",
+                    "value": "2,152",
+                    "fallbackValue": "2,152",
+                    "fallbackSource": "2,104",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Share of total electricity demand produced by fossil/renewables",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Renewable sources",
+                    "unit": "%",
+                    "value": "37%",
+                    "fallbackValue": "37%",
+                    "fallbackSource": "Spanish national electricty consumption - Embers European Electricity Review (2019)",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Fossil sources",
+                    "unit": "%",
+                    "value": "41%",
+                    "fallbackValue": "41%",
+                    "fallbackSource": "Spanish national electricty consumption - Embers European Electricity Review (2019)",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Other (e.g. nuclear)",
+                    "unit": "%",
+                    "value": "22%",
+                    "fallbackValue": "22%",
+                    "fallbackSource": "Spanish national electricty consumption - Embers European Electricity Review (2019)",
+                    "priority": "LOW"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Emission factors from electricity generation",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "CO2e emissions",
+                "unit": "g / kWh",
+                "value": "222",
+                "fallbackValue": "222",
+                "fallbackSource": "Weighted average based on Spanish national grid mix (lines 165-167)",
+                "priority": "HIGH",
+                "comment": "Weighted average based on fuel mix for electricity production (rows 165-167)"
+              },
+              {
+                "label": "NOx emissions",
+                "unit": "g / kWh",
+                "value": "0.14",
+                "fallbackValue": "0.14",
+                "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Supply, transformation and consumption of electricity [nrg_cb_e]",
+                "priority": "LOW"
+              },
+              {
+                "label": "PM 2.5 emissions",
+                "unit": "g / kWh",
+                "value": "0.00",
+                "fallbackValue": "0.00",
+                "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Supply, transformation and consumption of electricity [nrg_cb_e]",
+                "priority": "LOW"
+              },
+              {
+                "label": "PM 10 emissions",
+                "unit": "g / kWh",
+                "value": "0.01",
+                "fallbackValue": "0.01",
+                "fallbackSource": "Calculated based on Eurostat data, DATASET: Air pollutants by source sector (source: EEA) [env_air_emis] & DATASET: Supply, transformation and consumption of electricity [nrg_cb_e]",
+                "priority": "LOW"
+              }
+            ]
+          },
+          {
+            "label": "Other",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Spot price electricity",
+                "unit": "EUR/MWh",
+                "value": "50",
+                "fallbackValue": "50",
+                "fallbackSource": "2022 spot price average",
+                "priority": "HIGH"
+              }
+            ]
+          },
+          {
+            "label": "Solar PV",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Solar electricity produced by solar PVs",
+                "unit": "kWh per year/kW",
+                "value": "1,451",
+                "fallbackValue": "1,451",
+                "fallbackSource": "Valencia - 2019",
+                "priority": "LOW",
+                "comment": "Part of renewable sources (row 165)"
+              },
+              {
+                "label": "Yearly average of solar electricity generated by 1 m2 solar PV",
+                "unit": "kWh/m2",
+                "value": "200",
+                "fallbackValue": "200",
+                "fallbackSource": "Material Economics analysis",
+                "priority": "LOW"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Waste",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "Waste generation / collection",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Total collected waste within city boundaries",
+                "unit": "tonne",
+                "value": "388,337",
+                "fallbackValue": "388,337",
+                "fallbackSource": "379,597"
+              }
+            ]
+          },
+          {
+            "label": "Total collected waste within city boundaries",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Paper and cardboard",
+                "unit": "tonne",
+                "value": "68,669",
+                "fallbackValue": "68,669",
+                "fallbackSource": "67,124",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Metal",
+                "unit": "tonne",
+                "value": "13,965",
+                "fallbackValue": "13,965",
+                "fallbackSource": "13,651",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Plastics",
+                "unit": "tonne",
+                "value": "56,773",
+                "fallbackValue": "56,773",
+                "fallbackSource": "55,495",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Glass",
+                "unit": "tonne",
+                "value": "28,835",
+                "fallbackValue": "28,835",
+                "fallbackSource": "28,186",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Organic waste",
+                "unit": "tonne",
+                "value": "139,462",
+                "fallbackValue": "139,462",
+                "fallbackSource": "136,323",
+                "priority": "HIGH"
+              },
+              {
+                "label": "Other waste (e.g. textiles, rubble, wood etc)",
+                "unit": "tonne",
+                "value": "80,633",
+                "fallbackValue": "80,633",
+                "fallbackSource": "78,818",
+                "priority": "HIGH"
+              }
+            ]
+          },
+          {
+            "label": "Share recycling/incineration/landfill",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Paper waste",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Share of paper waste - other (e.g. landfilled)",
+                    "unit": "Share",
+                    "value": "8%",
+                    "fallbackValue": "8%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of paper waste - incinerated (e.g. energy recovery)",
+                    "unit": "Share",
+                    "value": "7%",
+                    "fallbackValue": "7%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of paper waste - recycled",
+                    "unit": "Share",
+                    "value": "85%",
+                    "fallbackValue": "85%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Metal waste",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Share of metal waste - landfilled",
+                    "unit": "Share",
+                    "value": "20%",
+                    "fallbackValue": "20%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of metal waste - incinerated (e.g. energy recovery)",
+                    "unit": "Share",
+                    "value": "1%",
+                    "fallbackValue": "1%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of metal waste - recycled",
+                    "unit": "Share",
+                    "value": "79%",
+                    "fallbackValue": "79%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Plastic waste",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Share of plastic waste - landfilled",
+                    "unit": "Share",
+                    "value": "25%",
+                    "fallbackValue": "25%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of plastic waste - incinerated (e.g. energy recovery)",
+                    "unit": "Share",
+                    "value": "33%",
+                    "fallbackValue": "33%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of plastic waste - recycled",
+                    "unit": "Share",
+                    "value": "42%",
+                    "fallbackValue": "42%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Glass waste",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Share of glass waste - landfilled",
+                    "unit": "Share",
+                    "value": "26%",
+                    "fallbackValue": "26%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of glass waste - incinerated (e.g. energy recovery)",
+                    "unit": "Share",
+                    "value": "0%",
+                    "fallbackValue": "0%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of glass waste - recycled",
+                    "unit": "Share",
+                    "value": "74%",
+                    "fallbackValue": "74%",
+                    "fallbackSource": "Eurostat, DATASET: Packaging waste by waste management operations and waste flow [env_waspac]",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Organic waste",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Share of organic waste - landfilled",
+                    "unit": "Share",
+                    "value": "23%",
+                    "fallbackValue": "23%",
+                    "fallbackSource": "Calculated based on Eurostat, DATASET: Municipal waste by waste management operations ['env_wasmun'] & Gershman, Brickner & Bratton, Inc (2016) - European Technology Overview: Anaerobic Digestion (AD) of the Organic Fraction of the MSW. http://gbbinc.com/wp-content/uploads/2016/05/ArsovaRutgers2016.pdf",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of organic waste - incinerated (e.g. energy recovery)",
+                    "unit": "Share",
+                    "value": "23%",
+                    "fallbackValue": "23%",
+                    "fallbackSource": "Calculated based on Eurostat, DATASET: Municipal waste by waste management operations ['env_wasmun'] & Gershman, Brickner & Bratton, Inc (2016) - European Technology Overview: Anaerobic Digestion (AD) of the Organic Fraction of the MSW. http://gbbinc.com/wp-content/uploads/2016/05/ArsovaRutgers2016.pdf",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of organic waste - composted",
+                    "unit": "Share",
+                    "value": "54%",
+                    "fallbackValue": "54%",
+                    "fallbackSource": "Calculated based on Eurostat, DATASET: Municipal waste by waste management operations ['env_wasmun'] & Gershman, Brickner & Bratton, Inc (2016) - European Technology Overview: Anaerobic Digestion (AD) of the Organic Fraction of the MSW. http://gbbinc.com/wp-content/uploads/2016/05/ArsovaRutgers2016.pdf",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Other waste (e.g. textiles, rubble, wood)",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Share of 'other' waste - landfilled",
+                    "unit": "Share",
+                    "value": "36%",
+                    "fallbackValue": "36%",
+                    "fallbackSource": "Calculated based on Eurostat, DATASET: Municipal waste by waste management operations ['env_wasmun'] & Gershman, Brickner & Bratton, Inc (2016) - European Technology Overview: Anaerobic Digestion (AD) of the Organic Fraction of the MSW. http://gbbinc.com/wp-content/uploads/2016/05/ArsovaRutgers2016.pdf",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of 'other' waste - incinerated (e.g. energy recovery)",
+                    "unit": "Share",
+                    "value": "54%",
+                    "fallbackValue": "54%",
+                    "fallbackSource": "Calculated based on Eurostat, DATASET: Municipal waste by waste management operations ['env_wasmun'] & Gershman, Brickner & Bratton, Inc (2016) - European Technology Overview: Anaerobic Digestion (AD) of the Organic Fraction of the MSW. http://gbbinc.com/wp-content/uploads/2016/05/ArsovaRutgers2016.pdf",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of 'other' waste - recycled",
+                    "unit": "Share",
+                    "value": "10%",
+                    "fallbackValue": "10%",
+                    "fallbackSource": "Calculated based on Eurostat, DATASET: Municipal waste by waste management operations ['env_wasmun'] & Gershman, Brickner & Bratton, Inc (2016) - European Technology Overview: Anaerobic Digestion (AD) of the Organic Fraction of the MSW. http://gbbinc.com/wp-content/uploads/2016/05/ArsovaRutgers2016.pdf",
+                    "priority": "HIGH"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "futureAssumptions": {
+    "items": [
+      {
+        "label": "Key assumptions for levers",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "1. Passenger transportation levers",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "1.1 Reduced motorised passenger transportation need",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Transportation need reduction by 2030 from urban planning, digital meetings and other transport-reducing initiatives",
+                    "unit": "%",
+                    "value": "35%",
+                    "fallbackValue": "35%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "1.2 Shift to public and non-motorised transport",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Reduced passenger kilometres by car through shift to public and non-motorised transport",
+                    "referenceType": "SECTION",
+                    "items": [
+                      {
+                        "label": "Reduced Pkm cars + motorcycles by 2030",
+                        "unit": "%",
+                        "value": "30%",
+                        "fallbackValue": "30%",
+                        "fallbackSource": "Valencia forecast assumption - 2030",
+                        "priority": "HIGH"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Share of car + motorcycle km reduced shifted towards other modes",
+                    "referenceType": "SECTION",
+                    "items": [
+                      {
+                        "label": "Buses",
+                        "unit": "%",
+                        "value": "10%",
+                        "fallbackValue": "10%",
+                        "fallbackSource": "Valencia forecast assumption - 2030",
+                        "priority": "MODERATE"
+                      },
+                      {
+                        "label": "Trains/metro",
+                        "unit": "%",
+                        "value": "60%",
+                        "fallbackValue": "60%",
+                        "fallbackSource": "Valencia forecast assumption - 2030",
+                        "priority": "MODERATE"
+                      },
+                      {
+                        "label": "Walking/cycling",
+                        "unit": "%",
+                        "value": "30%",
+                        "fallbackValue": "30%",
+                        "fallbackSource": "Valencia forecast assumption - 2030",
+                        "priority": "MODERATE"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "label": "1.3 Car pooling",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Percentage increase in avg. passengers per car + motorcycles (2030) due to improved transport efficiency from better Car pooling and Mobility as a Service",
+                    "unit": "%",
+                    "value": "25%",
+                    "fallbackValue": "25%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "MODERATE"
+                  }
+                ]
+              },
+              {
+                "label": "1.4.1 Electrification of passenger cars + motorcycles",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "What is the maximum share of the passenger car + motorcycle fleet that can be electrified?",
+                    "unit": "%",
+                    "value": "35%",
+                    "fallbackValue": "35%",
+                    "fallbackSource": "Valencia forecast assumption - 2040",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "At what year can we expect the city to reach the maximum value specified above?",
+                    "unit": "Year",
+                    "value": "2040",
+                    "fallbackValue": "2040",
+                    "fallbackSource": "Valencia forecast assumption - 2040",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "1.4.2 Electrification of buses",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Expected procurement schedule for buses",
+                    "referenceType": "SECTION",
+                    "items": [
+                      {
+                        "label": "2020",
+                        "unit": "% of fleet exchanged",
+                        "value": "0%",
+                        "fallbackValue": "0%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "2021",
+                        "unit": "% of fleet exchanged",
+                        "value": "0%",
+                        "fallbackValue": "0%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "2022",
+                        "unit": "% of fleet exchanged",
+                        "value": "3%",
+                        "fallbackValue": "3%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "2023",
+                        "unit": "% of fleet exchanged",
+                        "value": "10%",
+                        "fallbackValue": "10%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "2024",
+                        "unit": "% of fleet exchanged",
+                        "value": "10%",
+                        "fallbackValue": "10%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "2025",
+                        "unit": "% of fleet exchanged",
+                        "value": "10%",
+                        "fallbackValue": "10%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "2026",
+                        "unit": "% of fleet exchanged",
+                        "value": "10%",
+                        "fallbackValue": "10%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "2027",
+                        "unit": "% of fleet exchanged",
+                        "value": "10%",
+                        "fallbackValue": "10%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "2028",
+                        "unit": "% of fleet exchanged",
+                        "value": "15%",
+                        "fallbackValue": "15%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "2029",
+                        "unit": "% of fleet exchanged",
+                        "value": "15%",
+                        "fallbackValue": "15%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "2030",
+                        "unit": "% of fleet exchanged",
+                        "value": "17%",
+                        "fallbackValue": "17%",
+                        "fallbackSource": "Valencia forecast assumption",
+                        "priority": "HIGH"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "2. Freight transportation levers",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "2.1 Optimisation of logistics",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Utilisation of trucks in decarbonisation scenario",
+                    "referenceType": "SECTION",
+                    "items": [
+                      {
+                        "label": "Light duty trucks",
+                        "unit": "% of max load weight",
+                        "value": "45%",
+                        "fallbackValue": "45%",
+                        "fallbackSource": "Assuming light trucks can reach average urban distribution today. The \"normal\" utilisation rate is 45% for trucks used for urban distribution, and 70% for trucks used for long distance, according to ACEA (2010) Commercial vehicles and CO2",
+                        "priority": "MODERATE"
+                      },
+                      {
+                        "label": "Heavy duty trucks",
+                        "unit": "% of max load weight",
+                        "value": "60%",
+                        "fallbackValue": "60%",
+                        "fallbackSource": "Assuming heavy duty trucks can reach almost same rate as long-haul today (60% out of 70%). According to the ACEA report, the \"normal\" utilisation rate is 45% for trucks used for urban distribution, and 70% for trucks used for long distance",
+                        "priority": "MODERATE"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Reduction of total distance travelled through route optimisation",
+                    "unit": "% of distance",
+                    "value": "10%",
+                    "fallbackValue": "10%",
+                    "fallbackSource": "IEA (2018) - The future of trucks Implications for energy & the environment https://ec.europa.eu/clima/sites/clima/files/events/docs/0121/iea_en.pdf"
+                  }
+                ]
+              },
+              {
+                "label": "2.2 Electrification of trucks",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Light duty trucks <3.5 tonne",
+                    "referenceType": "SECTION",
+                    "items": [
+                      {
+                        "label": "What is the maximum share of the truck fleet that can be electrified?",
+                        "unit": "%",
+                        "value": "90%",
+                        "fallbackValue": "90%",
+                        "fallbackSource": "Valencia forecast assumption - 2040",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "At what year can we expect the city to reach the maximum value specified above?",
+                        "unit": "Year",
+                        "value": "2040",
+                        "fallbackValue": "2040",
+                        "fallbackSource": "Valencia forecast assumption - 2040",
+                        "priority": "HIGH"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "Heavy duty trucks >3.5 tonne",
+                    "referenceType": "SECTION",
+                    "items": [
+                      {
+                        "label": "What is the maximum share of the truck fleet that can be electrified?",
+                        "unit": "%",
+                        "value": "60%",
+                        "fallbackValue": "60%",
+                        "fallbackSource": "Valencia forecast assumption - 2040",
+                        "priority": "HIGH"
+                      },
+                      {
+                        "label": "At what year can we expect the city to reach the maximum value specified above?",
+                        "unit": "Year",
+                        "value": "2040",
+                        "fallbackValue": "2040",
+                        "fallbackSource": "Valencia forecast assumption - 2040",
+                        "priority": "HIGH"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "3. Buildings & heating",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "3.1 Buildings renovations (envelope)",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Renovation rate - decarbonisation scenario",
+                    "unit": "% of building stock / year",
+                    "value": "2.5%",
+                    "fallbackValue": "2.5%",
+                    "fallbackSource": "Assumption, based on BPIE (2011) - \"Europe's buildings under the microscope\". http://bpie.eu/wp-content/uploads/2015/10/HR_EU_B_under_microscope_study.pdf",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Assumed share of type of renovation in lever",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Minor heating renovations (0-30% improvement)",
+                    "unit": "%",
+                    "value": "50%",
+                    "fallbackValue": "50%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Extensive heating renovations (30-60% improvement)",
+                    "unit": "%",
+                    "value": "50%",
+                    "fallbackValue": "50%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "3.2 Energy efficient new buildings",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Improvement in energy efficiency relative to minimum requirement",
+                "unit": "%",
+                "value": "50%",
+                "fallbackValue": "50%",
+                "fallbackSource": "Valencia forecast assumption - 2030",
+                "priority": "MODERATE"
+              },
+              {
+                "label": "TODO Share of new buildings built with high energy efficiency standards",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Minimum building standard",
+                    "unit": "Share",
+                    "value": "70%",
+                    "fallbackValue": "70%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "MODERATE"
+                  },
+                  {
+                    "label": "Top performing building standard",
+                    "unit": "Share",
+                    "value": "30%",
+                    "fallbackValue": "30%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "MODERATE"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "3.3 Efficient lighting & appliances",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Renovation rate - decarbonisation scenario",
+                "unit": "% of building stock / year",
+                "value": "2.5%",
+                "fallbackValue": "2.5%",
+                "fallbackSource": "Assumption, based on BPIE (2011) - \"Europe's buildings under the microscope\". http://bpie.eu/wp-content/uploads/2015/10/HR_EU_B_under_microscope_study.pdf",
+                "priority": "HIGH"
+              },
+              {
+                "referenceType": "SECTION",
+                "label": "Assumed share of type of efficiency programme for lever",
+                "items": [
+                  {
+                    "label": "Minor efficiency improvements for lighting and appliances (~15%)",
+                    "unit": "%",
+                    "value": "0%",
+                    "fallbackValue": "0%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "MODERATE"
+                  },
+                  {
+                    "label": "Aggressive efficiency improvements for lighting and appliances (~40%)",
+                    "unit": "%",
+                    "value": "100%",
+                    "fallbackValue": "100%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "MODERATE"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "label": "3.4 Decarbonising heating",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Heating technologies in 2030",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Share of heating as district heating, 2030",
+                    "unit": "%",
+                    "value": "5%",
+                    "fallbackValue": "5%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Share of heating as local heating, 2030",
+                    "unit": "%",
+                    "value": "95%",
+                    "fallbackValue": "95%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Share of district heating in 2030 as",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Fossil (oil, coal, gas) + inefficient electric heating (not heat pumps)",
+                    "unit": "%",
+                    "value": "0%",
+                    "fallbackValue": "0%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Electric heat pumps / geothermal",
+                    "unit": "%",
+                    "value": "80%",
+                    "fallbackValue": "80%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Bio (biogas, biomass)",
+                    "unit": "%",
+                    "value": "20%",
+                    "fallbackValue": "20%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Waste (fossil & non-fossil waste)",
+                    "unit": "%",
+                    "value": "0%",
+                    "fallbackValue": "0%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Share of waste in 2030 used in district heating that is fossil / non-fossil",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Fossil share",
+                    "unit": "%",
+                    "value": "18%",
+                    "fallbackValue": "18%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "MODERATE"
+                  },
+                  {
+                    "label": "Non-fossil share",
+                    "unit": "%",
+                    "value": "82%",
+                    "fallbackValue": "82%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "MODERATE"
+                  }
+                ]
+              },
+              {
+                "label": "Share of local heating in 2030 as",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Fossil (oil, coal, gas) + inefficient electric heating (not heat pumps)",
+                    "unit": "%",
+                    "value": "25%",
+                    "fallbackValue": "25%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Electric (heat pumps)",
+                    "unit": "%",
+                    "value": "60%",
+                    "fallbackValue": "60%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Biobased",
+                    "unit": "%",
+                    "value": "15%",
+                    "fallbackValue": "15%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Share of current fossil production that would need to be re-invested in by 2030, if current production were to continue",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "District heating - fossil re-investments need",
+                    "unit": "%",
+                    "value": "100%",
+                    "fallbackValue": "100%",
+                    "fallbackSource": "Valencia forecast assumption - 2030",
+                    "priority": "MODERATE"
+                  },
+                  {
+                    "label": "Local heating - fossil re-investments need",
+                    "unit": "%",
+                    "value": "50%",
+                    "fallbackValue": "50%",
+                    "fallbackSource": "Assumption, based on an assumed lifetime of ~20 years",
+                    "priority": "MODERATE"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "4. Electricity",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "Share renewable/fossil electricity production in 2030",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Share of current fossil production replaced by renewables (or nuclear)",
+                "unit": "%",
+                "value": "85%",
+                "fallbackValue": "85%",
+                "fallbackSource": "Spanish national forecast assumption",
+                "priority": "HIGH"
+              }
+            ]
+          },
+          {
+            "label": "Distribution of type of new renewables",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Local solar PV (e.g. rooftops)",
+                "unit": "%",
+                "value": "5%",
+                "fallbackValue": "5%",
+                "fallbackSource": "Spanish national forecast assumption",
+                "priority": "MODERATE"
+              },
+              {
+                "label": "Centralised Solar PV/wind farms",
+                "unit": "%",
+                "value": "95%",
+                "fallbackValue": "95%",
+                "fallbackSource": "Spanish national forecast assumption",
+                "priority": "MODERATE"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "5. Waste",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "5.1. Increased recycling of waste",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Treatment of paper, 2030",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Landfill",
+                    "unit": "%",
+                    "value": "0%",
+                    "fallbackValue": "0%",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Incineration",
+                    "unit": "%",
+                    "value": "15%",
+                    "fallbackValue": "15%",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Recycling",
+                    "unit": "%",
+                    "value": "85%",
+                    "fallbackValue": "85%",
+                    "fallbackSource": "Assumption that recycling rate stays the same as EU-levels, but landfill decreases from 8% to 0%",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Treatment of metals, 2030",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Landfill",
+                    "unit": "%",
+                    "value": "10%",
+                    "fallbackValue": "10%",
+                    "fallbackSource": "Based on EU target for municipal waste: maximum 10% to landfill",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Incineration",
+                    "unit": "%",
+                    "value": "5%",
+                    "fallbackValue": "5%",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Recycling",
+                    "unit": "%",
+                    "value": "85%",
+                    "fallbackValue": "85%",
+                    "fallbackSource": "Assumption made by Material Economics that the recycling rate of metals 2030 can be the same as the rate for paper is today",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Treatment of plastics, 2030",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Landfill",
+                    "unit": "%",
+                    "value": "10%",
+                    "fallbackValue": "10%",
+                    "fallbackSource": "Based on EU target for municipal waste: maximum 10% to landfill",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Incineration",
+                    "unit": "%",
+                    "value": "22%",
+                    "fallbackValue": "22%",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Recycling",
+                    "unit": "%",
+                    "value": "68%",
+                    "fallbackValue": "68%",
+                    "fallbackSource": "Based on the ambitious scenario from the Material Economics report \"The Circular Economy - a Powerful Force for Climate Mitigation\"",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Treatment of glass, 2030",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Landfill",
+                    "unit": "%",
+                    "value": "10%",
+                    "fallbackValue": "10%",
+                    "fallbackSource": "Based on EU target for municipal waste: maximum 10% to landfill",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Incineration",
+                    "unit": "%",
+                    "value": "5%",
+                    "fallbackValue": "5%",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Recycling",
+                    "unit": "%",
+                    "value": "85%",
+                    "fallbackValue": "85%",
+                    "fallbackSource": "Assumption made by Material Economics that the recycling rate of glass 2030 can be the same as the rate of paper is today",
+                    "priority": "HIGH"
+                  }
+                ]
+              },
+              {
+                "label": "Treatment of organic, 2030",
+                "referenceType": "SECTION",
+                "items": [
+                  {
+                    "label": "Landfill",
+                    "unit": "%",
+                    "value": "0%",
+                    "fallbackValue": "0%",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Incineration",
+                    "unit": "%",
+                    "value": "15%",
+                    "fallbackValue": "15%",
+                    "priority": "HIGH"
+                  },
+                  {
+                    "label": "Composting",
+                    "unit": "%",
+                    "value": "85%",
+                    "fallbackValue": "85%",
+                    "fallbackSource": "Assumption made by Material Economics that the recycling rate of organic waste 2030 can be the same as the rate for paper is today",
+                    "priority": "HIGH"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "5. Forestation",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "Number of planted trees until 2030",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Total amount of trees planted",
+                "unit": "Number of trees",
+                "value": "100,000",
+                "fallbackValue": "100,000"
+              },
+              {
+                "label": "Trees planted inside city",
+                "unit": "Number of trees",
+                "value": "20,000",
+                "fallbackValue": "20,000",
+                "fallbackSource": "Zaragoza forecast assumption - 2030",
+                "priority": "LOW"
+              },
+              {
+                "label": "Trees planted outside city",
+                "unit": "Number of trees",
+                "value": "80,000",
+                "fallbackValue": "80,000",
+                "fallbackSource": "Zaragoza forecast assumption - 2030",
+                "priority": "LOW"
+              }
+            ]
+          },
+          {
+            "label": "Distribution between trees in grey and green area",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Inside city - grey area",
+                "unit": "% of trees inside city",
+                "value": "33%",
+                "fallbackValue": "33%",
+                "fallbackSource": "Based on scenario 1 from Municipality of Milan - Financing Urban Forestation",
+                "priority": "LOW"
+              },
+              {
+                "label": "Inside city - green area",
+                "unit": "% of trees inside city",
+                "value": "67%",
+                "fallbackValue": "67%",
+                "fallbackSource": "Based on scenario 1 from Municipality of Milan - Financing Urban Forestation",
+                "priority": "LOW"
+              },
+              {
+                "label": "Outside city - grey area",
+                "unit": "% of trees outside city",
+                "value": "17%",
+                "fallbackValue": "17%",
+                "fallbackSource": "Based on scenario 5 from Municipality of Milan - Financing Urban Forestation",
+                "priority": "LOW"
+              },
+              {
+                "label": "Outside city - green area",
+                "unit": "% of trees outside city",
+                "value": "83%",
+                "fallbackValue": "83%",
+                "fallbackSource": "Based on scenario 5 from Municipality of Milan - Financing Urban Forestation",
+                "priority": "LOW"
+              }
+            ]
+          },
+          {
+            "label": "Population density outside city compared to inside city",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Population density outside city (used to scale benefits from forestation)",
+                "unit": "% of population density inside city",
+                "value": "10%",
+                "fallbackValue": "10%",
+                "fallbackSource": "Zaragoza - 2019",
+                "priority": "LOW"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Other (Emissions from other sectors: IPPU, AFOLU etc.)",
+        "referenceType": "SECTION",
+        "items": [
+          {
+            "label": "Reduced CO2e emissions committed by Industry, Agriculture, etc. in Other sector",
+            "referenceType": "SECTION",
+            "items": [
+              {
+                "label": "Percentage CO2e reduction by 2030 in Other sector",
+                "unit": "%",
+                "value": "81%",
+                "fallbackValue": "80%",
+                "priority": "HIGH",
+                "comment": "Set at % reduction for 4 main sectors unless adjusted by city"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
