@@ -11,11 +11,10 @@ import {
   useTheme,
   Card,
   CardContent,
-  Stack
+  Stack,
 } from '@mui/material';
 import { ArrowUpRight, CircleFill } from 'react-bootstrap-icons';
-
-
+import MOCK_MEASURES from '@/mocks/measures.json';
 
 interface CompletionScoreCardProps {}
 
@@ -27,27 +26,57 @@ interface MockData {
 }
 
 interface ScoreData {
-  status: 'High' | 'Moderate' | 'Low';
+  priority: 'High' | 'Moderate' | 'Low';
   total: number;
   completed: number;
+}
+
+interface CalculatedScore {
+  priority: string;
+  score: string;
 }
 
 const mockData = {
   title: 'Zero COventry',
   linkText: 'netzerocities.kausal.tech/coventry-netzero',
   linkHref: '#',
-  scoreData: [
-    { status: 'High', total: 13, completed: 6 } as ScoreData,
-    { status: 'Moderate', total: 10, completed: 5 } as ScoreData,
-    { status: 'Low', total: 8, completed: 3 } as ScoreData,
-  ],
 };
 
+const processDataCollection = () => {
+  const result = [
+    { priority: 'High', total: 0, completed: 0 } as ScoreData,
+    { priority: 'Moderate', total: 0, completed: 0 } as ScoreData,
+    { priority: 'Low', total: 0, completed: 0 } as ScoreData,
+  ];
 
+  const processItems = (items: any[]) => {
+    items.forEach((item) => {
+      if (item.priority === 'HIGH') {
+        result[0].total += 1;
+        if (item.value) result[0].completed += 1;
+      } else if (item.priority === 'MODERATE') {
+        result[1].total += 1;
+        if (item.value) result[1].completed += 1;
+      } else if (item.priority === 'LOW') {
+        result[2].total += 1;
+        if (item.value) result[2].completed += 1;
+      }
+      if (item.items) {
+        processItems(item.items);
+      }
+    });
+  };
+
+  MOCK_MEASURES['dataCollection'].items.forEach((section) => {
+    processItems(section.items);
+  });
+
+  return result;
+};
 
 const calculateScores = (scoreData: ScoreData[]) => {
   return scoreData.map((data) => ({
-    status: data.status,
+    priority: data.priority,
     score: `${data.completed}/${data.total}`,
   }));
 };
@@ -61,7 +90,7 @@ const calculatePercentage = (scoreData: ScoreData[]) => {
   const totalPercentage = scoreData.reduce((acc, data) => {
     const completionPercentage =
       data.total > 0 ? data.completed / data.total : 0;
-    return acc + completionPercentage * (coeff[data.status] || 0);
+    return acc + completionPercentage * (coeff[data.priority] || 0);
   }, 0);
 
   return totalPercentage * 100;
@@ -69,38 +98,42 @@ const calculatePercentage = (scoreData: ScoreData[]) => {
 
 export const CompletionScoreCard: React.FC<CompletionScoreCardProps> = () => {
   const [data, setData] = useState<MockData | null>(null);
-  const [scores, setScores] = useState<
-    { status: 'High' | 'Moderate' | 'Low'; score: string }[]
-  >([]);
-
+  const [scores, setScores] = useState<CalculatedScore[]>([]);
   const [completionPercentage, setCompletionPercentage] = useState<number>(0);
 
   const theme = useTheme();
 
   useEffect(() => {
     setTimeout(() => {
-      setData(mockData);
-      const calculatedScores = calculateScores(mockData.scoreData);
+      const scoreData = processDataCollection();
+      const finalMockData: MockData = {
+        ...mockData,
+        scoreData: scoreData,
+      };
+
+      setData(finalMockData);
+      const calculatedScores = calculateScores(scoreData);
       setScores(calculatedScores);
-      const percentage = calculatePercentage(mockData.scoreData);
+
+      const percentage = calculatePercentage(scoreData);
       setCompletionPercentage(percentage);
     }, 1000);
   }, []);
 
-if (!data) {
-  return <Typography>Loading...</Typography>;
-}
+  if (!data) {
+    return <Typography>Loading...</Typography>;
+  }
 
- const getStatusColor = (status: string) => {
-   switch (status) {
-     case 'High':
-       return theme.palette.error.main;
-     case 'Moderate':
-       return theme.palette.warning.main;
-     case 'Low':
-       return theme.palette.success.main;
-   }
- };
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High':
+        return theme.palette.error.main;
+      case 'Moderate':
+        return theme.palette.warning.main;
+      case 'Low':
+        return theme.palette.success.main;
+    }
+  };
 
   return (
     <Card>
@@ -198,21 +231,21 @@ if (!data) {
             boost your score and enable more accurate projections.
           </Typography>
           <Stack direction="row" spacing={2}>
-            {scores.map((score) => (
+            {scores.map((score, index) => (
               <Chip
-                key={score.status}
+                key={`${score.priority}-${index}`}
                 icon={
                   <CircleFill
                     style={{
-                      color: getStatusColor(score.status),
+                      color: getPriorityColor(score.priority),
                       marginLeft: '0.5em',
                     }}
                   />
                 }
-                label={`${score.status}: ${score.score}`}
+                label={`${score.priority}: ${score.score}`}
                 sx={{
                   '& .MuiChip-icon': {
-                    color: getStatusColor(score.status),
+                    color: getPriorityColor(score.priority),
                   },
                 }}
               />
