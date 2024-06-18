@@ -14,6 +14,8 @@ import {
 } from '@mui/material';
 
 import { DatasheetEditor } from '@/components/DatasheetEditor';
+import { SignUp } from '@/components/SignUp';
+import { CreateCityModal } from '@/components/CreateCityModal';
 
 export const metadata: Metadata = {
   robots: {
@@ -91,7 +93,8 @@ export default function Playground() {
         <div>
           <Typography variant="h1">Hello there 👋</Typography>
         </div>
-
+        <SignUp />
+        <CreateCityModal />
         <div>
           <Typography variant="h3" paragraph>
             Example cards
