@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 
 import { DatasheetEditor } from '@/components/DatasheetEditor';
+import { CompletionScoreCard } from '@/components/CompletionScoreCard';
 
 export const metadata: Metadata = {
   robots: {
@@ -109,6 +110,7 @@ export default function Playground() {
             <ExampleButtons size="small" />
           </Stack>
         </div>
+        <CompletionScoreCard />
         <Card>
           <CardContent>
             <DatasheetEditor />
