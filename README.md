@@ -46,15 +46,25 @@ Before you begin, ensure you have the following installed on your machine:
 
 4. **Add necessary environment variables:**
 
-   Generate an auth secret for next-auth:
+   1. Generate an auth secret for next-auth:
 
-   ```sh
-   npx auth secret
-   ```
+      ```sh
+      npx auth secret
+      ```
 
-   Copy the output to `.env.local`.
+      Copy the output to `.env.local`.
 
-   To test authentication in development, add an `AUTH_TEST_PASSWORD` environment variable to `.env.local`. The value of this can be used to log in as a test user.
+   2. To test authentication in development, add an `AUTH_TEST_PASSWORD` environment variable to `.env.local`. The value of this can be used to log in as a test user.
+
+      ```env
+      AUTH_TEST_PASSWORD=ExamplePassword123
+      ```
+
+   3. Add the desired API URL depending on your environment, if you're not sure which one to use, check with the Kausal team
+
+      ```env
+      KAUSAL_PUBLIC_API_URL=https://<API_URL>.dev
+      ```
 
 ## Development
 
@@ -85,6 +95,12 @@ npm run start
 ```
 
 The application will be available on [http://localhost:3000](http://localhost:3000).
+
+### Environment variables
+
+Variables prefixed with `KAUSAL_PUBLIC_` are made available client side. When using these environment variables, import them from `@/constants/environment` to support fallbacks.
+
+- `KAUSAL_PUBLIC_API_URL`: Configure the API URL to be used by Apollo, e.g. a staging or local backend
 
 ### Analyzing the Next Bundle
 
