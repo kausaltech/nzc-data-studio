@@ -12,7 +12,13 @@ import {
   Grid,
   Button,
   Stack,
+  IconButton,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  InputAdornment,
 } from '@mui/material';
+import { X, Eye, EyeSlash } from 'react-bootstrap-icons';
 import { Modal } from './Modal';
 
 export function SignUp() {
@@ -21,6 +27,7 @@ export function SignUp() {
   const [isChecked, setIsChecked] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [open, setOpen] = useState(true); // Set to true while developing
 
   // Mock data
@@ -83,6 +90,14 @@ export function SignUp() {
     setOpen(false);
   };
 
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
+
   return (
     <Modal
       open={open}
@@ -118,19 +133,30 @@ export function SignUp() {
                 />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  error={passwordError !== ''}
-                  helperText={passwordError}
-                />
+                <FormControl required fullWidth variant="outlined">
+                  <InputLabel htmlFor="outlined-adornment-password">
+                    Password
+                  </InputLabel>
+                  <OutlinedInput
+                    id="outlined-adornment-password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={handlePasswordChange}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <Eye /> : <EyeSlash />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    label="Password"
+                  />
+                </FormControl>
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
