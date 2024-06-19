@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { RedirectType, redirect } from 'next/navigation';
 import { BoxArrowUpRight } from 'react-bootstrap-icons';
+import DataCollection from '@/components/DataCollection';
 
 export default async function Dashboard() {
   const session = await auth();
@@ -43,11 +44,7 @@ export default async function Dashboard() {
           <Typography gutterBottom variant="h3" component="h2">
             Data collection center
           </Typography>
-          <Card>
-            <CardContent>
-              <Typography variant="h5">Another card...</Typography>
-            </CardContent>
-          </Card>
+          <DataCollection />
         </div>
       </Stack>
     </Container>

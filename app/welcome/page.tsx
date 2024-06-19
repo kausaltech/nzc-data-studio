@@ -1,4 +1,5 @@
 import { Container, Typography } from '@mui/material';
+import DataCollection from '@/components/DataCollection';
 
 export default async function Dashboard() {
   return (
@@ -7,6 +8,7 @@ export default async function Dashboard() {
       <Typography variant="subtitle1">
         Unauthenticated homepage route
       </Typography>
+      <DataCollection />
     </Container>
   );
 }
