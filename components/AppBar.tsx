@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { PersonCircle, InfoCircle } from 'react-bootstrap-icons';
+import SupportModal from './SupportModal';
 
 import { getUserDisplay } from '@/utils/session';
 
@@ -61,89 +62,92 @@ export function AppBar() {
   };
 
   return (
-    <MuiAppBar position="sticky" sx={APP_BAR_STYLES}>
-      <Toolbar>
-        <Stack
-          component={Link}
-          href="/"
-          direction="row"
-          spacing={4}
-          sx={{
-            color: 'inherit',
-            textDecoration: 'none',
-            alignItems: 'center',
-            flexGrow: 1,
-          }}
-        >
-          <Image
-            src="/images/net-zero-cities-logo.png"
-            alt="Net Zero Cities"
-            width={80}
-            height={40}
-          />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            NetZeroPaths
-            <Typography variant="caption" sx={{ display: 'block' }}>
-              Powered by Kausal Open Source
-            </Typography>
-          </Typography>
-        </Stack>
-
-        <div>
-          <Stack direction="row" spacing={2}>
-            <Button
-              size="small"
-              variant="text"
-              color="inherit"
-              onClick={handleOpenSupportModal}
-              endIcon={<InfoCircle size={22} />}
-            >
-              Support
-            </Button>
-            <Button
-              size="small"
-              variant="text"
-              aria-controls="appbar-auth-menu"
-              aria-haspopup="true"
-              onClick={handleOpenAuthMenu}
-              color="inherit"
-              endIcon={<PersonCircle size={22} />}
-            >
-              {isAuthenticated
-                ? getUserDisplay(session.data)
-                : 'Create Your City Plan'}
-            </Button>
-          </Stack>
-          <Menu
-            id="appbar-auth-menu"
-            anchorEl={menuAnchorEl}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
+    <>
+      <MuiAppBar position="sticky" sx={APP_BAR_STYLES}>
+        <Toolbar>
+          <Stack
+            component={Link}
+            href="/"
+            direction="row"
+            spacing={4}
+            sx={{
+              color: 'inherit',
+              textDecoration: 'none',
+              alignItems: 'center',
+              flexGrow: 1,
             }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={!!menuAnchorEl}
-            onClose={handleCloseAuthMenu}
           >
-            {!isAuthenticated ? (
-              [
-                <MenuItem key="sign-up" onClick={handleSignUp}>
-                  Sign up
-                </MenuItem>,
-                <MenuItem key="log-in" onClick={handleLogIn}>
-                  Log in
-                </MenuItem>,
-              ]
-            ) : (
-              <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
-            )}
-          </Menu>
-        </div>
-      </Toolbar>
-    </MuiAppBar>
+            <Image
+              src="/images/net-zero-cities-logo.png"
+              alt="Net Zero Cities"
+              width={80}
+              height={40}
+            />
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              NetZeroPaths
+              <Typography variant="caption" sx={{ display: 'block' }}>
+                Powered by Kausal Open Source
+              </Typography>
+            </Typography>
+          </Stack>
+
+          <div>
+            <Stack direction="row" spacing={2}>
+              <Button
+                size="small"
+                variant="text"
+                color="inherit"
+                onClick={handleOpenSupportModal}
+                endIcon={<InfoCircle size={22} />}
+              >
+                Support
+              </Button>
+              <Button
+                size="small"
+                variant="text"
+                aria-controls="appbar-auth-menu"
+                aria-haspopup="true"
+                onClick={handleOpenAuthMenu}
+                color="inherit"
+                endIcon={<PersonCircle size={22} />}
+              >
+                {isAuthenticated
+                  ? getUserDisplay(session.data)
+                  : 'Create Your City Plan'}
+              </Button>
+            </Stack>
+            <Menu
+              id="appbar-auth-menu"
+              anchorEl={menuAnchorEl}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={!!menuAnchorEl}
+              onClose={handleCloseAuthMenu}
+            >
+              {!isAuthenticated ? (
+                [
+                  <MenuItem key="sign-up" onClick={handleSignUp}>
+                    Sign up
+                  </MenuItem>,
+                  <MenuItem key="log-in" onClick={handleLogIn}>
+                    Log in
+                  </MenuItem>,
+                ]
+              ) : (
+                <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+              )}
+            </Menu>
+          </div>
+        </Toolbar>
+      </MuiAppBar>
+      <SupportModal open={supportModalOpen} onClose={handleCloseSupportModal} />
+    </>
   );
 }
