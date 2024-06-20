@@ -15,7 +15,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { PersonCircle } from 'react-bootstrap-icons';
+import { PersonCircle, InfoCircle } from 'react-bootstrap-icons';
 
 import { getUserDisplay } from '@/utils/session';
 
@@ -27,6 +27,7 @@ const APP_BAR_STYLES: SxProps<Theme> = {
 
 export function AppBar() {
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
   const session = useSession();
 
   const isAuthenticated = session.status === 'authenticated';
@@ -49,6 +50,14 @@ export function AppBar() {
   const handleSignOut = () => {
     handleCloseAuthMenu();
     signOut();
+  };
+
+  const handleOpenSupportModal = () => {
+    setSupportModalOpen(true);
+  };
+
+  const handleCloseSupportModal = () => {
+    setSupportModalOpen(false);
   };
 
   return (
@@ -81,20 +90,30 @@ export function AppBar() {
         </Stack>
 
         <div>
-          <Button
-            size="small"
-            variant="text"
-            aria-controls="appbar-auth-menu"
-            aria-haspopup="true"
-            onClick={handleOpenAuthMenu}
-            color="inherit"
-            endIcon={<PersonCircle size={22} />}
-          >
-            {isAuthenticated
-              ? getUserDisplay(session.data)
-              : 'Create Your City Plan'}
-          </Button>
-
+          <Stack direction="row" spacing={2}>
+            <Button
+              size="small"
+              variant="text"
+              color="inherit"
+              onClick={handleOpenSupportModal}
+              endIcon={<InfoCircle size={22} />}
+            >
+              Support
+            </Button>
+            <Button
+              size="small"
+              variant="text"
+              aria-controls="appbar-auth-menu"
+              aria-haspopup="true"
+              onClick={handleOpenAuthMenu}
+              color="inherit"
+              endIcon={<PersonCircle size={22} />}
+            >
+              {isAuthenticated
+                ? getUserDisplay(session.data)
+                : 'Create Your City Plan'}
+            </Button>
+          </Stack>
           <Menu
             id="appbar-auth-menu"
             anchorEl={menuAnchorEl}
