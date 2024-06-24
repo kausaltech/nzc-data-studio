@@ -15,7 +15,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { PersonCircle, InfoCircle } from 'react-bootstrap-icons';
+import { PersonCircle, QuestionCircle } from 'react-bootstrap-icons';
 import SupportModal from './SupportModal';
 
 import { getUserDisplay } from '@/utils/session';
@@ -98,7 +98,7 @@ export function AppBar() {
                 variant="text"
                 color="inherit"
                 onClick={handleOpenSupportModal}
-                endIcon={<InfoCircle size={22} />}
+                endIcon={<QuestionCircle size={18} />}
               >
                 Support
               </Button>
