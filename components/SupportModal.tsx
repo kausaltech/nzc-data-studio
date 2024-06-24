@@ -19,14 +19,14 @@ interface SupportModalProps {
 }
 
 const supportData = {
-  imageSrc: '/images/nzc_img.png',
+  imageSrc: 'https://placehold.co/600x400/000000/FFFFFF/png',
   title: 'Welcome to NetZeroPaths',
   content:
     'Thanks for joining us on this journey towards a sustainable future for your city. Here are three quick tips to help you get started!',
   getStartedUrl: '/welcome',
 };
 
-const SupportModal: React.FC<SupportModalProps> = ({ open, onClose }) => {
+const SupportModal = ({ open, onClose }: SupportModalProps) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle
