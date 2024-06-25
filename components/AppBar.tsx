@@ -9,16 +9,14 @@ import {
   SxProps,
   Theme,
   Toolbar,
-  Typography,
 } from '@mui/material';
-import Image from 'next/image';
-import Link from 'next/link';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { PersonCircle, QuestionCircle } from 'react-bootstrap-icons';
 import SupportModal from './SupportModal';
 
 import { getUserDisplay } from '@/utils/session';
+import { Logo } from './Logo';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
@@ -65,31 +63,7 @@ export function AppBar() {
     <>
       <MuiAppBar position="sticky" sx={APP_BAR_STYLES}>
         <Toolbar>
-          <Stack
-            component={Link}
-            href="/"
-            direction="row"
-            spacing={4}
-            sx={{
-              color: 'inherit',
-              textDecoration: 'none',
-              alignItems: 'center',
-              flexGrow: 1,
-            }}
-          >
-            <Image
-              src="/images/net-zero-cities-logo.png"
-              alt="Net Zero Cities"
-              width={80}
-              height={40}
-            />
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              NetZeroPaths
-              <Typography variant="caption" sx={{ display: 'block' }}>
-                Powered by Kausal Open Source
-              </Typography>
-            </Typography>
-          </Stack>
+          <Logo />
 
           <div>
             <Stack direction="row" spacing={2}>
@@ -116,6 +90,7 @@ export function AppBar() {
                   : 'Create Your City Plan'}
               </Button>
             </Stack>
+
             <Menu
               id="appbar-auth-menu"
               anchorEl={menuAnchorEl}
