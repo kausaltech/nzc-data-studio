@@ -366,7 +366,9 @@ export function DatasheetEditor() {
   const [rowData, setRowData] = useState<GridRowsProp>(() =>
     MOCK_MEASURES.dataCollection.items.map((section) => ({
       label: section.label,
-      items: mapDataMeasuresToRows(section),
+      items: mapDataMeasuresToRows(
+        section as (typeof MOCK_MEASURES)['dataCollection']
+      ),
     }))
   );
 

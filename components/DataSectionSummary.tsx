@@ -1,4 +1,5 @@
 import { useTheme } from '@mui/material/styles';
+import { GridValidRowModel } from '@mui/x-data-grid';
 import {
   Icon3CircleFill as LowPrioIcon,
   Icon2CircleFill as MedPrioIcon,
@@ -7,7 +8,11 @@ import {
 import { Box, Typography } from '@mui/material';
 const PRIORITY_TYPES = ['LOW', 'MODERATE', 'HIGH'];
 
-const PrioIcon = (props) => {
+interface PrioIconProps {
+  priorityType: 'LOW' | 'MODERATE' | 'HIGH' | string;
+}
+
+const PrioIcon = (props: PrioIconProps) => {
   const { priorityType } = props;
   const theme = useTheme();
   switch (priorityType) {
@@ -37,7 +42,13 @@ const PrioIcon = (props) => {
   }
 };
 
-const PrioStat = (props) => {
+interface PrioStatProps {
+  priority: 'LOW' | 'MODERATE' | 'HIGH' | string;
+  totalCount: number;
+  completedCount: number;
+}
+
+const PrioStat = (props: PrioStatProps) => {
   const { priority, totalCount, completedCount } = props;
   return (
     <Box sx={{ marginRight: 1, flex: '60px 0 0' }}>
@@ -53,7 +64,11 @@ const PrioStat = (props) => {
   );
 };
 
-const DataSectionSummary = (props) => {
+interface DataSectionSummaryProps {
+  section: GridValidRowModel;
+}
+
+const DataSectionSummary = (props: DataSectionSummaryProps) => {
   const { section } = props;
   return (
     <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginRight: 1 }}>
@@ -62,11 +77,14 @@ const DataSectionSummary = (props) => {
           key={prio}
           priority={prio}
           totalCount={
-            section.items.filter((row) => row.priority === prio).length
+            section.items.filter(
+              (row: GridValidRowModel) => row.priority === prio
+            ).length
           }
           completedCount={
-            section.items.filter((row) => row.priority === prio && !!row.value)
-              .length
+            section.items.filter(
+              (row: GridValidRowModel) => row.priority === prio && !!row.value
+            ).length
           }
         />
       ))}
