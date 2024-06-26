@@ -32,21 +32,22 @@ const wizardSteps: WizardStep[] = [
       <>
         <Typography variant="body1" paragraph>
           There are two phases in the data collection centre. Together, these
-          are used to forecast your city's carbon reduction potential.
+          are used to forecast your city&apos;s carbon reduction potential.
         </Typography>
         <Box mb={2}>
           <Typography variant="body1" component="div">
             <strong>1. Data collection:</strong> This phase gathers detailed
-            information about your city's current demographics, energy
+            information about your city&apos;s current demographics, energy
             consumption, transportation usage, and more. This foundational step
             is crucial for generating accurate forecasts and insights.
           </Typography>
         </Box>
         <Typography variant="body1" component="div">
           <strong>2. Future assumptions:</strong> In this phase, we explore
-          ambitious yet realistic scenarios aligned with your city’s Climate
-          Action Plan. For example, assumptions may include targets for reducing
-          motorised transportation or increasing renewable energy adoption.
+          ambitious yet realistic scenarios aligned with your city&apos;s
+          Climate Action Plan. For example, assumptions may include targets for
+          reducing motorised transportation or increasing renewable energy
+          adoption.
         </Typography>
       </>
     ),
@@ -73,10 +74,11 @@ const wizardSteps: WizardStep[] = [
     content: (
       <>
         <Typography variant="body1" paragraph>
-          Even at this early stage, you can preview what your city's dashboard
-          will look like based on a similar city’s sample data. Finalising your
-          dashboard will be an iterative process, so continue previewing your
-          dashboard as you tweak your city’s future assumptions.
+          Even at this early stage, you can preview what your city&apos;s
+          dashboard will look like based on a similar city&apos;s sample data.
+          Finalising your dashboard will be an iterative process, so continue
+          previewing your dashboard as you tweak your city&apos;s future
+          assumptions.
         </Typography>
       </>
     ),
