@@ -10,6 +10,7 @@ import {
 declare module '@mui/material/styles' {
   interface TypeBackground {
     neutral: string;
+    dark: string;
   }
 }
 
@@ -43,7 +44,7 @@ export const primary: SimplePaletteColorOptions = {
   light: brand[200]!,
   main: brand[500]!,
   dark: brand[800]!,
-  contrastText: brand[50]!,
+  contrastText: '#FFFFFF',
 };
 
 export const secondary: SimplePaletteColorOptions = {
@@ -122,5 +123,6 @@ export const palette: ThemeOptions['palette'] = {
     paper: '#FFFFFF',
     default: grey[100],
     neutral: grey[200],
+    dark: brand[900],
   },
 };
