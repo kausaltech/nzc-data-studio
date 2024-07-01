@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { styled } from '@mui/material/styles';
 import {
   DataGrid,
   GridCellModes,
@@ -18,11 +19,25 @@ import {
   Theme,
   Box,
   TextFieldProps,
+  Accordion,
+  AccordionDetails,
+  AccordionSummary as MuiAccordionSummary,
+  AccordionSummaryProps,
+  Grid,
 } from '@mui/material';
 
+import { ChevronUp as ExpandIcon } from 'react-bootstrap-icons';
 import MOCK_MEASURES from '@/mocks/measures.json';
 import NumberInput from './NumberInput';
 import { NumberFormatValues } from 'react-number-format';
+import DataSectionSummary from './DataSectionSummary';
+
+const AccordionSummary = styled((props: AccordionSummaryProps) => (
+  <MuiAccordionSummary expandIcon={<ExpandIcon color="white" />} {...props} />
+))(({ theme }) => ({
+  backgroundColor: theme.palette.primary.dark,
+  color: theme.palette.common.white,
+}));
 
 const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
   '& .row-title': {
@@ -349,33 +364,56 @@ function mapDataMeasuresToRows(
 export function DatasheetEditor() {
   const singleClickEditProps = useSingleClickEdit();
   const [rowData, setRowData] = useState<GridRowsProp>(() =>
-    mapDataMeasuresToRows(MOCK_MEASURES.dataCollection)
+    MOCK_MEASURES.dataCollection.items.map((section) => ({
+      label: section.label,
+      items: mapDataMeasuresToRows(
+        section as (typeof MOCK_MEASURES)['dataCollection']
+      ),
+    }))
   );
 
   return (
-    <Box sx={{ width: '100%', height: 400 }}>
-      <DataGrid
-        {...singleClickEditProps}
-        sx={DATA_GRID_SX}
-        getRowClassName={(params) =>
-          params.row.isTitle
-            ? `row-title ${params.row.depth > 0 ? 'row-title--subtitle' : ''}`
-            : ''
-        }
-        getRowHeight={() => 'auto'}
-        rows={rowData}
-        columns={GRID_COL_DEFS}
-        hideFooter
-        disableColumnSorting
-        disableColumnFilter
-        disableColumnMenu
-        disableVirtualization
-        processRowUpdate={(updatedRow, originalRow) => {
-          console.log('PERSIST ROW CHANGE', updatedRow, originalRow);
+    <Box sx={{ width: '100%' }}>
+      {rowData.map((section, indx) => (
+        <Accordion key={section.label}>
+          <AccordionSummary aria-controls="panel2-content" id="panel2-header">
+            <Grid container>
+              <Grid xs={6}>
+                {indx + 1}. {section.label}
+              </Grid>
+              <Grid xs>
+                <DataSectionSummary section={section} />
+              </Grid>
+            </Grid>
+          </AccordionSummary>
+          <AccordionDetails>
+            <DataGrid
+              {...singleClickEditProps}
+              sx={DATA_GRID_SX}
+              getRowClassName={(params) =>
+                params.row.isTitle
+                  ? `row-title ${
+                      params.row.depth > 0 ? 'row-title--subtitle' : ''
+                    }`
+                  : ''
+              }
+              getRowHeight={() => 'auto'}
+              rows={section.items}
+              columns={GRID_COL_DEFS}
+              hideFooter
+              disableColumnSorting
+              disableColumnFilter
+              disableColumnMenu
+              disableVirtualization
+              processRowUpdate={(updatedRow, originalRow) => {
+                console.log('PERSIST ROW CHANGE', updatedRow, originalRow);
 
-          return updatedRow;
-        }}
-      />
+                return updatedRow;
+              }}
+            />
+          </AccordionDetails>
+        </Accordion>
+      ))}
     </Box>
   );
 }
