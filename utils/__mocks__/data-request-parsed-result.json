@@ -1,0 +1,1279 @@
+{
+  "errors": [
+    {
+      "message": "Failed to parse this one matey",
+      "type": "MEASURE_ERROR",
+      "row": {
+        "comment": "",
+        "label": "Total collected waste within city boundaries",
+        "value": 388337
+      }
+    }
+  ],
+  "measures": {
+    "Data - City input sheet": {
+      "Demographic data": [
+        {
+          "label": "Population",
+          "value": 820000,
+          "comment": ""
+        },
+        {
+          "label": "Expected annual population growth (up until 2030)",
+          "value": 0.2,
+          "comment": ""
+        },
+        {
+          "label": "City Area",
+          "value": 139,
+          "comment": ""
+        }
+      ],
+      "Passenger transportation": {
+        "Transportation need": {
+          "Total transportation need - passenger transport": [
+            {
+              "label": "Transport need - passenger cars + motorcycles",
+              "value": 3003,
+              "comment": ""
+            },
+            {
+              "label": "Transport need - buses",
+              "value": 482,
+              "comment": ""
+            },
+            {
+              "label": "Transport need - trains/metro",
+              "value": 476,
+              "comment": ""
+            },
+            {
+              "label": "Transport need - walking/cycling",
+              "value": 2063,
+              "comment": ""
+            }
+          ],
+          "Number of passengers per vehicle": [
+            {
+              "label": "Average passengers per car + motorcycle",
+              "value": 1.2,
+              "comment": ""
+            },
+            {
+              "label": "Average passengers per bus",
+              "value": 21,
+              "comment": ""
+            },
+            {
+              "label": "Average passengers per metro train",
+              "value": 40,
+              "comment": ""
+            }
+          ]
+        },
+        "Emission factors": {
+          "Passenger car / motorcycle fleet (current average fleet)": [
+            {
+              "label": "CO2e emissions",
+              "value": 130,
+              "comment": ""
+            },
+            {
+              "label": "NOx emissions",
+              "value": 0.61,
+              "comment": ""
+            },
+            {
+              "label": "PM 2.5 emissions",
+              "value": 0.02,
+              "comment": ""
+            },
+            {
+              "label": "PM 10 emissions",
+              "value": 0.03,
+              "comment": ""
+            }
+          ],
+          "Buses (average fleet)": [
+            {
+              "label": "CO2e emissions",
+              "value": 800,
+              "comment": ""
+            },
+            {
+              "label": "NOx emissions",
+              "value": 3.22,
+              "comment": ""
+            },
+            {
+              "label": "PM 2.5 emissions",
+              "value": 0.07,
+              "comment": ""
+            },
+            {
+              "label": "PM 10 emissions",
+              "value": 0.1,
+              "comment": ""
+            }
+          ]
+        },
+        "Passenger cars - other data": [
+          {
+            "label": "Total number of cars + motorcycles in city",
+            "value": 360259,
+            "comment": ""
+          },
+          {
+            "label": "Share of fleet that is less than 2 years old",
+            "value": 10,
+            "comment": ""
+          },
+          {
+            "label": "Share of fleet fully electric (not including hybrids)",
+            "value": 0.3,
+            "comment": ""
+          }
+        ],
+        "Buses - other data": [
+          {
+            "label": "Number of buses in city bus fleet",
+            "value": 934,
+            "comment": ""
+          },
+          {
+            "label": "Share of bus fleet as fully electric buses (not including hybrids)",
+            "value": 0,
+            "comment": ""
+          },
+          {
+            "label": "Share of bus fleet - biobased",
+            "value": 0,
+            "comment": ""
+          }
+        ]
+      },
+      "Freight transport (road)": {
+        "Transportation need": {
+          "Total transportation need within city - Road freight transport": [
+            {
+              "label": "Light duty trucks <3.5 tonnes",
+              "value": 118,
+              "comment": ""
+            },
+            {
+              "label": "Heavy duty trucks >3.5 tonnes",
+              "value": 337,
+              "comment": ""
+            }
+          ]
+        },
+        "Utilisation/loading": {
+          "Average utilisation": [
+            {
+              "label": "Light duty trucks <3.5 tonnes",
+              "value": 23,
+              "comment": ""
+            },
+            {
+              "label": "Heavy duty trucks >3.5 tonnes",
+              "value": 45,
+              "comment": ""
+            }
+          ]
+        },
+        "Emission factors from transportation": {
+          "Light duty trucks <3.5 tonnes": [
+            {
+              "label": "CO2e emissions",
+              "value": 216,
+              "comment": ""
+            },
+            {
+              "label": "NOx emissions",
+              "value": 0.68,
+              "comment": ""
+            },
+            {
+              "label": "PM 2.5 emissions",
+              "value": 0.04,
+              "comment": ""
+            },
+            {
+              "label": "PM 10 emissions",
+              "value": 0.05,
+              "comment": ""
+            }
+          ],
+          "Heavy duty trucks >3.5 tonnes": [
+            {
+              "label": "CO2e emissions",
+              "value": 374,
+              "comment": ""
+            },
+            {
+              "label": "NOx emissions",
+              "value": 1.61,
+              "comment": ""
+            },
+            {
+              "label": "PM 2.5 emissions",
+              "value": 0.05,
+              "comment": ""
+            },
+            {
+              "label": "PM 10 emissions",
+              "value": 0.07,
+              "comment": ""
+            }
+          ]
+        },
+        "Other data": {
+          "Number of trucks registered within city": [
+            {
+              "label": "Light duty trucks <3.5 tonnes",
+              "value": 17641,
+              "comment": ""
+            },
+            {
+              "label": "Of which less than 2 years old",
+              "value": 7,
+              "comment": ""
+            },
+            {
+              "label": "Heavy duty trucks >3.5 tonnes",
+              "value": 4410,
+              "comment": ""
+            },
+            {
+              "label": "Of which less than 2 years old",
+              "value": 4,
+              "comment": ""
+            }
+          ]
+        }
+      },
+      "Buildings": {
+        "Existing building stock": {
+          "Total floor area": [
+            {
+              "label": "Total floor area (residental & non-residential)",
+              "value": 78276,
+              "comment": ""
+            }
+          ],
+          "Energy use in existing buildings": [
+            {
+              "label": "Average heat use in existing buildings (space heating + domestic hot water)",
+              "value": 140,
+              "comment": ""
+            },
+            {
+              "label": "Average electricity use for lighting & appliances",
+              "value": 41,
+              "comment": ""
+            }
+          ],
+          "Renovation rate (building envelope)": [
+            {
+              "label": "Share of building stock renovated each year",
+              "value": 1,
+              "comment": ""
+            }
+          ]
+        },
+        "New buildings": {
+          "Building standards for new buildings": [
+            {
+              "label": "Minimum building standard (heat use)",
+              "value": 38,
+              "comment": ""
+            },
+            {
+              "label": "Top performing building standard (heat use)",
+              "value": 10,
+              "comment": ""
+            },
+            {
+              "label": "Share of new buildings built with minimum standard (today)",
+              "value": 100,
+              "comment": ""
+            },
+            {
+              "label": "Share of new buildings built with \"better than minimum\" standard (today)",
+              "value": 0,
+              "comment": ""
+            }
+          ]
+        }
+      },
+      "Heating (of buildings)": {
+        "Heat demand & production": {
+          "measures": [
+            {
+              "label": "Total heating demand (space heating + domestic hot water + heat for cooking)",
+              "value": 1630,
+              "comment": ""
+            }
+          ],
+          "Heating technologies": [
+            {
+              "label": "Share of heating as district heating",
+              "value": 1,
+              "comment": ""
+            },
+            {
+              "label": "Share of heating as local heating",
+              "value": 99,
+              "comment": ""
+            }
+          ],
+          "Share of district heating as": [
+            {
+              "label": "Fossil (oil, coal, gas) + inefficient electric heating (not heat pumps)",
+              "value": 60,
+              "comment": ""
+            },
+            {
+              "label": "Electric heat pumps / geothermal",
+              "value": 20,
+              "comment": ""
+            },
+            {
+              "label": "Bio (biogas, biomass)",
+              "value": 20,
+              "comment": ""
+            },
+            {
+              "label": "Waste (fossil & non-fossil waste)",
+              "value": 0,
+              "comment": ""
+            }
+          ],
+          "Share of waste used in district heating that is fossil / non-fossil": [
+            {
+              "label": "Fossil share",
+              "value": 30,
+              "comment": ""
+            },
+            {
+              "label": "Non-fossil share",
+              "value": 70,
+              "comment": ""
+            }
+          ],
+          "Share of local heating as": [
+            {
+              "label": "Fossil (oil, gas, coal) + inefficient electric heating (not heat pumps)",
+              "value": 70,
+              "comment": ""
+            },
+            {
+              "label": "Electric (heat pumps)",
+              "value": 30,
+              "comment": ""
+            },
+            {
+              "label": "Biobased / solar water heating",
+              "value": 0,
+              "comment": ""
+            }
+          ]
+        },
+        "Emission factors from heat production": {
+          "District heating": [
+            {
+              "label": "CO2e emissions",
+              "value": 200,
+              "comment": ""
+            },
+            {
+              "label": "NOx emissions",
+              "value": 0.139,
+              "comment": ""
+            },
+            {
+              "label": "PM 2.5 emissions",
+              "value": 0.003,
+              "comment": ""
+            },
+            {
+              "label": "PM 10 emissions",
+              "value": 0.005,
+              "comment": ""
+            }
+          ],
+          "Local heating": [
+            {
+              "label": "CO2e emissions",
+              "value": 213,
+              "comment": ""
+            },
+            {
+              "label": "NOx emissions",
+              "value": 0.24,
+              "comment": ""
+            },
+            {
+              "label": "PM 2.5 emissions",
+              "value": 0.02,
+              "comment": ""
+            },
+            {
+              "label": "PM 10 emissions",
+              "value": 0.03,
+              "comment": ""
+            }
+          ]
+        }
+      },
+      "Electricity": {
+        "Demand of electricity": {
+          "Total demand": [
+            {
+              "label": "Total electricity demand within city boundaries",
+              "value": 2152,
+              "comment": ""
+            }
+          ],
+          "Share of total electricity demand produced by fossil/renewables": [
+            {
+              "label": "Renewable sources",
+              "value": 37,
+              "comment": ""
+            },
+            {
+              "label": "Fossil sources",
+              "value": 41,
+              "comment": ""
+            },
+            {
+              "label": "Other (e.g. nuclear)",
+              "value": 22,
+              "comment": ""
+            }
+          ]
+        },
+        "Emission factors from electricity generation": [
+          {
+            "label": "CO2e emissions",
+            "value": 222,
+            "comment": ""
+          },
+          {
+            "label": "NOx emissions",
+            "value": 0.14,
+            "comment": ""
+          },
+          {
+            "label": "PM 2.5 emissions",
+            "value": 0,
+            "comment": ""
+          },
+          {
+            "label": "PM 10 emissions",
+            "value": 0.01,
+            "comment": ""
+          }
+        ],
+        "Other": {
+          "measures": [
+            {
+              "label": "Spot price electricity",
+              "value": 50,
+              "comment": ""
+            }
+          ],
+          "Solar PV": [
+            {
+              "label": "Solar electricity produced by solar PVs",
+              "value": 1451,
+              "comment": ""
+            },
+            {
+              "label": "Yearly average of solar electricity generated by 1 m2 solar PV",
+              "value": 200,
+              "comment": ""
+            }
+          ]
+        }
+      },
+      "Waste": {
+        "Waste generation / collection": {
+          "Total collected waste within city boundaries": [
+            {
+              "label": "Paper and cardboard",
+              "value": 68669,
+              "comment": "Example comment"
+            },
+            {
+              "label": "Metal",
+              "value": 13965,
+              "comment": ""
+            },
+            {
+              "label": "Plastics",
+              "value": 56773,
+              "comment": ""
+            },
+            {
+              "label": "Glass",
+              "value": 28835,
+              "comment": ""
+            },
+            {
+              "label": "Organic waste",
+              "value": 139462,
+              "comment": ""
+            },
+            {
+              "label": "Other waste (e.g. textiles, rubble, wood etc)",
+              "value": 80633,
+              "comment": ""
+            }
+          ]
+        },
+        "Share recycling/incineration/landfill": {
+          "Paper waste": [
+            {
+              "label": "Share of paper waste - other (e.g. landfilled)",
+              "value": 8,
+              "comment": ""
+            },
+            {
+              "label": "Share of paper waste - incinerated (e.g. energy recovery)",
+              "value": 7,
+              "comment": ""
+            },
+            {
+              "label": "Share of paper waste - recycled",
+              "value": 85,
+              "comment": ""
+            }
+          ],
+          "Metal waste": [
+            {
+              "label": "Share of metal waste - landfilled",
+              "value": 20,
+              "comment": ""
+            },
+            {
+              "label": "Share of metal waste - incinerated (e.g. energy recovery)",
+              "value": 1,
+              "comment": ""
+            },
+            {
+              "label": "Share of metal waste - recycled",
+              "value": 79,
+              "comment": ""
+            }
+          ],
+          "Plastic waste": [
+            {
+              "label": "Share of plastic waste - landfilled",
+              "value": 25,
+              "comment": ""
+            },
+            {
+              "label": "Share of plastic waste - incinerated (e.g. energy recovery)",
+              "value": 33,
+              "comment": ""
+            },
+            {
+              "label": "Share of plastic waste - recycled",
+              "value": 42,
+              "comment": ""
+            }
+          ],
+          "Glass waste": [
+            {
+              "label": "Share of glass waste - landfilled",
+              "value": 26,
+              "comment": ""
+            },
+            {
+              "label": "Share of glass waste - incinerated (e.g. energy recovery)",
+              "value": 0,
+              "comment": ""
+            },
+            {
+              "label": "Share of glass waste - recycled",
+              "value": 74,
+              "comment": ""
+            }
+          ],
+          "Organic waste": [
+            {
+              "label": "Share of organic waste - landfilled",
+              "value": 23,
+              "comment": ""
+            },
+            {
+              "label": "Share of organic waste - incinerated (e.g. energy recovery)",
+              "value": 23,
+              "comment": ""
+            },
+            {
+              "label": "Share of organic waste - composted",
+              "value": 54,
+              "comment": ""
+            }
+          ],
+          "Other waste (e.g. textiles, rubble, wood)": [
+            {
+              "label": "Share of \"other\" waste - landfilled",
+              "value": 36,
+              "comment": ""
+            },
+            {
+              "label": "Share of \"other\" waste - incinerated (e.g. energy recovery)",
+              "value": 54,
+              "comment": ""
+            },
+            {
+              "label": "Share of \"other\" waste - recycled",
+              "value": 10,
+              "comment": ""
+            }
+          ]
+        },
+        "Emission factors from waste management": {
+          "Incineration": [
+            {
+              "label": "CO2e emissions",
+              "value": 633,
+              "comment": ""
+            },
+            {
+              "label": "NOx emissions",
+              "value": 0.53,
+              "comment": ""
+            },
+            {
+              "label": "PM 2.5 emissions",
+              "value": 0,
+              "comment": ""
+            },
+            {
+              "label": "PM 10 emissions",
+              "value": 0,
+              "comment": ""
+            }
+          ]
+        }
+      },
+      "Other price data": {
+        "Energy prices": [
+          {
+            "label": "Retail price of electricity",
+            "value": 0.28,
+            "comment": ""
+          },
+          {
+            "label": "Retail price of heating",
+            "value": 152,
+            "comment": ""
+          }
+        ]
+      },
+      "Greenhouse gases (CO2 emissions other greenhouse gases)": {
+        "Total greenhouse emissions (GHG)": [
+          {
+            "label": "Total emissions (scope 1 & scope 2; scope 3 only for waste disposed of outside city boundaries)",
+            "value": 1622,
+            "comment": ""
+          }
+        ],
+        "Emissions from road transportation": [
+          {
+            "label": "Total emissions from road transport",
+            "value": 637,
+            "comment": ""
+          },
+          {
+            "label": "Passenger cars + motorcycles",
+            "value": 485,
+            "comment": ""
+          },
+          {
+            "label": "Light duty trucks <3.5 tonne",
+            "value": 57,
+            "comment": ""
+          },
+          {
+            "label": "Heavy duty trucks >3.5 tonne",
+            "value": 33,
+            "comment": ""
+          },
+          {
+            "label": "Buses",
+            "value": 49,
+            "comment": ""
+          },
+          {
+            "label": "Other motorized transport",
+            "value": 13,
+            "comment": ""
+          },
+          {
+            "label": "Emissions from buildings & heating",
+            "value": 193,
+            "comment": ""
+          },
+          {
+            "label": "Heating & hot water",
+            "value": 193,
+            "comment": ""
+          },
+          {
+            "label": "Cooling",
+            "value": null,
+            "comment": ""
+          },
+          {
+            "label": "Other building-related emissions",
+            "value": null,
+            "comment": ""
+          }
+        ],
+        "Emissions from buildings & heating": [],
+        "Emissions from electricity": [
+          {
+            "label": "Total emissions from electricity demand",
+            "value": 474,
+            "comment": ""
+          },
+          {
+            "label": "Buildings",
+            "value": 474,
+            "comment": ""
+          },
+          {
+            "label": "Other",
+            "value": null,
+            "comment": ""
+          },
+          {
+            "label": "Emissions from waste (including waste disposed of outside of city boundaries)",
+            "value": 71,
+            "comment": ""
+          },
+          {
+            "label": "Incineration of waste",
+            "value": null,
+            "comment": ""
+          },
+          {
+            "label": "Organic decay (waste)",
+            "value": 14,
+            "comment": ""
+          },
+          {
+            "label": "Landfill gas",
+            "value": 55,
+            "comment": ""
+          },
+          {
+            "label": "Other waste management",
+            "value": 2,
+            "comment": ""
+          },
+          {
+            "label": "Emissions from other sectors",
+            "value": 247,
+            "comment": ""
+          },
+          {
+            "label": "Industry (IPPU)",
+            "value": 64,
+            "comment": ""
+          },
+          {
+            "label": "Agriculture (AFOLU)",
+            "value": 138,
+            "comment": ""
+          },
+          {
+            "label": "Other sources",
+            "value": 44,
+            "comment": ""
+          }
+        ],
+        "Emissions from waste (including waste disposed of outside of city boundaries)": [],
+        "Emissions from other sectors": []
+      }
+    },
+    "PART 2: City assumptions 2030": {
+      "Key assumptions for levers": {
+        "1. Passenger transportation levers": {
+          "1.1 Reduced motorised passenger transportation need": [
+            {
+              "label": "Transportation need reduction by 2030 from urban planning, digital meetings and other transport-reducing initiatives",
+              "value": 35,
+              "comment": ""
+            }
+          ],
+          "1.2 Shift to public and non-motorised transport": {
+            "Reduced passenger kilometres by car through shift to public and non-motorised transport": [
+              {
+                "label": "Reduced Pkm cars + motorcycles by 2030",
+                "value": 30,
+                "comment": ""
+              }
+            ],
+            "Share of car + motorcycle km reduced shifted towards other modes": [
+              {
+                "label": "Buses",
+                "value": 10,
+                "comment": ""
+              },
+              {
+                "label": "Trains/metro",
+                "value": 60,
+                "comment": ""
+              },
+              {
+                "label": "Walking/cycling",
+                "value": 30,
+                "comment": ""
+              }
+            ]
+          },
+          "1.3 Car pooling": [
+            {
+              "label": "Percentage increase in avg. passengers per car + motorcycles (2030) due to improved transport efficiency from better Car pooling and Mobility as a Service",
+              "value": 25,
+              "comment": ""
+            }
+          ],
+          "1.4.1 Electrification of passenger cars + motorcycles": [
+            {
+              "label": "What is the maximum share of the passenger car + motorcycle fleet that can be electrified?",
+              "value": 35,
+              "comment": ""
+            },
+            {
+              "label": "At what year can we expect the city to reach the maximum value specified above?",
+              "value": 2040,
+              "comment": ""
+            }
+          ],
+          "1.4.2 Electrification of buses": {
+            "Expected procurement schedule for buses": [
+              {
+                "label": "2020",
+                "value": 0,
+                "comment": ""
+              },
+              {
+                "label": "2021",
+                "value": 0,
+                "comment": ""
+              },
+              {
+                "label": "2022",
+                "value": 3,
+                "comment": ""
+              },
+              {
+                "label": "2023",
+                "value": 10,
+                "comment": ""
+              },
+              {
+                "label": "2024",
+                "value": 10,
+                "comment": ""
+              },
+              {
+                "label": "2025",
+                "value": 10,
+                "comment": ""
+              },
+              {
+                "label": "2026",
+                "value": 10,
+                "comment": ""
+              },
+              {
+                "label": "2027",
+                "value": 10,
+                "comment": ""
+              },
+              {
+                "label": "2028",
+                "value": 15,
+                "comment": ""
+              },
+              {
+                "label": "2029",
+                "value": 15,
+                "comment": ""
+              },
+              {
+                "label": "2030",
+                "value": 17,
+                "comment": ""
+              }
+            ]
+          }
+        },
+        "2. Freight transportation levers": {
+          "2.1 Optimisation of logistics": {
+            "Utilisation of trucks in decarbonisation scenario": [
+              {
+                "label": "Light duty trucks",
+                "value": 45,
+                "comment": ""
+              },
+              {
+                "label": "Heavy duty trucks",
+                "value": 60,
+                "comment": ""
+              },
+              {
+                "label": "Reduction of total distance travelled through route optimisation",
+                "value": 10,
+                "comment": ""
+              }
+            ]
+          },
+          "2.2 Electrification of trucks": {
+            "Light duty trucks <3.5 tonne": [
+              {
+                "label": "What is the maximum share of the truck fleet that can be electrified?",
+                "value": 90,
+                "comment": ""
+              },
+              {
+                "label": "At what year can we expect the city to reach the maximum value specified above?",
+                "value": 2040,
+                "comment": ""
+              }
+            ],
+            "Heavy duty trucks >3.5 tonne": [
+              {
+                "label": "What is the maximum share of the truck fleet that can be electrified?",
+                "value": 60,
+                "comment": ""
+              },
+              {
+                "label": "At what year can we expect the city to reach the maximum value specified above?",
+                "value": 2040,
+                "comment": ""
+              }
+            ]
+          }
+        },
+        "3. Buildings & heating": {
+          "3.1 Buildings renovations (envelope)": {
+            "measures": [
+              {
+                "label": "Renovation rate - decarbonisation scenario",
+                "value": 2.5,
+                "comment": ""
+              }
+            ],
+            "Assumed share of type of renovation in lever": [
+              {
+                "label": "Minor heating renovations (0-30% improvement)",
+                "value": 50,
+                "comment": ""
+              },
+              {
+                "label": "Extensive heating renovations (30-60% improvement)",
+                "value": 50,
+                "comment": ""
+              }
+            ]
+          },
+          "3.2 Energy efficient new buildings": {
+            "measures": [
+              {
+                "label": "Improvement in energy efficiency relative to minimum requirement",
+                "value": 50,
+                "comment": ""
+              }
+            ],
+            "Share of new buildings built with high energy efficiency standards": [
+              {
+                "label": "Minimum building standard",
+                "value": 70,
+                "comment": ""
+              },
+              {
+                "label": "Top performing building standard",
+                "value": 30,
+                "comment": ""
+              }
+            ]
+          },
+          "3.3 Efficient lighting & appliances": {
+            "measures": [
+              {
+                "label": "Renovation rate - decarbonisation scenario",
+                "value": 2.5,
+                "comment": ""
+              }
+            ],
+            "Assumed share of type of efficiency programme for lever": [
+              {
+                "label": "Minor efficiency improvements for lighting and appliances (~15%)",
+                "value": 0,
+                "comment": ""
+              },
+              {
+                "label": "Aggressive efficiency improvements for lighting and appliances (~40%)",
+                "value": 100,
+                "comment": ""
+              }
+            ]
+          },
+          "3.4 Decarbonising heating": {
+            "Heating technologies in 2030": [
+              {
+                "label": "Share of heating as district heating, 2030",
+                "value": 5,
+                "comment": ""
+              },
+              {
+                "label": "Share of heating as local heating, 2030",
+                "value": 95,
+                "comment": ""
+              }
+            ],
+            "Share of district heating in 2030 as": [
+              {
+                "label": "Fossil (oil, coal, gas) + inefficient electric heating (not heat pumps)",
+                "value": 0,
+                "comment": ""
+              },
+              {
+                "label": "Electric heat pumps / geothermal",
+                "value": 80,
+                "comment": ""
+              },
+              {
+                "label": "Bio (biogas, biomass)",
+                "value": 20,
+                "comment": ""
+              },
+              {
+                "label": "Waste (fossil & non-fossil waste)",
+                "value": 0,
+                "comment": ""
+              }
+            ],
+            "Share of waste in 2030 used in district heating that is fossil / non-fossil": [
+              {
+                "label": "Fossil share",
+                "value": 18,
+                "comment": ""
+              },
+              {
+                "label": "Non-fossil share",
+                "value": 82,
+                "comment": ""
+              }
+            ],
+            "Share of local heating in 2030 as": [
+              {
+                "label": "Fossil (oil, coal, gas) + inefficient electric heating (not heat pumps)",
+                "value": 25,
+                "comment": ""
+              },
+              {
+                "label": "Electric (heat pumps)",
+                "value": 60,
+                "comment": ""
+              },
+              {
+                "label": "Biobased",
+                "value": 15,
+                "comment": ""
+              }
+            ],
+            "Share of current fossil production that would need to be re-invested in by 2030, if current production where to continue": [
+              {
+                "label": "District heating - fossil re-investments need",
+                "value": 100,
+                "comment": ""
+              },
+              {
+                "label": "Local heating - fossil re-investments need",
+                "value": 50,
+                "comment": ""
+              }
+            ]
+          }
+        },
+        "4. Electricity": {
+          "Share renewable/fossil electricity production in 2030": [
+            {
+              "label": "Share of current fossil production replaced by renewables (or nuclear)",
+              "value": 85,
+              "comment": ""
+            }
+          ],
+          "Distribution of type of new renewables": [
+            {
+              "label": "Local solar PV (e.g. rooftops)",
+              "value": 5,
+              "comment": ""
+            },
+            {
+              "label": "Centralised Solar PV/wind farms",
+              "value": 95,
+              "comment": ""
+            }
+          ]
+        },
+        "5. Waste": {
+          "5.1. Increased recycling of waste": {
+            "Treatement of paper, 2030": [
+              {
+                "label": "Landfill",
+                "value": 0,
+                "comment": ""
+              },
+              {
+                "label": "Incineration",
+                "value": 15,
+                "comment": ""
+              },
+              {
+                "label": "Recycling",
+                "value": 85,
+                "comment": ""
+              }
+            ],
+            "Treatment of metals, 2030": [
+              {
+                "label": "Landfill",
+                "value": 10,
+                "comment": ""
+              },
+              {
+                "label": "Incineration",
+                "value": 5,
+                "comment": ""
+              },
+              {
+                "label": "Recycling",
+                "value": 85,
+                "comment": ""
+              }
+            ],
+            "Treatment of plastics, 2030": [
+              {
+                "label": "Landfill",
+                "value": 10,
+                "comment": ""
+              },
+              {
+                "label": "Incineration",
+                "value": 22,
+                "comment": ""
+              },
+              {
+                "label": "Recycling",
+                "value": 68,
+                "comment": ""
+              }
+            ],
+            "Treatment of glass, 2030": [
+              {
+                "label": "Landfill",
+                "value": 10,
+                "comment": ""
+              },
+              {
+                "label": "Incineration",
+                "value": 5,
+                "comment": ""
+              },
+              {
+                "label": "Recycling",
+                "value": 85,
+                "comment": ""
+              }
+            ],
+            "Treatment of organic, 2030": [
+              {
+                "label": "Landfill",
+                "value": 0,
+                "comment": ""
+              },
+              {
+                "label": "Incineration",
+                "value": 15,
+                "comment": ""
+              },
+              {
+                "label": "Composting",
+                "value": 85,
+                "comment": ""
+              }
+            ]
+          }
+        }
+      },
+      "5. Forestation": {
+        "Number of planted trees until 2030": [
+          {
+            "label": "Total amount of trees planted",
+            "value": 100000,
+            "comment": ""
+          },
+          {
+            "label": "Trees planted inside city",
+            "value": 20000,
+            "comment": ""
+          },
+          {
+            "label": "Trees planted outside city",
+            "value": 80000,
+            "comment": ""
+          }
+        ],
+        "Distribution between trees in grey and green area": [
+          {
+            "label": "Inside city - grey area",
+            "value": 33,
+            "comment": ""
+          },
+          {
+            "label": "Inside city - green area",
+            "value": 67,
+            "comment": ""
+          },
+          {
+            "label": "Outside city - grey area",
+            "value": 17,
+            "comment": ""
+          },
+          {
+            "label": "Outside city - green area",
+            "value": 83,
+            "comment": ""
+          }
+        ],
+        "Population density outside city compared to inside city": [
+          {
+            "label": "Population density outside city (used to scale benefits from forestation)",
+            "value": 10,
+            "comment": ""
+          }
+        ]
+      },
+      "Other (Emissions from other sectors: IPPU, AFOLU etc.)": {
+        "Reduced CO2e emissions committed by Industry, Agriculture, etc. in Other sector": [
+          {
+            "label": "Percentage CO2e reduction by 2030 in Other sector",
+            "value": 81,
+            "comment": ""
+          }
+        ]
+      }
+    }
+  }
+}
