@@ -3,25 +3,26 @@
 import * as React from 'react';
 import { Box, Tabs, Tab, Card, Typography } from '@mui/material';
 import { DatasheetEditor } from '@/components/DatasheetEditor';
+import { useDataCollectionStore } from '@/store/data-collection';
 
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
-  value: number;
+  selected: number;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+  const { children, selected, index, ...other } = props;
 
   return (
     <div
       role="tabpanel"
-      hidden={value !== index}
+      hidden={selected !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {selected === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -34,17 +35,18 @@ function a11yProps(index: number) {
 }
 
 const DataCollection = () => {
-  const [value, setValue] = React.useState(0);
+  const setSelectedTab = useDataCollectionStore((state) => state.setTab);
+  const selectedTab = useDataCollectionStore((state) => state.selectedTab);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+  const handleChange = (event: React.SyntheticEvent, newSelected: number) => {
+    setSelectedTab(newSelected);
   };
 
   return (
     <Card>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
-          value={value}
+          value={selectedTab}
           onChange={handleChange}
           aria-label="basic tabs example"
         >
@@ -52,7 +54,7 @@ const DataCollection = () => {
           <Tab label="Future assumptions (2035)" {...a11yProps(1)} />
         </Tabs>
       </Box>
-      <CustomTabPanel value={value} index={0}>
+      <CustomTabPanel selected={selectedTab} index={0}>
         <Typography variant="subtitle2" paragraph gutterBottom>
           Collect essential data about your city&apos;s current state across key
           sectors. This phase focuses on gathering raw data to establish a
@@ -60,7 +62,7 @@ const DataCollection = () => {
         </Typography>
         <DatasheetEditor />
       </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}>
+      <CustomTabPanel selected={selectedTab} index={1}>
         <Typography variant="subtitle2" paragraph gutterBottom>
           These assumptions should reflect an ambitious yet feasible scenario
           aligned with the city&apos;s Climate Action Plan, indicating the

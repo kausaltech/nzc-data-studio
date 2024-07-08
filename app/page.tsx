@@ -10,6 +10,9 @@ import {
 import { RedirectType, redirect } from 'next/navigation';
 import { BoxArrowUpRight } from 'react-bootstrap-icons';
 import DataCollection from '@/components/DataCollection';
+import { UploadLegacyDataButton } from '@/components/UploadLegacyDataButton';
+import { getMeasureTemplates } from '@/queries/get-measure-templates';
+import { tryRequest } from '@/utils/api';
 
 export default async function Dashboard() {
   const session = await auth();
@@ -17,6 +20,16 @@ export default async function Dashboard() {
   if (!session) {
     redirect('/welcome', RedirectType.replace);
   }
+
+  const { data, error } = await tryRequest(getMeasureTemplates('nzc'));
+
+  console.log('🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨');
+  console.log(JSON.stringify(data, null, 2));
+  console.log('-------------------------');
+  console.log(JSON.stringify(error, null, 2));
+  console.log('-------------------------');
+
+  function handleClickUpload() {}
 
   return (
     <Container>
@@ -41,9 +54,17 @@ export default async function Dashboard() {
         </Card>
 
         <div>
-          <Typography gutterBottom variant="h3" component="h2">
-            Data collection center
-          </Typography>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Typography gutterBottom variant="h3" component="h2">
+              Data collection center
+            </Typography>
+
+            <UploadLegacyDataButton />
+          </Stack>
           <DataCollection />
         </div>
       </Stack>

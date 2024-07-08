@@ -5,38 +5,23 @@ import {
   Icon2CircleFill as MedPrioIcon,
   Icon1CircleFill as HighPrioIcon,
 } from 'react-bootstrap-icons';
-import { Box, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 const PRIORITY_TYPES = ['LOW', 'MODERATE', 'HIGH'];
 
 interface PrioIconProps {
   priorityType: 'LOW' | 'MODERATE' | 'HIGH' | string;
 }
 
-const PrioIcon = (props: PrioIconProps) => {
+export const PrioIcon = (props: PrioIconProps) => {
   const { priorityType } = props;
   const theme = useTheme();
   switch (priorityType) {
     case 'LOW':
-      return (
-        <LowPrioIcon
-          color={theme.palette.success.main}
-          style={{ marginRight: theme.spacing(1), marginBottom: '-4px' }}
-        />
-      );
+      return <LowPrioIcon color={theme.palette.success.main} />;
     case 'MODERATE':
-      return (
-        <MedPrioIcon
-          color={theme.palette.warning.main}
-          style={{ marginRight: theme.spacing(1), marginBottom: '-4px' }}
-        />
-      );
+      return <MedPrioIcon color={theme.palette.warning.main} />;
     case 'HIGH':
-      return (
-        <HighPrioIcon
-          color={theme.palette.error.main}
-          style={{ marginRight: theme.spacing(1), marginBottom: '-4px' }}
-        />
-      );
+      return <HighPrioIcon color={theme.palette.error.main} />;
     default:
       null;
   }
@@ -51,7 +36,12 @@ interface PrioStatProps {
 const PrioStat = (props: PrioStatProps) => {
   const { priority, totalCount, completedCount } = props;
   return (
-    <Box sx={{ marginRight: 1, flex: '60px 0 0' }}>
+    <Stack
+      sx={{ marginRight: 1, flex: '60px 0 0' }}
+      direction="row"
+      alignItems="center"
+      spacing={1}
+    >
       {totalCount > 0 && (
         <>
           <PrioIcon priorityType={priority} />
@@ -60,7 +50,7 @@ const PrioStat = (props: PrioStatProps) => {
           </Typography>
         </>
       )}
-    </Box>
+    </Stack>
   );
 };
 
@@ -71,7 +61,14 @@ interface DataSectionSummaryProps {
 const DataSectionSummary = (props: DataSectionSummaryProps) => {
   const { section } = props;
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginRight: 1 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        marginRight: 1,
+        height: '100%',
+      }}
+    >
       {PRIORITY_TYPES.map((prio) => (
         <PrioStat
           key={prio}

@@ -3,16 +3,9 @@ import isEqual from 'lodash/isEqual';
 import get from 'lodash/get';
 
 import measures from '@/mocks/measures.json';
+import { convertStringToNumber, isStringNumber } from './numbers';
 
 type Measures = typeof measures;
-
-function convertStringToNumber(str: string): number {
-  return parseFloat(str.replace('%', '').replace(/,/g, ''));
-}
-
-function isStringNumber(str: string): boolean {
-  return !isNaN(convertStringToNumber(str));
-}
 
 /**
  * When importing data, there's no way to infer the hierarchy of sections and

@@ -10,6 +10,7 @@ import {
   GridColDef,
   GridRenderEditCellParams,
   GridRowsProp,
+  GridSlotsComponentsProps,
   useGridApiContext,
 } from '@mui/x-data-grid';
 import {
@@ -19,53 +20,73 @@ import {
   Theme,
   Box,
   TextFieldProps,
-  Accordion,
-  AccordionDetails,
+  Accordion as MuiAccordion,
+  AccordionDetails as MuiAccordionDetails,
   AccordionSummary as MuiAccordionSummary,
   AccordionSummaryProps,
   Grid,
+  AccordionProps,
+  Stack,
 } from '@mui/material';
 
 import { ChevronUp as ExpandIcon } from 'react-bootstrap-icons';
 import MOCK_MEASURES from '@/mocks/measures.json';
 import NumberInput from './NumberInput';
 import { NumberFormatValues } from 'react-number-format';
-import DataSectionSummary from './DataSectionSummary';
+import DataSectionSummary, { PrioIcon } from './DataSectionSummary';
+import { convertStringToNumber } from '@/utils/numbers';
+import { useDataCollectionStore } from '@/store/data-collection';
 
-const AccordionSummary = styled((props: AccordionSummaryProps) => (
-  <MuiAccordionSummary expandIcon={<ExpandIcon color="white" />} {...props} />
+const Accordion = styled((props: AccordionProps) => (
+  <MuiAccordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
-  backgroundColor: theme.palette.primary.dark,
-  color: theme.palette.common.white,
+  '&:first-of-type': {
+    borderTopLeftRadius: theme.shape.borderRadius,
+    borderTopRightRadius: theme.shape.borderRadius,
+  },
+  '&:last-of-type': {
+    borderBottomLeftRadius: theme.shape.borderRadius,
+    borderBottomRightRadius: theme.shape.borderRadius,
+  },
+  border: `1px solid ${theme.palette.divider}`,
+  '&:not(:last-child)': {
+    borderBottom: 0,
+  },
+  '&::before': {
+    display: 'none',
+  },
 }));
 
+const rowTitleSx: SxProps<Theme> = (theme) => ({
+  backgroundColor: theme.palette.brand[100],
+  '.MuiDataGrid-cell': {
+    border: '0px solid transparent',
+  },
+});
+
+const rowSubtitleSx: SxProps<Theme> = (theme) => ({
+  backgroundColor: theme.palette.brand[50],
+  '.MuiDataGrid-cell': {
+    border: '0px solid transparent',
+  },
+});
+
+// Override styles colors of title sections
 const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
   '& .row-title': {
-    backgroundColor: theme.palette.grey[400],
-    '&:hover': {
-      backgroundColor: theme.palette.grey[400],
-    },
+    ...rowTitleSx(theme),
+    '&:hover': rowTitleSx(theme),
     '&.Mui-selected': {
-      borderWidth: 0,
-      backgroundColor: theme.palette.grey[400],
-      '&:hover': {
-        borderWidth: 0,
-        backgroundColor: theme.palette.grey[400],
-      },
+      ...rowTitleSx(theme),
+      '&:hover': rowTitleSx(theme),
     },
 
     '&.row-title--subtitle': {
-      backgroundColor: theme.palette.grey[300],
-      '&:hover': {
-        backgroundColor: theme.palette.grey[300],
-      },
+      ...rowSubtitleSx(theme),
+      '&:hover': rowSubtitleSx(theme),
       '&.Mui-selected': {
-        borderWidth: 0,
-        backgroundColor: theme.palette.grey[300],
-        '&:hover': {
-          borderWidth: 0,
-          backgroundColor: theme.palette.grey[300],
-        },
+        ...rowSubtitleSx(theme),
+        '&:hover': rowSubtitleSx(theme),
       },
     },
   },
@@ -114,6 +135,7 @@ function CustomEditComponent({
     return (
       <NumberInput
         {...commonProps}
+        fullWidth
         onValueChange={handleNumberValueChange}
         value={value || ''}
       />
@@ -124,6 +146,7 @@ function CustomEditComponent({
     <TextField
       {...commonProps}
       onChange={handleValueChange}
+      fullWidth
       value={value || ''}
       inputProps={{ style: { fontSize: '0.9em' } }}
     />
@@ -220,7 +243,7 @@ const GRID_COL_DEFS: GridColDef[] = [
           ml: params.row.depth,
           fontWeight: params.row.isTitle ? 'fontWeightMedium' : undefined,
         }}
-        variant="body2"
+        variant={params.row.isTitle ? 'caption' : 'body2'}
       >
         {params.value}
       </Typography>
@@ -249,6 +272,11 @@ const GRID_COL_DEFS: GridColDef[] = [
     headerName: 'Unit',
     field: 'unit',
     flex: 1,
+    renderCell: (params) => (
+      <Typography sx={{ my: 1 }} variant={'caption'}>
+        {params.value}
+      </Typography>
+    ),
   },
   {
     display: 'flex',
@@ -257,12 +285,22 @@ const GRID_COL_DEFS: GridColDef[] = [
       'Fallback values are utilized when no city-specific value is provided. Fallbacks are derived from comparable cities.',
     field: 'fallback',
     flex: 1,
+    valueFormatter: (value?: number) =>
+      typeof value === 'number' ? value.toLocaleString() : '',
   },
   {
     display: 'flex',
     headerName: 'Priority',
     field: 'priority',
     flex: 1,
+    renderCell: (params) => (
+      <Stack spacing={1} direction="row" alignItems={'center'}>
+        <PrioIcon priorityType={params.value} />
+        <Typography component="span" variant={'caption'}>
+          {params.value}
+        </Typography>
+      </Stack>
+    ),
   },
   {
     display: 'flex',
@@ -361,22 +399,68 @@ function mapDataMeasuresToRows(
   return extractRows(measures.items);
 }
 
+const rowData: GridRowsProp = MOCK_MEASURES.dataCollection.items.map(
+  (section) => ({
+    label: section.label,
+    items: mapDataMeasuresToRows(
+      section as (typeof MOCK_MEASURES)['dataCollection']
+    ),
+  })
+);
+
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+  padding: theme.spacing(2),
+  borderTop: '1px solid rgba(0, 0, 0, .125)',
+}));
+
+declare module '@mui/x-data-grid' {
+  interface FooterPropsOverrides {
+    count: number;
+  }
+}
+
+export function CustomFooter({
+  count,
+}: NonNullable<GridSlotsComponentsProps['footer']>) {
+  return (
+    <Box
+      sx={(theme) => ({
+        borderTop: `1px solid ${theme.palette.divider}`,
+        p: 1.5,
+      })}
+    >
+      <Typography variant="body2" color="text.secondary">
+        Total rows: {count}
+      </Typography>
+    </Box>
+  );
+}
+
 export function DatasheetEditor() {
   const singleClickEditProps = useSingleClickEdit();
-  const [rowData, setRowData] = useState<GridRowsProp>(() =>
-    MOCK_MEASURES.dataCollection.items.map((section) => ({
-      label: section.label,
-      items: mapDataMeasuresToRows(
-        section as (typeof MOCK_MEASURES)['dataCollection']
-      ),
-    }))
+  const expanded = useDataCollectionStore(
+    (store) => store.selectedAccordions.data
   );
+  const setExpanded = useDataCollectionStore((store) => store.setAccordion);
+
+  const handleChange =
+    (panel: number) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+      setExpanded('data', newExpanded ? panel : null);
+    };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <div>
       {rowData.map((section, indx) => (
-        <Accordion key={section.label}>
-          <AccordionSummary aria-controls="panel2-content" id="panel2-header">
+        <Accordion
+          slotProps={{ transition: { unmountOnExit: true } }}
+          expanded={expanded === indx}
+          onChange={handleChange(indx)}
+          key={section.label}
+        >
+          <MuiAccordionSummary
+            aria-controls="panel2-content"
+            id="panel2-header"
+          >
             <Grid container>
               <Grid xs={6}>
                 {indx + 1}. {section.label}
@@ -385,35 +469,37 @@ export function DatasheetEditor() {
                 <DataSectionSummary section={section} />
               </Grid>
             </Grid>
-          </AccordionSummary>
+          </MuiAccordionSummary>
           <AccordionDetails>
-            <DataGrid
-              {...singleClickEditProps}
-              sx={DATA_GRID_SX}
-              getRowClassName={(params) =>
-                params.row.isTitle
-                  ? `row-title ${
-                      params.row.depth > 0 ? 'row-title--subtitle' : ''
-                    }`
-                  : ''
-              }
-              getRowHeight={() => 'auto'}
-              rows={section.items}
-              columns={GRID_COL_DEFS}
-              hideFooter
-              disableColumnSorting
-              disableColumnFilter
-              disableColumnMenu
-              disableVirtualization
-              processRowUpdate={(updatedRow, originalRow) => {
-                console.log('PERSIST ROW CHANGE', updatedRow, originalRow);
+            <Box sx={{ height: 400 }}>
+              <DataGrid
+                {...singleClickEditProps}
+                slots={{ footer: CustomFooter }}
+                slotProps={{ footer: { count: section.items.length } }}
+                sx={DATA_GRID_SX}
+                getRowClassName={(params) =>
+                  params.row.isTitle
+                    ? `row-title ${
+                        params.row.depth > 0 ? 'row-title--subtitle' : ''
+                      }`
+                    : ''
+                }
+                getRowHeight={() => 'auto'}
+                rows={section.items}
+                columns={GRID_COL_DEFS}
+                disableColumnSorting
+                disableColumnFilter
+                disableColumnMenu
+                processRowUpdate={(updatedRow, originalRow) => {
+                  console.log('PERSIST ROW CHANGE', updatedRow, originalRow);
 
-                return updatedRow;
-              }}
-            />
+                  return updatedRow;
+                }}
+              />
+            </Box>
           </AccordionDetails>
         </Accordion>
       ))}
-    </Box>
+    </div>
   );
 }
