@@ -1,0 +1,9 @@
+node_modules
+/.next/
+.yarn*
+.pnp.*
+/.env*
+/.github/
+/e2e-tests/
+/Attic/
+/public/static/themes/

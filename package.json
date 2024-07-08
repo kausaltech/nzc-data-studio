@@ -2,6 +2,7 @@
   "name": "@kausal/nzc-data-studio",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@10.5.2",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -24,6 +25,7 @@
     "@types/lodash": "^4.17.5",
     "@types/papaparse": "^5.3.14",
     "lodash": "^4.17.21",
+    "docker-secret": "^2.0.6",
     "next": "14.2.3",
     "next-auth": "^5.0.0-beta.19",
     "papaparse": "^5.4.1",
