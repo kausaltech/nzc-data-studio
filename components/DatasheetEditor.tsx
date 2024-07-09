@@ -390,12 +390,14 @@ type AccordionContentWrapperProps = {
   isExpanded: boolean;
   section: Section;
   index: number;
+  withIndexes?: boolean;
 };
 
 function AccordionContentWrapper({
   isExpanded,
   section,
   index,
+  withIndexes = false,
 }: AccordionContentWrapperProps) {
   const singleClickEditProps = useSingleClickEdit();
   const setExpanded = useDataCollectionStore((store) => store.setAccordion);
@@ -417,7 +419,7 @@ function AccordionContentWrapper({
       <MuiAccordionSummary aria-controls="panel2-content" id="panel2-header">
         <Grid container>
           <Grid xs={6}>
-            {index + 1}. {section.name}
+            {withIndexes && `${index + 1}.`} {section.name}
           </Grid>
           <Grid xs>
             <DataSectionSummary rows={rows} />
@@ -459,9 +461,10 @@ function AccordionContentWrapper({
 
 type Props = {
   sections: Section[];
+  withIndexes?: boolean;
 };
 
-export function DatasheetEditor({ sections }: Props) {
+export function DatasheetEditor({ sections, withIndexes = false }: Props) {
   const expanded = useDataCollectionStore((store) =>
     store.getSelectedAccordion()
   );
@@ -471,6 +474,7 @@ export function DatasheetEditor({ sections }: Props) {
       {sections.map((section, i) => (
         <AccordionContentWrapper
           key={section.id}
+          withIndexes={withIndexes}
           isExpanded={expanded === i}
           index={i}
           section={section}

@@ -79,7 +79,9 @@ const DataCollection = ({ measureTemplates }: Props) => {
           baseline for your city&apos;s climate initiatives.
         </Typography>
         {/* TODO: Fallback component */}
-        {!!dataMeasures && <DatasheetEditor sections={dataMeasures} />}
+        {!!dataMeasures && (
+          <DatasheetEditor sections={dataMeasures} withIndexes />
+        )}
       </CustomTabPanel>
       <CustomTabPanel selected={selectedTab} index={'assumptions'}>
         <Typography variant="subtitle2" paragraph gutterBottom>
