@@ -10,12 +10,23 @@ import {
 import { RedirectType, redirect } from 'next/navigation';
 import { BoxArrowUpRight } from 'react-bootstrap-icons';
 import DataCollection from '@/components/DataCollection';
+import { UploadLegacyDataButton } from '@/components/UploadLegacyDataButton';
+import { getMeasureTemplates } from '@/queries/get-measure-templates';
+import { tryRequest } from '@/utils/api';
 
 export default async function Dashboard() {
   const session = await auth();
 
   if (!session) {
     redirect('/welcome', RedirectType.replace);
+  }
+
+  const { data, error } = await tryRequest(getMeasureTemplates());
+
+  if (!data || error) {
+    // TODO: Return error page
+    console.log('Error', error);
+    return <h1>Something went wrong</h1>;
   }
 
   return (
@@ -41,10 +52,20 @@ export default async function Dashboard() {
         </Card>
 
         <div>
-          <Typography gutterBottom variant="h3" component="h2">
-            Data collection center
-          </Typography>
-          <DataCollection />
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Typography gutterBottom variant="h3" component="h2">
+              Data collection center
+            </Typography>
+
+            <UploadLegacyDataButton />
+          </Stack>
+          {data.framework ? (
+            <DataCollection measureTemplates={data.framework} />
+          ) : null}
         </div>
       </Stack>
     </Container>

@@ -13,7 +13,6 @@ import {
   Typography,
 } from '@mui/material';
 
-import { DatasheetEditor } from '@/components/DatasheetEditor';
 import { CompletionScoreCard } from '@/components/CompletionScoreCard';
 
 export const metadata: Metadata = {
@@ -111,11 +110,6 @@ export default function Playground() {
           </Stack>
         </div>
         <CompletionScoreCard />
-        <Card>
-          <CardContent>
-            <DatasheetEditor />
-          </CardContent>
-        </Card>
       </Stack>
     </Container>
   );

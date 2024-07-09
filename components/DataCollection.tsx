@@ -3,70 +3,96 @@
 import * as React from 'react';
 import { Box, Tabs, Tab, Card, Typography } from '@mui/material';
 import { DatasheetEditor } from '@/components/DatasheetEditor';
+import { Tab as TTab, useDataCollectionStore } from '@/store/data-collection';
+import { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
+import { mapMeasureTemplatesToRows } from '@/utils/measures';
 
 interface TabPanelProps {
   children?: React.ReactNode;
-  index: number;
-  value: number;
+  index: TTab;
+  selected: TTab;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+  const { children, selected, index, ...other } = props;
 
   return (
     <div
       role="tabpanel"
-      hidden={value !== index}
+      hidden={selected !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {selected === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
 
-function a11yProps(index: number) {
+function a11yProps(tab: TTab) {
   return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
+    id: `simple-tab-${tab}`,
+    'aria-controls': `simple-tabpanel-${tab}`,
   };
 }
 
-const DataCollection = () => {
-  const [value, setValue] = React.useState(0);
+type Props = {
+  measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
+};
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+const DataCollection = ({ measureTemplates }: Props) => {
+  const setSelectedTab = useDataCollectionStore((state) => state.setTab);
+  const selectedTab = useDataCollectionStore((state) => state.selectedTab);
+
+  const handleChange = (event: React.SyntheticEvent, newSelected: TTab) => {
+    setSelectedTab(newSelected);
   };
+
+  const dataMeasures = measureTemplates.dataCollection
+    ? mapMeasureTemplatesToRows(measureTemplates.dataCollection)
+    : undefined;
+
+  const assumptionMeasures = measureTemplates.futureAssumptions
+    ? mapMeasureTemplatesToRows(measureTemplates.futureAssumptions)
+    : undefined;
 
   return (
     <Card>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
-          value={value}
+          value={selectedTab}
           onChange={handleChange}
           aria-label="basic tabs example"
         >
-          <Tab label="Data collection" {...a11yProps(0)} />
-          <Tab label="Future assumptions (2035)" {...a11yProps(1)} />
+          <Tab label="Data collection" value="data" {...a11yProps('data')} />
+          <Tab
+            label="Future assumptions (2035)"
+            value="assumptions"
+            {...a11yProps('assumptions')}
+          />
         </Tabs>
       </Box>
-      <CustomTabPanel value={value} index={0}>
+      <CustomTabPanel selected={selectedTab} index={'data'}>
         <Typography variant="subtitle2" paragraph gutterBottom>
           Collect essential data about your city&apos;s current state across key
           sectors. This phase focuses on gathering raw data to establish a
           baseline for your city&apos;s climate initiatives.
         </Typography>
-        <DatasheetEditor />
+        {/* TODO: Fallback component */}
+        {!!dataMeasures && (
+          <DatasheetEditor sections={dataMeasures} withIndexes />
+        )}
       </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}>
+      <CustomTabPanel selected={selectedTab} index={'assumptions'}>
         <Typography variant="subtitle2" paragraph gutterBottom>
           These assumptions should reflect an ambitious yet feasible scenario
           aligned with the city&apos;s Climate Action Plan, indicating the
           extent to which the city aims to achieve decarbonisation goals.
         </Typography>
-        <DatasheetEditor />
+        {/* TODO: Fallback component */}
+        {!!assumptionMeasures && (
+          <DatasheetEditor sections={assumptionMeasures} />
+        )}
       </CustomTabPanel>
     </Card>
   );

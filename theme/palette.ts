@@ -12,6 +12,14 @@ declare module '@mui/material/styles' {
     neutral: string;
     dark: string;
   }
+
+  interface PaletteOptions {
+    brand: Partial<Color>;
+  }
+
+  interface Palette {
+    brand: Partial<Color>;
+  }
 }
 
 export const grey: Partial<Color> = {
@@ -101,6 +109,7 @@ export const action: Partial<TypeAction> = {
 const base: ThemeOptions['palette'] = {
   primary,
   secondary,
+  brand,
   info,
   success,
   warning,
