@@ -1,18 +1,27 @@
 import { create } from 'zustand';
 
+export type Tab = 'data' | 'assumptions';
+
 type Store = {
-  selectedTab: 0 | 1;
+  selectedTab: Tab;
   selectedAccordions: { data: number | null; assumptions: number | null };
-  setTab: (tab: number) => void;
-  setAccordion: (tab: 'data' | 'assumptions', accordion: number | null) => void;
+  getSelectedAccordion: () => number | null;
+  setTab: (tab: Tab) => void;
+  setAccordion: (accordion: number | null) => void;
 };
 
-export const useDataCollectionStore = create<Store>((set) => ({
-  selectedTab: 0,
+export const useDataCollectionStore = create<Store>((set, get) => ({
+  selectedTab: 'data',
   selectedAccordions: { data: 0, assumptions: 0 },
-  setTab: (tab) => (tab === 0 || tab === 1 ? set({ selectedTab: tab }) : null),
-  setAccordion: (tab, accordion) =>
+  getSelectedAccordion: () => get().selectedAccordions[get().selectedTab],
+  setTab: (tab) =>
+    tab === 'data' || tab === 'assumptions' ? set({ selectedTab: tab }) : null,
+  setAccordion(accordion) {
     set((state) => ({
-      selectedAccordions: { ...state.selectedAccordions, [tab]: accordion },
-    })),
+      selectedAccordions: {
+        ...state.selectedAccordions,
+        [state.selectedTab]: accordion,
+      },
+    }));
+  },
 }));

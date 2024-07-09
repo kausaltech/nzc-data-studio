@@ -1,3 +1,7 @@
+import {
+  GetMeasureTemplatesQuery,
+  GetMeasureTemplatesQueryVariables,
+} from '@/types/__generated__/graphql';
 import { getClient } from '@/utils/apollo-client';
 import { gql } from '@apollo/client';
 
@@ -34,9 +38,13 @@ const GET_MEASURE_TEMPLATES = gql`
     }
     measureTemplates {
       id
+      priority
       name
       unit {
         htmlShort
+        htmlLong
+        short
+        long
       }
       defaultValueSource
       defaultDataPoints {
@@ -48,9 +56,11 @@ const GET_MEASURE_TEMPLATES = gql`
   }
 `;
 
-export const getMeasureTemplates = async (framework: string) =>
-  await getClient().query({
+export const getMeasureTemplates = async () =>
+  await getClient().query<
+    GetMeasureTemplatesQuery,
+    GetMeasureTemplatesQueryVariables
+  >({
     query: GET_MEASURE_TEMPLATES,
-    variables: { framework },
     fetchPolicy: 'no-cache',
   });

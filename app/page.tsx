@@ -21,15 +21,13 @@ export default async function Dashboard() {
     redirect('/welcome', RedirectType.replace);
   }
 
-  const { data, error } = await tryRequest(getMeasureTemplates('nzc'));
+  const { data, error } = await tryRequest(getMeasureTemplates());
 
-  console.log('🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨');
-  console.log(JSON.stringify(data, null, 2));
-  console.log('-------------------------');
-  console.log(JSON.stringify(error, null, 2));
-  console.log('-------------------------');
-
-  function handleClickUpload() {}
+  if (!data || error) {
+    // TODO: Return error page
+    console.log('Error', error);
+    return <h1>Something went wrong</h1>;
+  }
 
   return (
     <Container>
@@ -65,7 +63,9 @@ export default async function Dashboard() {
 
             <UploadLegacyDataButton />
           </Stack>
-          <DataCollection />
+          {data.framework ? (
+            <DataCollection measureTemplates={data.framework} />
+          ) : null}
         </div>
       </Stack>
     </Container>

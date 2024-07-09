@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import {
   DataGrid,
@@ -9,7 +9,6 @@ import {
   GridCellParams,
   GridColDef,
   GridRenderEditCellParams,
-  GridRowsProp,
   GridSlotsComponentsProps,
   useGridApiContext,
 } from '@mui/x-data-grid';
@@ -23,19 +22,17 @@ import {
   Accordion as MuiAccordion,
   AccordionDetails as MuiAccordionDetails,
   AccordionSummary as MuiAccordionSummary,
-  AccordionSummaryProps,
   Grid,
   AccordionProps,
-  Stack,
 } from '@mui/material';
 
-import { ChevronUp as ExpandIcon } from 'react-bootstrap-icons';
-import MOCK_MEASURES from '@/mocks/measures.json';
 import NumberInput from './NumberInput';
 import { NumberFormatValues } from 'react-number-format';
-import DataSectionSummary, { PrioIcon } from './DataSectionSummary';
-import { convertStringToNumber } from '@/utils/numbers';
+import { DataSectionSummary } from './DataSectionSummary';
 import { useDataCollectionStore } from '@/store/data-collection';
+import { Section } from '@/utils/measures';
+import { UnitType } from '@/types/__generated__/graphql';
+import { PriorityBadge } from './PriorityBadge';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -272,9 +269,10 @@ const GRID_COL_DEFS: GridColDef[] = [
     headerName: 'Unit',
     field: 'unit',
     flex: 1,
+    valueFormatter: (value: UnitType) => value.long,
     renderCell: (params) => (
       <Typography sx={{ my: 1 }} variant={'caption'}>
-        {params.value}
+        {params.value.long}
       </Typography>
     ),
   },
@@ -293,14 +291,10 @@ const GRID_COL_DEFS: GridColDef[] = [
     headerName: 'Priority',
     field: 'priority',
     flex: 1,
-    renderCell: (params) => (
-      <Stack spacing={1} direction="row" alignItems={'center'}>
-        <PrioIcon priorityType={params.value} />
-        <Typography component="span" variant={'caption'}>
-          {params.value}
-        </Typography>
-      </Stack>
-    ),
+    renderCell: (params) =>
+      !!params.value && (
+        <PriorityBadge variant="badge" priority={params.value} />
+      ),
   },
   {
     display: 'flex',
@@ -318,95 +312,18 @@ type Row =
       isTitle: false;
       label: string;
       value: number | null;
-      unit: string;
+      unit: UnitType;
       fallback: number;
       priority: string;
       notes: string | null;
       depth: number;
     }
   | {
-      isTitle: true;
+      isTitle: boolean;
       id: string;
       label: string;
       depth: number;
     };
-
-function mapDataMeasuresToRows(
-  measures: (typeof MOCK_MEASURES)['dataCollection']
-): GridRowsProp {
-  type InputItem = {
-    label: string;
-    unit?: string;
-    value?: string;
-    fallbackValue?: string;
-    priority?: string;
-    comment?: string;
-    referenceType?: string;
-    items?: InputItem[];
-  };
-
-  function parseValue(input: string | undefined): number | null {
-    if (input === undefined) return null;
-    const parsed = parseFloat(input.replace(/,/g, '').replace('%', ''));
-    return isNaN(parsed) ? null : parsed;
-  }
-
-  function extractRows(
-    items: InputItem[],
-    parentId: string = '',
-    depth = 0
-  ): Row[] {
-    let rows: Row[] = [];
-
-    items.forEach((item, index) => {
-      const id = `${parentId}${index}`;
-
-      if (item.items) {
-        // recursively extract rows from nested items
-        rows = [
-          ...rows,
-
-          item.label && item.referenceType === 'SECTION'
-            ? {
-                isTitle: true,
-                id: `${id}-SECTION`,
-                label: item.label,
-                depth,
-              }
-            : undefined,
-
-          ...extractRows(item.items, `${id}-`, depth + 1),
-        ].filter((row): row is Row => !!row);
-      } else {
-        rows.push({
-          id,
-          isTitle: false,
-          label: item.label,
-          value: parseValue(item.value),
-          unit: item.unit || '',
-          fallback: parseValue(item.fallbackValue) || 0,
-          priority: item.priority || '',
-          notes: item.comment || null,
-          depth,
-        });
-      }
-    });
-
-    return rows;
-  }
-
-  // Extract rows from the input data
-  return extractRows(measures.items);
-}
-
-const rowData: GridRowsProp = MOCK_MEASURES.dataCollection.items.map(
-  (section) => ({
-    label: section.label,
-    items: mapDataMeasuresToRows(
-      section as (typeof MOCK_MEASURES)['dataCollection']
-    ),
-  })
-);
 
 const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -436,69 +353,128 @@ export function CustomFooter({
   );
 }
 
-export function DatasheetEditor() {
+function getRowsFromSection(
+  { childSections = [], measureTemplates = [], ...section }: Section,
+  depth = 0,
+  isRoot: boolean = false
+): Row[] {
+  return [
+    ...(isRoot
+      ? []
+      : [
+          {
+            isTitle: true,
+            label: section.name,
+            id: section.id,
+            depth,
+          },
+        ]),
+    ...measureTemplates.flatMap((measure) => ({
+      isTitle: false,
+      id: measure.id,
+      label: measure.name,
+      value: null, // TODO
+      unit: measure.unit,
+      fallback: measure.defaultDataPoints[0].value,
+      priority: measure.priority,
+      notes: null,
+      depth: depth + 1,
+    })),
+    ...childSections.flatMap((section) =>
+      getRowsFromSection(section, depth + 1)
+    ),
+  ];
+}
+
+type AccordionContentWrapperProps = {
+  isExpanded: boolean;
+  section: Section;
+  index: number;
+};
+
+function AccordionContentWrapper({
+  isExpanded,
+  section,
+  index,
+}: AccordionContentWrapperProps) {
   const singleClickEditProps = useSingleClickEdit();
-  const expanded = useDataCollectionStore(
-    (store) => store.selectedAccordions.data
-  );
   const setExpanded = useDataCollectionStore((store) => store.setAccordion);
 
   const handleChange =
     (panel: number) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-      setExpanded('data', newExpanded ? panel : null);
+      setExpanded(newExpanded ? panel : null);
     };
+
+  const rows = useMemo(() => getRowsFromSection(section, 0, true), [section]);
+
+  return (
+    <Accordion
+      slotProps={{ transition: { unmountOnExit: true } }}
+      expanded={isExpanded}
+      onChange={handleChange(index)}
+      key={section.id}
+    >
+      <MuiAccordionSummary aria-controls="panel2-content" id="panel2-header">
+        <Grid container>
+          <Grid xs={6}>
+            {index + 1}. {section.name}
+          </Grid>
+          <Grid xs>
+            <DataSectionSummary rows={rows} />
+          </Grid>
+        </Grid>
+      </MuiAccordionSummary>
+      <AccordionDetails>
+        <Box sx={{ height: 400 }}>
+          <DataGrid
+            {...singleClickEditProps}
+            slots={{ footer: CustomFooter }}
+            slotProps={{ footer: { count: rows.length } }}
+            sx={DATA_GRID_SX}
+            getRowClassName={(params) =>
+              params.row.isTitle
+                ? `row-title ${
+                    params.row.depth > 1 ? 'row-title--subtitle' : ''
+                  }`
+                : ''
+            }
+            getRowId={(row) => `${row.isTitle ? 'S' : 'M'}-${row.id}`}
+            getRowHeight={() => 'auto'}
+            rows={rows}
+            columns={GRID_COL_DEFS}
+            disableColumnSorting
+            disableColumnFilter
+            disableColumnMenu
+            processRowUpdate={(updatedRow, originalRow) => {
+              console.log('PERSIST ROW CHANGE', updatedRow, originalRow);
+
+              return updatedRow;
+            }}
+          />
+        </Box>
+      </AccordionDetails>
+    </Accordion>
+  );
+}
+
+type Props = {
+  sections: Section[];
+};
+
+export function DatasheetEditor({ sections }: Props) {
+  const expanded = useDataCollectionStore((store) =>
+    store.getSelectedAccordion()
+  );
 
   return (
     <div>
-      {rowData.map((section, indx) => (
-        <Accordion
-          slotProps={{ transition: { unmountOnExit: true } }}
-          expanded={expanded === indx}
-          onChange={handleChange(indx)}
-          key={section.label}
-        >
-          <MuiAccordionSummary
-            aria-controls="panel2-content"
-            id="panel2-header"
-          >
-            <Grid container>
-              <Grid xs={6}>
-                {indx + 1}. {section.label}
-              </Grid>
-              <Grid xs>
-                <DataSectionSummary section={section} />
-              </Grid>
-            </Grid>
-          </MuiAccordionSummary>
-          <AccordionDetails>
-            <Box sx={{ height: 400 }}>
-              <DataGrid
-                {...singleClickEditProps}
-                slots={{ footer: CustomFooter }}
-                slotProps={{ footer: { count: section.items.length } }}
-                sx={DATA_GRID_SX}
-                getRowClassName={(params) =>
-                  params.row.isTitle
-                    ? `row-title ${
-                        params.row.depth > 0 ? 'row-title--subtitle' : ''
-                      }`
-                    : ''
-                }
-                getRowHeight={() => 'auto'}
-                rows={section.items}
-                columns={GRID_COL_DEFS}
-                disableColumnSorting
-                disableColumnFilter
-                disableColumnMenu
-                processRowUpdate={(updatedRow, originalRow) => {
-                  console.log('PERSIST ROW CHANGE', updatedRow, originalRow);
-
-                  return updatedRow;
-                }}
-              />
-            </Box>
-          </AccordionDetails>
-        </Accordion>
+      {sections.map((section, i) => (
+        <AccordionContentWrapper
+          key={section.id}
+          isExpanded={expanded === i}
+          index={i}
+          section={section}
+        />
       ))}
     </div>
   );

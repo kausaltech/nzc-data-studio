@@ -1739,3 +1739,90 @@ export type YearlyValue = {
   value: Scalars['Float']['output'];
   year: Scalars['Int']['output'];
 };
+
+export type GetMeasureTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetMeasureTemplatesQuery = (
+  { framework?: (
+    { dataCollection?: (
+      { id: string, descendants: Array<(
+        { id: string, name: string, path: string, parent?: (
+          { id: string }
+          & { __typename?: 'Section' }
+        ) | null, measureTemplates: Array<(
+          { id: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+            { htmlShort: string }
+            & { __typename?: 'UnitType' }
+          ), defaultDataPoints: Array<(
+            { id: string, year: number, value: number }
+            & { __typename?: 'MeasureTemplateDefaultDataPoint' }
+          )> }
+          & { __typename?: 'MeasureTemplate' }
+        )> }
+        & { __typename?: 'Section' }
+      )> }
+      & { __typename?: 'Section' }
+    ) | null, futureAssumptions?: (
+      { id: string, descendants: Array<(
+        { id: string, name: string, path: string, parent?: (
+          { id: string }
+          & { __typename?: 'Section' }
+        ) | null, measureTemplates: Array<(
+          { id: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+            { htmlShort: string }
+            & { __typename?: 'UnitType' }
+          ), defaultDataPoints: Array<(
+            { id: string, year: number, value: number }
+            & { __typename?: 'MeasureTemplateDefaultDataPoint' }
+          )> }
+          & { __typename?: 'MeasureTemplate' }
+        )> }
+        & { __typename?: 'Section' }
+      )> }
+      & { __typename?: 'Section' }
+    ) | null }
+    & { __typename?: 'Framework' }
+  ) | null, serverDeployment: (
+    { buildId?: string | null, gitRevision?: string | null, deploymentType?: string | null }
+    & { __typename?: 'ServerDeployment' }
+  ) }
+  & { __typename?: 'Query' }
+);
+
+export type MainSectionMeasuresFragment = (
+  { id: string, descendants: Array<(
+    { id: string, name: string, path: string, parent?: (
+      { id: string }
+      & { __typename?: 'Section' }
+    ) | null, measureTemplates: Array<(
+      { id: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+        { htmlShort: string }
+        & { __typename?: 'UnitType' }
+      ), defaultDataPoints: Array<(
+        { id: string, year: number, value: number }
+        & { __typename?: 'MeasureTemplateDefaultDataPoint' }
+      )> }
+      & { __typename?: 'MeasureTemplate' }
+    )> }
+    & { __typename?: 'Section' }
+  )> }
+  & { __typename?: 'Section' }
+);
+
+export type SectionFragmentFragment = (
+  { id: string, name: string, path: string, parent?: (
+    { id: string }
+    & { __typename?: 'Section' }
+  ) | null, measureTemplates: Array<(
+    { id: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+      { htmlShort: string }
+      & { __typename?: 'UnitType' }
+    ), defaultDataPoints: Array<(
+      { id: string, year: number, value: number }
+      & { __typename?: 'MeasureTemplateDefaultDataPoint' }
+    )> }
+    & { __typename?: 'MeasureTemplate' }
+  )> }
+  & { __typename?: 'Section' }
+);
