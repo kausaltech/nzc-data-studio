@@ -17,6 +17,10 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'NetZeroPaths',
   description: '...',
+  robots: {
+    index: false,
+    follow: false,
+  },
   ...envMetadata,
 };
 
