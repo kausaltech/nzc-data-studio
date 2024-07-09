@@ -1,33 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import Papa from 'papaparse';
-import { Stack, StackProps, Typography, styled, css } from '@mui/material';
+import {
+  Stack,
+  StackProps,
+  Typography,
+  styled,
+  Box,
+  Theme,
+  SxProps,
+} from '@mui/material';
 import emotionStyled from '@emotion/styled';
 
 import { Upload } from 'react-bootstrap-icons';
 
-const focusLabelStyles = ({ theme }) => css`
-  transition: box-shadow 0.1s;
-  box-shadow: ${theme.shadows.outline};
-`;
+const HIDDEN_INPUT_SX: SxProps<Theme> = (theme) => ({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  opacity: 0,
+  width: '100%',
+  zIndex: '1',
+  cursor: 'pointer',
+  '&:focus ~ label': {
+    border: `2px solid ${theme.palette.primary.light}`,
+    boxShadow: theme.shadows[4],
+  },
+});
 
-const HiddenInput = emotionStyled.input<{ isDraggingFile: boolean }>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0;
-  width: 100%;
-  z-index: 1;
-
-  ~ label {
-    ${({ isDraggingFile }) => isDraggingFile && focusLabelStyles};
-  }
-
-  &:focus ~ label {
-    ${focusLabelStyles};
-  }
-`;
+const FOCUSED_HIDDEN_INPUT_SX: SxProps<Theme> = (theme) => ({
+  '~ label': {
+    border: `2px solid ${theme.palette.primary.light}`,
+    boxShadow: theme.shadows[4],
+  },
+});
 
 const UploadBoxWrapper = emotionStyled.div`
   position: relative;
@@ -116,25 +123,30 @@ export const FileUpload = () => {
     setMessage(null);
   };
 
-  const handleChangeFile = (e) => setFile(e.target.files[0]);
+  const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setFile(e.target.files?.[0] ?? null);
   const handleDragOver = () => setStatus(STATUS.DRAGGING_FILE);
   const handleDragOut = () => setStatus(STATUS.WAITING);
 
   return (
     <>
-      {!!message && message?.text}
-
+      {/* TODO: Message handling */}
+      {!!message && message}
       <UploadBoxWrapper>
-        <HiddenInput
+        <Box
+          sx={[
+            HIDDEN_INPUT_SX,
+            status === STATUS.DRAGGING_FILE && FOCUSED_HIDDEN_INPUT_SX,
+          ]}
+          component="input"
           id="file-upload"
           type="file"
-          isDraggingFile={status === STATUS.DRAGGING_FILE}
           onChange={handleChangeFile}
           onDragEnter={handleDragOver}
           onDragLeave={handleDragOut}
           onDragEnd={handleDragOut}
           onDrop={handleDragOut}
-        />
+        ></Box>
 
         <StyledUploadStack>
           <Upload size={32} />
