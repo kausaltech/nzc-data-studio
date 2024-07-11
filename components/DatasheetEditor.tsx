@@ -440,12 +440,13 @@ function AccordionContentWrapper({
                   }`
                 : ''
             }
-            // getRowHeight={() => 'auto'}
+            getRowHeight={() => 'auto'}
             rows={rows}
             columns={GRID_COL_DEFS}
             disableColumnSorting
             disableColumnFilter
             disableColumnMenu
+            disableVirtualization
             processRowUpdate={(updatedRow, originalRow) => {
               console.log('PERSIST ROW CHANGE', updatedRow, originalRow);
 
