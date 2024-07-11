@@ -23,21 +23,21 @@ const GET_MEASURE_TEMPLATES = gql`
   }
 
   fragment MainSectionMeasures on Section {
-    id
+    uuid
     descendants {
       ...SectionFragment
     }
   }
 
   fragment SectionFragment on Section {
-    id
+    uuid
     name
     path
     parent {
-      id
+      uuid
     }
     measureTemplates {
-      id
+      uuid
       priority
       name
       unit {

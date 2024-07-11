@@ -371,7 +371,7 @@ function getRowsFromSection(
         ]),
     ...measureTemplates.flatMap((measure) => ({
       isTitle: false,
-      id: measure.id,
+      id: measure.uuid,
       label: measure.name,
       value: null, // TODO
       unit: measure.unit,
@@ -440,8 +440,7 @@ function AccordionContentWrapper({
                   }`
                 : ''
             }
-            getRowId={(row) => `${row.isTitle ? 'S' : 'M'}-${row.id}`}
-            getRowHeight={() => 'auto'}
+            // getRowHeight={() => 'auto'}
             rows={rows}
             columns={GRID_COL_DEFS}
             disableColumnSorting

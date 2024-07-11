@@ -26,16 +26,16 @@ export function mapMeasureTemplatesToRows(
     sections: SectionOrMeasure[]
   ): Section[] {
     return sections
-      .filter((section) => section.parent?.id === sectionId)
+      .filter((section) => section.parent?.uuid === sectionId)
       .reduce<Section[]>(
         (previousSections, section) => [
           ...previousSections,
           {
-            id: section.id,
+            id: section.uuid,
             name: section.name,
-            childSections: createChildren(section.id, sections),
+            childSections: createChildren(section.uuid, sections),
             type:
-              section.parent?.id === mainSection.id
+              section.parent?.uuid === mainSection.uuid
                 ? 'ACCORDION_SECTION'
                 : 'SECTION',
 
@@ -53,5 +53,5 @@ export function mapMeasureTemplatesToRows(
       );
   }
 
-  return createChildren(mainSection.id, mainSection.descendants);
+  return createChildren(mainSection.uuid, mainSection.descendants);
 }
