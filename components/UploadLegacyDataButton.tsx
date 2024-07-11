@@ -37,7 +37,6 @@ export function UploadLegacyDataButton() {
   }
 
   function reset() {
-    console.log('reset, isModalOpen', isModalOpen);
     if (!isModalOpen) {
       setStatus('PENDING');
       setFileContent(null);

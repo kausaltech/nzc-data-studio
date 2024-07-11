@@ -10,10 +10,10 @@
 import Papa from 'papaparse';
 
 import legacyMeasureMap from './legacy-measure-map.json';
-import { convertStringToNumber, isStringNumber } from './numbers';
+import { convertStringToNumber, isStringNumber } from '../numbers';
 
-const NOT_FOUND_ERROR = 'Failed to parse this one matey';
-const GENERAL_ERROR = 'Unable to parse the file';
+const NOT_FOUND_ERROR = 'Unable to parse the row.';
+const GENERAL_ERROR = 'Unable to parse the file.';
 const SPREADSHEET_PRIORITIES = ['High', 'Medium', 'Low'];
 const EXCLUDED_ROWS_BY_LABEL = [
   /^(Total)$/,

@@ -895,7 +895,7 @@
     "uuid": "ad4bf140-bfdc-476d-85f8-a898f21edf81"
   },
   {
-    "name": "Landfill ",
+    "name": "Landfill",
     "parentSection": "Treatement of paper, 2030",
     "uuid": "e1eddc0b-576a-4810-aa76-2fdcc050dbde"
   },
@@ -910,7 +910,7 @@
     "uuid": "37743e60-348e-42dd-8c13-24aea2a118be"
   },
   {
-    "name": "Landfill ",
+    "name": "Landfill",
     "parentSection": "Treatment of metals, 2030",
     "uuid": "9ff4ebeb-6ccd-4a8e-8b81-b4f6bea06bd8"
   },
@@ -925,7 +925,7 @@
     "uuid": "767e7ea7-0185-494b-8749-84d44949a580"
   },
   {
-    "name": "Landfill ",
+    "name": "Landfill",
     "parentSection": "Treatment of plastics, 2030",
     "uuid": "1026d3a0-b895-464b-9c3a-ce10a1e5c5aa"
   },
@@ -940,7 +940,7 @@
     "uuid": "ac9cdd26-0874-45df-afa7-739bd7307457"
   },
   {
-    "name": "Landfill ",
+    "name": "Landfill",
     "parentSection": "Treatment of glass, 2030",
     "uuid": "99c6d0ab-1a7a-4e1c-8f58-54bee1f1e42b"
   },
@@ -955,7 +955,7 @@
     "uuid": "842ded5f-1c1d-43d9-a868-e8a186994360"
   },
   {
-    "name": "Landfill ",
+    "name": "Landfill",
     "parentSection": "Treatment of organic, 2030",
     "uuid": "3ef0c01b-0631-4a7d-992d-3ce988d215cb"
   },
