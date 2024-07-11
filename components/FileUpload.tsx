@@ -8,6 +8,9 @@ import {
   Box,
   Theme,
   SxProps,
+  Button,
+  Alert,
+  AlertTitle,
 } from '@mui/material';
 import emotionStyled from '@emotion/styled';
 
@@ -42,7 +45,7 @@ const UploadBoxWrapper = emotionStyled.div`
 `;
 
 const StyledUploadStack = styled((props: StackProps) => (
-  <Stack component="label" htmlFor="file-upload" spacing={4} {...props} />
+  <Stack component="label" htmlFor="file-upload" spacing={3} {...props} />
 ))(({ theme }) => ({
   position: 'absolute',
   top: 0,
@@ -52,6 +55,7 @@ const StyledUploadStack = styled((props: StackProps) => (
   cursor: 'pointer',
   overflow: 'hidden',
   display: 'flex',
+  p: 4,
   borderRadius: theme.shape.borderRadius,
   flexDirection: 'column',
   alignItems: 'center',
@@ -69,28 +73,28 @@ const STATUS = {
   DRAGGING_FILE: 'DRAGGING_FILE',
 };
 
-export const FileUpload = () => {
+type Props = {
+  onChangeFileContent: (content: string | null) => void;
+};
+
+export const FileUpload = ({ onChangeFileContent }: Props) => {
   const [file, setFile] = useState<File | null>(null);
-  const [fileContent, setFileContent] = useState<string | null>(null);
   const [status, setStatus] = useState(STATUS.WAITING);
-  const [message, setMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!file || !file.type) {
-      setFileContent(null);
+      onChangeFileContent(null);
+      setErrorMessage(null);
 
       return;
     }
-
-    console.log('FILE', file);
 
     const reader = new FileReader();
 
     setStatus(STATUS.LOADING);
 
-    reader.addEventListener('load', (e) => {
-      console.log('READER LOADED', reader);
-
+    reader.addEventListener('load', () => {
       const isCsv = file.type === 'text/csv';
       const fileContent = reader.result;
       const isStringResult = typeof fileContent === 'string';
@@ -98,30 +102,29 @@ export const FileUpload = () => {
 
       if (!isCsv || !isStringResult) {
         setStatus(STATUS.ERROR);
-        setMessage('Invalid file, please try again with a csv file');
+        setErrorMessage(
+          'Invalid file selected. Please upload a valid CSV file.'
+        );
+        onChangeFileContent(null);
         return;
       }
 
       if (!isFileValid) {
         setStatus(STATUS.ERROR);
-        setMessage('SOMETHING_WENT_WRONG');
+        setErrorMessage(
+          'Failed to process the file. It might be corrupt or in an invalid format. Please contact support for assistance.'
+        );
+        onChangeFileContent(null);
         return;
       }
 
       setStatus(STATUS.READY);
-      setMessage('FILE_UPLOAD_SUCCESS');
-      setFileContent(fileContent);
+      setErrorMessage(null);
+      onChangeFileContent(fileContent);
     });
 
     reader.readAsText(file);
-  }, [file]);
-
-  const reset = () => {
-    setFile(null);
-    setFileContent(null);
-    setStatus(STATUS.WAITING);
-    setMessage(null);
-  };
+  }, [file, onChangeFileContent]);
 
   const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFile(e.target.files?.[0] ?? null);
@@ -129,9 +132,7 @@ export const FileUpload = () => {
   const handleDragOut = () => setStatus(STATUS.WAITING);
 
   return (
-    <>
-      {/* TODO: Message handling */}
-      {!!message && message}
+    <Stack spacing={1}>
       <UploadBoxWrapper>
         <Box
           sx={[
@@ -146,19 +147,43 @@ export const FileUpload = () => {
           onDragLeave={handleDragOut}
           onDragEnd={handleDragOut}
           onDrop={handleDragOut}
-        ></Box>
+        />
 
         <StyledUploadStack>
           <Upload size={32} />
-          <Typography variant="h4" component="p" textAlign="center">
-            {file ? file.name : 'Choose a file or drag it here'}
-          </Typography>
-          <Typography textAlign="center">
+
+          {file ? (
+            <Typography variant="h4" component="p" textAlign="center">
+              {file.name}
+            </Typography>
+          ) : (
+            <Stack spacing={1} alignItems="center">
+              <Button size="large" variant="contained">
+                Choose a file
+              </Button>
+              <Typography
+                fontWeight="bold"
+                variant="body1"
+                component="p"
+                textAlign="center"
+              >
+                or drag it here
+              </Typography>
+            </Stack>
+          )}
+
+          <Typography color="text.secondary" textAlign="center" variant="body2">
             Upload a <em>.csv</em> file from the data request sheet in
             collaboration with NetZeroCities
           </Typography>
         </StyledUploadStack>
       </UploadBoxWrapper>
-    </>
+
+      {status === 'ERROR' && !!errorMessage && (
+        <Alert severity="error">
+          <AlertTitle>{errorMessage}</AlertTitle>
+        </Alert>
+      )}
+    </Stack>
   );
 };

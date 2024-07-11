@@ -7,5 +7,5 @@ export function convertStringToNumber(str: string): number {
 }
 
 export function isStringNumber(str: string): boolean {
-  return !isNaN(convertStringToNumber(str));
+  return typeof str === 'string' && !isNaN(convertStringToNumber(str));
 }

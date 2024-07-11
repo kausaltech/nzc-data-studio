@@ -389,7 +389,7 @@ export type DimensionalMetricType = {
 export type DocumentChooserBlock = StreamFieldInterface & {
   __typename?: 'DocumentChooserBlock';
   blockType: Scalars['String']['output'];
-  document: DocumentObjectType;
+  document?: Maybe<DocumentObjectType>;
   field: Scalars['String']['output'];
   id?: Maybe<Scalars['String']['output']>;
   rawValue: Scalars['String']['output'];
@@ -562,7 +562,7 @@ export type ImageChooserBlock = StreamFieldInterface & {
   blockType: Scalars['String']['output'];
   field: Scalars['String']['output'];
   id?: Maybe<Scalars['String']['output']>;
-  image: ImageObjectType;
+  image?: Maybe<ImageObjectType>;
   rawValue: Scalars['String']['output'];
 };
 
@@ -835,6 +835,7 @@ export type MeasureTemplate = {
   priority: FrameworksMeasureTemplatePriorityChoices;
   timeSeriesMax?: Maybe<Scalars['Float']['output']>;
   unit: UnitType;
+  uuid: Scalars['UUID']['output'];
 };
 
 /**
@@ -1265,7 +1266,7 @@ export type PageChooserBlock = StreamFieldInterface & {
   blockType: Scalars['String']['output'];
   field: Scalars['String']['output'];
   id?: Maybe<Scalars['String']['output']>;
-  page: PageInterface;
+  page?: Maybe<PageInterface>;
   rawValue: Scalars['String']['output'];
 };
 
@@ -1475,6 +1476,7 @@ export type Section = {
   name: Scalars['String']['output'];
   parent?: Maybe<Section>;
   path: Scalars['String']['output'];
+  uuid: Scalars['UUID']['output'];
 };
 
 export type ServerDeployment = {
@@ -1536,7 +1538,7 @@ export type SnippetChooserBlock = StreamFieldInterface & {
   field: Scalars['String']['output'];
   id?: Maybe<Scalars['String']['output']>;
   rawValue: Scalars['String']['output'];
-  snippet: SnippetObjectType;
+  snippet?: Maybe<SnippetObjectType>;
 };
 
 export type SnippetObjectType = InstanceSiteContent;
@@ -1746,13 +1748,13 @@ export type GetMeasureTemplatesQueryVariables = Exact<{ [key: string]: never; }>
 export type GetMeasureTemplatesQuery = (
   { framework?: (
     { dataCollection?: (
-      { id: string, descendants: Array<(
-        { id: string, name: string, path: string, parent?: (
-          { id: string }
+      { uuid: any, descendants: Array<(
+        { uuid: any, name: string, path: string, parent?: (
+          { uuid: any }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
-          { id: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
-            { htmlShort: string }
+          { uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+            { htmlShort: string, htmlLong: string, short: string, long: string }
             & { __typename?: 'UnitType' }
           ), defaultDataPoints: Array<(
             { id: string, year: number, value: number }
@@ -1764,13 +1766,13 @@ export type GetMeasureTemplatesQuery = (
       )> }
       & { __typename?: 'Section' }
     ) | null, futureAssumptions?: (
-      { id: string, descendants: Array<(
-        { id: string, name: string, path: string, parent?: (
-          { id: string }
+      { uuid: any, descendants: Array<(
+        { uuid: any, name: string, path: string, parent?: (
+          { uuid: any }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
-          { id: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
-            { htmlShort: string }
+          { uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+            { htmlShort: string, htmlLong: string, short: string, long: string }
             & { __typename?: 'UnitType' }
           ), defaultDataPoints: Array<(
             { id: string, year: number, value: number }
@@ -1791,13 +1793,13 @@ export type GetMeasureTemplatesQuery = (
 );
 
 export type MainSectionMeasuresFragment = (
-  { id: string, descendants: Array<(
-    { id: string, name: string, path: string, parent?: (
-      { id: string }
+  { uuid: any, descendants: Array<(
+    { uuid: any, name: string, path: string, parent?: (
+      { uuid: any }
       & { __typename?: 'Section' }
     ) | null, measureTemplates: Array<(
-      { id: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
-        { htmlShort: string }
+      { uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+        { htmlShort: string, htmlLong: string, short: string, long: string }
         & { __typename?: 'UnitType' }
       ), defaultDataPoints: Array<(
         { id: string, year: number, value: number }
@@ -1811,12 +1813,12 @@ export type MainSectionMeasuresFragment = (
 );
 
 export type SectionFragmentFragment = (
-  { id: string, name: string, path: string, parent?: (
-    { id: string }
+  { uuid: any, name: string, path: string, parent?: (
+    { uuid: any }
     & { __typename?: 'Section' }
   ) | null, measureTemplates: Array<(
-    { id: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
-      { htmlShort: string }
+    { uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+      { htmlShort: string, htmlLong: string, short: string, long: string }
       & { __typename?: 'UnitType' }
     ), defaultDataPoints: Array<(
       { id: string, year: number, value: number }
