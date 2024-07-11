@@ -375,7 +375,7 @@ function getRowsFromSection(
       label: measure.name,
       value: null, // TODO
       unit: measure.unit,
-      fallback: measure.defaultDataPoints[0].value,
+      fallback: measure.defaultDataPoints[0]?.value ?? null,
       priority: measure.priority,
       notes: null,
       depth: depth + 1,
