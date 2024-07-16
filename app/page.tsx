@@ -1,6 +1,5 @@
 'use client';
 
-import { auth } from '@/config/auth';
 import {
   Card,
   CardContent,
@@ -23,22 +22,13 @@ import {
 } from '@/types/__generated__/graphql';
 import Loading from './loading';
 
-export default function Dashboard() {
-  const { status } = useSession();
+function DashboardContent() {
   const { data, error } = useSuspenseQuery<
     GetMeasureTemplatesQuery,
     GetMeasureTemplatesQueryVariables
   >(GET_MEASURE_TEMPLATES, {
     variables: { frameworkConfigId: '3' }, // TODO: From backend
   });
-
-  if (status === 'loading') {
-    return <Loading />;
-  }
-
-  if (status === 'unauthenticated') {
-    return redirect('/welcome', RedirectType.replace);
-  }
 
   if (!data || error) {
     // TODO: Return error page
@@ -91,4 +81,18 @@ export default function Dashboard() {
       </Container>
     </Fade>
   );
+}
+
+export default function Dashboard() {
+  const { status, data } = useSession();
+
+  if (status === 'loading') {
+    return <Loading />;
+  }
+
+  if (status === 'unauthenticated') {
+    return redirect('/welcome', RedirectType.replace);
+  }
+
+  return <DashboardContent />;
 }

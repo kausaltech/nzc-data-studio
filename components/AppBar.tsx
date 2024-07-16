@@ -17,6 +17,7 @@ import SupportModal from './SupportModal';
 
 import { getUserDisplay } from '@/utils/session';
 import { Logo } from './Logo';
+import { useHandleSignOut } from '@/hooks/use-handle-signout';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
@@ -28,6 +29,9 @@ export function AppBar() {
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const session = useSession();
+
+  // TODO: use this when the backend supports a logout route to sign out of the admin ui
+  // const signOut = useHandleSignOut();
 
   const isAuthenticated = session.status === 'authenticated';
 
@@ -43,7 +47,7 @@ export function AppBar() {
 
   const handleLogIn = () => {
     handleCloseAuthMenu();
-    signIn(undefined, { callbackUrl: '/' });
+    signIn('paths-oidc-provider', { callbackUrl: '/' });
   };
 
   const handleSignOut = () => {
