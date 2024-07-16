@@ -9,6 +9,17 @@ import {
 
 import { apiUrl } from '@/constants/environment';
 
+const cache = new InMemoryCache({
+  typePolicies: {
+    Section: {
+      keyFields: ['uuid'],
+    },
+    MeasureTemplate: {
+      keyFields: ['uuid'],
+    },
+  },
+});
+
 function makeClient() {
   const httpLink = new HttpLink({
     uri: `${apiUrl}/v1/graphql/`,
@@ -16,7 +27,7 @@ function makeClient() {
   });
 
   return new ApolloClient({
-    cache: new InMemoryCache(),
+    cache,
     link: httpLink,
   });
 }
