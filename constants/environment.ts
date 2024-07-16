@@ -11,3 +11,5 @@ export const isServer = typeof window === 'undefined';
 export const publicEnvVars = getPublicEnvVariables();
 
 export const apiUrl = publicEnvVars.KAUSAL_PUBLIC_API_URL;
+
+export const authIssuer = publicEnvVars.KAUSAL_PUBLIC_AUTH_ISSUER;
