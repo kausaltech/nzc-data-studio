@@ -1,13 +1,10 @@
-import {
-  GetMeasureTemplatesQuery,
-  GetMeasureTemplatesQueryVariables,
-} from '@/types/__generated__/graphql';
-import { getClient } from '@/utils/apollo-client';
 import { gql } from '@apollo/client';
+import { measureDataPointFragment } from './update-measure-datapoint';
 
-const GET_MEASURE_TEMPLATES = gql`
-  query GetMeasureTemplates {
+export const GET_MEASURE_TEMPLATES = gql`
+  query GetMeasureTemplates($frameworkConfigId: ID!) {
     framework(identifier: "nzc") {
+      id
       dataCollection: section(identifier: "data_collection") {
         ...MainSectionMeasures
       }
@@ -30,6 +27,7 @@ const GET_MEASURE_TEMPLATES = gql`
   }
 
   fragment SectionFragment on Section {
+    __typename
     uuid
     name
     path
@@ -37,30 +35,36 @@ const GET_MEASURE_TEMPLATES = gql`
       uuid
     }
     measureTemplates {
-      uuid
-      priority
-      name
-      unit {
-        htmlShort
-        htmlLong
-        short
-        long
-      }
-      defaultValueSource
-      defaultDataPoints {
-        id
-        year
-        value
+      ...MeasureTemplateFragment
+    }
+  }
+
+  fragment MeasureTemplateFragment on MeasureTemplate {
+    id
+    uuid
+    priority
+    name
+    unit {
+      htmlShort
+      htmlLong
+      short
+      long
+    }
+    defaultValueSource
+    defaultDataPoints {
+      id
+      year
+      value
+    }
+    measure(frameworkConfigId: $frameworkConfigId) {
+      __typename
+      id
+      internalNotes
+      dataPoints {
+        ...DataPointFragment
       }
     }
   }
-`;
 
-export const getMeasureTemplates = async () =>
-  await getClient().query<
-    GetMeasureTemplatesQuery,
-    GetMeasureTemplatesQueryVariables
-  >({
-    query: GET_MEASURE_TEMPLATES,
-    fetchPolicy: 'no-cache',
-  });
+  ${measureDataPointFragment}
+`;

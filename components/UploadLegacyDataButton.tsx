@@ -6,12 +6,15 @@ import {
   Box,
   Button,
   CircularProgress,
+  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Fade,
   IconButton,
+  LinearProgress,
+  Skeleton,
   Stack,
   Typography,
 } from '@mui/material';
@@ -19,14 +22,58 @@ import { useCallback, useState } from 'react';
 import { Upload } from 'react-bootstrap-icons';
 import { FileUpload } from './FileUpload';
 import { ParsedCsvResponse, parseMeasuresCsv } from '@/utils/csv-import';
+import { useMutation } from '@apollo/client';
+import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
+import { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
 
-export function UploadLegacyDataButton() {
+type Props = {
+  measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
+};
+
+function getMeasureTemplateId(
+  uuid: string,
+  name: string,
+  measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>
+): string {
+  const sections = [
+    ...(measureTemplates.dataCollection?.descendants ?? []),
+    ...(measureTemplates.futureAssumptions?.descendants ?? []),
+  ];
+
+  for (const section of sections) {
+    const measureTemplate = section.measureTemplates.find(
+      (template) => template.uuid === uuid
+    );
+
+    if (measureTemplate) {
+      return measureTemplate.id;
+    }
+  }
+
+  throw new Error(`No datapoint found for: "${name}"`);
+}
+
+type ImportError = {
+  measureLabel: string;
+  error: string;
+};
+
+type Count = {
+  total: number;
+  error: number;
+  success: number;
+};
+
+type Status = 'IDLE' | 'IMPORTING' | 'COMPLETED' | 'ERROR';
+
+export function UploadLegacyDataButton({ measureTemplates }: Props) {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [fileContent, setFileContent] = useState<string | null>(null);
-  const [status, setStatus] = useState<
-    'PENDING' | 'IMPORTING' | 'SUCCESS' | 'ERROR'
-  >('PENDING');
+  const [status, setStatus] = useState<Status>('IDLE');
+  const [count, setCount] = useState<Count>({ error: 0, success: 0, total: 0 });
   const [parsedCsv, setParsedCsv] = useState<ParsedCsvResponse>();
+  const [importErrors, setImportErrors] = useState<ImportError[]>([]);
+  const [updateMeasureDataPoint] = useMutation(UPDATE_MEASURE_DATAPOINT);
 
   function handleClickUpload() {
     setModalOpen(true);
@@ -38,8 +85,70 @@ export function UploadLegacyDataButton() {
 
   function reset() {
     if (!isModalOpen) {
-      setStatus('PENDING');
+      setStatus('IDLE');
       setFileContent(null);
+    }
+  }
+
+  async function handleImport(parsedCsv: ParsedCsvResponse) {
+    if (!parsedCsv || !parsedCsv.measures) {
+      console.error('No parsed CSV data available');
+      return;
+    }
+
+    setStatus('IMPORTING');
+    setImportErrors([]);
+    setCount({
+      error: 0,
+      success: 0,
+      total: parsedCsv.measures.size,
+    });
+
+    const updatePromises = Array.from(parsedCsv.measures.entries()).map(
+      async ([measureTemplateId, measure]) => {
+        try {
+          const id = getMeasureTemplateId(
+            measureTemplateId,
+            measure.label,
+            measureTemplates
+          );
+
+          await updateMeasureDataPoint({
+            variables: {
+              frameworkInstanceId: '3', // TODO: Get from backend
+              measureTemplateId: id,
+              internalNotes: measure.comment || '',
+              value: measure.value,
+            },
+          });
+
+          setCount((count) => ({ ...count, success: count.success + 1 }));
+        } catch (error) {
+          setCount((count) => ({ ...count, error: count.error + 1 }));
+          console.log(error, JSON.stringify(error, null, 2));
+          setImportErrors((errors) => [
+            {
+              measureLabel: measure.label,
+              error: (error as Error).message,
+            },
+            ...errors,
+          ]);
+
+          return {
+            measureLabel: measure.label,
+            error: (error as Error).message,
+          };
+        }
+      }
+    );
+
+    try {
+      await Promise.all(updatePromises);
+
+      setStatus('COMPLETED');
+    } catch (error) {
+      console.error('Unexpected error during import:', error);
+      setStatus('ERROR');
     }
   }
 
@@ -53,13 +162,13 @@ export function UploadLegacyDataButton() {
 
     const parsedCsv = parseMeasuresCsv(fileContent);
 
-    setTimeout(() => {
-      setParsedCsv(parsedCsv);
-      setStatus(parsedCsv.measures.size > 0 ? 'SUCCESS' : 'ERROR');
-    }, 2000);
-  }
+    if (parsedCsv.measures.size === 0) {
+      setStatus('ERROR');
+    }
 
-  function handleImport() {}
+    setParsedCsv(parsedCsv);
+    handleImport(parsedCsv);
+  }
 
   const handleChangeFileContent = useCallback((fileContent: string | null) => {
     setFileContent(fileContent);
@@ -78,10 +187,17 @@ export function UploadLegacyDataButton() {
         onClose={handleClose}
         open={isModalOpen}
       >
+        {status === 'IMPORTING' && (
+          <LinearProgress
+            variant="determinate"
+            value={((count.error + count.success) * 100) / count.total}
+          />
+        )}
+
         <DialogTitle>Import city data</DialogTitle>
         <DialogContent>
           <Box sx={{ position: 'relative' }}>
-            {status === 'SUCCESS' && (
+            {status !== 'IDLE' && (
               <Fade in>
                 <Box
                   sx={{
@@ -95,39 +211,73 @@ export function UploadLegacyDataButton() {
                     overflowY: 'scroll',
                   }}
                 >
-                  <Stack spacing={1}>
-                    {parsedCsv?.measures && parsedCsv.measures.size > 0 && (
-                      <Alert severity="success">
-                        <AlertTitle>
-                          Successfully processed {parsedCsv.measures.size} rows.
-                        </AlertTitle>
-                        <Typography variant="body2">
-                          Click 'Import' to complete the process.
+                  {status === 'IMPORTING' && (
+                    <>
+                      <Typography variant="h4" component="h2">
+                        Importing {count.success}/{count.total} rows
+                      </Typography>
+                      {count.error > 0 && (
+                        <Typography variant="subtitle1">
+                          Failed to import {count.error} rows
                         </Typography>
-                      </Alert>
+                      )}
+                    </>
+                  )}
+                  {status === 'COMPLETED' && (
+                    <Typography variant="h4" component="h2">
+                      Import complete
+                    </Typography>
+                  )}
+                  <Stack spacing={1} mt={2}>
+                    {status === 'IMPORTING' && (
+                      <>
+                        <Skeleton variant="rounded" height={80} />
+                        {count.error === 0 && (
+                          <Skeleton variant="rounded" height={80} />
+                        )}
+                      </>
                     )}
 
-                    {!!parsedCsv?.errors.length && (
-                      <Alert severity="warning">
-                        <AlertTitle>
-                          {parsedCsv.errors.length} rows could not be processed
-                          due to errors.
-                        </AlertTitle>
-                        <Typography variant="body2" paragraph>
-                          You can still import the successful rows and manually
-                          add the remaining data later.
-                        </Typography>
-                        <Box>
-                          {parsedCsv.errors.map((error, i) => (
-                            <Typography key={i} component="li" variant="body2">
-                              {error.type === 'MEASURE_ERROR'
-                                ? error.row.label
-                                : error.message}
-                            </Typography>
-                          ))}
-                        </Box>
-                      </Alert>
+                    {status === 'COMPLETED' && count.success > 0 && (
+                      <Collapse in>
+                        <Alert severity="success">
+                          <AlertTitle>
+                            Successfully imported {count.success}/{count.total}{' '}
+                            rows.
+                          </AlertTitle>
+                        </Alert>
+                      </Collapse>
                     )}
+
+                    {importErrors.map((error, index) => (
+                      <Collapse in key={index}>
+                        <Alert severity="error">
+                          <AlertTitle>
+                            Failed to import row "{error.measureLabel}"
+                          </AlertTitle>
+                          <Typography variant="body2">{error.error}</Typography>
+                        </Alert>
+                      </Collapse>
+                    ))}
+
+                    {parsedCsv?.errors.map((error, index) => (
+                      <Collapse in key={index}>
+                        <Alert severity="error">
+                          {error.type === 'MEASURE_ERROR' ? (
+                            <>
+                              <AlertTitle>
+                                Failed to import row "{error.row.label}"
+                              </AlertTitle>
+                              <Typography variant="body2">
+                                {error.message}
+                              </Typography>
+                            </>
+                          ) : (
+                            <AlertTitle>{error.message}</AlertTitle>
+                          )}
+                        </Alert>
+                      </Collapse>
+                    ))}
                   </Stack>
                 </Box>
               </Fade>
@@ -168,7 +318,7 @@ export function UploadLegacyDataButton() {
 
           <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>
-            {status !== 'SUCCESS' && (
+            {status !== 'COMPLETED' && (
               <Button
                 disabled={!fileContent || status === 'IMPORTING'}
                 onClick={handleUpload}
@@ -178,11 +328,11 @@ export function UploadLegacyDataButton() {
                   )
                 }
               >
-                Upload
+                {status === 'IMPORTING' ? 'Importing' : 'Import'}
               </Button>
             )}
-            {status === 'SUCCESS' && (
-              <Button onClick={handleUpload}>Import</Button>
+            {status === 'COMPLETED' && (
+              <Button onClick={handleClose}>Done</Button>
             )}
           </DialogActions>
         </DialogContent>

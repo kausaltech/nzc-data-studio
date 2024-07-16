@@ -29,6 +29,7 @@ export function Logo({ variant = 'dark', size = 'sm' }: Props) {
       }}
     >
       <Image
+        priority
         src={`/images/${image}`}
         alt="Net Zero Cities"
         height={LOGO_HEIGHT}

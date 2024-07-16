@@ -81,7 +81,9 @@ export type ActionListPage = PageInterface & {
   live: Scalars['Boolean']['output'];
   locked?: Maybe<Scalars['Boolean']['output']>;
   lockedAt?: Maybe<Scalars['DateTime']['output']>;
+  lockedBy?: Maybe<UserType>;
   numchild: Scalars['Int']['output'];
+  owner?: Maybe<UserType>;
   pageType?: Maybe<Scalars['String']['output']>;
   parent?: Maybe<PageInterface>;
   path: Scalars['String']['output'];
@@ -307,8 +309,10 @@ export type CollectionObjectType = {
   path: Scalars['String']['output'];
 };
 
-export type CreateFrameworkInstanceMutation = {
-  __typename?: 'CreateFrameworkInstanceMutation';
+export type CreateFrameworkConfigMutation = {
+  __typename?: 'CreateFrameworkConfigMutation';
+  /** The created framework config instance. */
+  frameworkConfig?: Maybe<FrameworkConfig>;
   ok?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -355,6 +359,11 @@ export enum DecisionLevel {
   Municipality = 'MUNICIPALITY',
   Nation = 'NATION'
 }
+
+export type DeleteFrameworkConfigMutation = {
+  __typename?: 'DeleteFrameworkConfigMutation';
+  ok?: Maybe<Scalars['Boolean']['output']>;
+};
 
 export type DimensionalFlowType = {
   __typename?: 'DimensionalFlowType';
@@ -409,6 +418,7 @@ export type DocumentObjectType = {
   id: Scalars['ID']['output'];
   tags: Array<TagObjectType>;
   title: Scalars['String']['output'];
+  uploadedByUser?: Maybe<UserType>;
   url: Scalars['String']['output'];
 };
 
@@ -496,6 +506,8 @@ export type ForecastMetricTypeHistoricalValuesArgs = {
  */
 export type Framework = {
   __typename?: 'Framework';
+  config?: Maybe<FrameworkConfig>;
+  configs: Array<FrameworkConfig>;
   description: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   identifier: Scalars['String']['output'];
@@ -503,6 +515,27 @@ export type Framework = {
   name: Scalars['String']['output'];
   section?: Maybe<Section>;
   sections: Array<Section>;
+};
+
+
+/**
+ * Represents a framework for Paths models
+ *
+ * A framework is a combination of a common computation model,
+ * a set of measures (with their default, fallback values),
+ * the data that is collected per model instance, and classifications
+ * for the default values.
+ *
+ * This model defines the common metadata for a model, including its name
+ * and description. It serves as the top-level container for related components
+ * such as dimensions, sections, and measure templates.
+ *
+ * Attributes:
+ *     name (CharField): The name of the framework, limited to 200 characters.
+ *     description (TextField): An optional description of the framework.
+ */
+export type FrameworkConfigArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -547,6 +580,22 @@ export type FrameworkSectionArgs = {
   identifier: Scalars['ID']['input'];
 };
 
+/**
+ * Represents a configuration of a Framework for a specific instance.
+ *
+ * This model links a Framework to an InstanceConfig, allowing for customization
+ * of framework settings for each organization or instance. It includes fields
+ * for specifying the organization name, baseline year, and associated categories.
+ */
+export type FrameworkConfig = {
+  __typename?: 'FrameworkConfig';
+  baselineYear: Scalars['Int']['output'];
+  framework: Framework;
+  id: Scalars['ID']['output'];
+  measures: Array<Measure>;
+  organizationName: Scalars['String']['output'];
+};
+
 /** An enumeration. */
 export enum FrameworksMeasureTemplatePriorityChoices {
   /** High */
@@ -589,6 +638,7 @@ export type ImageObjectType = {
   srcSet?: Maybe<Scalars['String']['output']>;
   tags: Array<TagObjectType>;
   title: Scalars['String']['output'];
+  uploadedByUser?: Maybe<UserType>;
   url: Scalars['String']['output'];
   width: Scalars['Int']['output'];
 };
@@ -694,7 +744,9 @@ export type InstanceRootPage = PageInterface & {
   live: Scalars['Boolean']['output'];
   locked?: Maybe<Scalars['Boolean']['output']>;
   lockedAt?: Maybe<Scalars['DateTime']['output']>;
+  lockedBy?: Maybe<UserType>;
   numchild: Scalars['Int']['output'];
+  owner?: Maybe<UserType>;
   pageType?: Maybe<Scalars['String']['output']>;
   parent?: Maybe<PageInterface>;
   path: Scalars['String']['output'];
@@ -815,6 +867,37 @@ export type ListBlock = StreamFieldInterface & {
 };
 
 /**
+ * Represents the concrete measure for an organization-specific Instance.
+ *
+ * This model links a MeasureTemplate to a FrameworkConfig, allowing for
+ * organization-specific instances of measures. It can override the unit
+ * from the template and store internal notes.
+ */
+export type Measure = {
+  __typename?: 'Measure';
+  dataPoints: Array<MeasureDataPoint>;
+  frameworkConfig: FrameworkConfig;
+  id: Scalars['ID']['output'];
+  internalNotes: Scalars['String']['output'];
+  measureTemplate: MeasureTemplate;
+  unit?: Maybe<UnitType>;
+};
+
+/**
+ * Represents a specific data point for a Measure.
+ *
+ * This model stores the actual value for a specific year for a given Measure.
+ * It provides a way to record and track the data points over time for each
+ * organization-specific measure instance.
+ */
+export type MeasureDataPoint = {
+  __typename?: 'MeasureDataPoint';
+  id: Scalars['ID']['output'];
+  value: Scalars['Float']['output'];
+  year: Scalars['Int']['output'];
+};
+
+/**
  * Represents a template for measures within a framework.
  *
  * This model defines the structure and attributes of a measure template,
@@ -830,12 +913,28 @@ export type MeasureTemplate = {
   defaultValueSource: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   maxValue?: Maybe<Scalars['Float']['output']>;
+  measure?: Maybe<Measure>;
   minValue?: Maybe<Scalars['Float']['output']>;
   name: Scalars['String']['output'];
   priority: FrameworksMeasureTemplatePriorityChoices;
   timeSeriesMax?: Maybe<Scalars['Float']['output']>;
   unit: UnitType;
   uuid: Scalars['UUID']['output'];
+};
+
+
+/**
+ * Represents a template for measures within a framework.
+ *
+ * This model defines the structure and attributes of a measure template,
+ * which is used to hold the metadata for the organization-specific
+ * measure instances.
+ *
+ * Attributes:
+ *     section (ForeignKey): A reference to the Section this measure template belongs to.
+ */
+export type MeasureTemplateMeasureArgs = {
+  frameworkConfigId: Scalars['ID']['input'];
 };
 
 /**
@@ -891,10 +990,14 @@ export type MetricYearlyGoalType = {
 export type Mutations = {
   __typename?: 'Mutations';
   activateScenario?: Maybe<ActivateScenarioMutation>;
-  createFrameworkInstance?: Maybe<CreateFrameworkInstanceMutation>;
+  createFrameworkConfig?: Maybe<CreateFrameworkConfigMutation>;
+  deleteFrameworkConfig?: Maybe<DeleteFrameworkConfigMutation>;
+  registerUser?: Maybe<RegisterUser>;
   resetParameter?: Maybe<ResetParameterMutation>;
   setNormalizer?: Maybe<SetNormalizerMutation>;
   setParameter?: Maybe<SetParameterMutation>;
+  updateFrameworkConfig?: Maybe<UpdateFrameworkConfigMutation>;
+  updateMeasureDataPoint?: Maybe<UpdateMeasureDataPoint>;
 };
 
 
@@ -903,10 +1006,21 @@ export type MutationsActivateScenarioArgs = {
 };
 
 
-export type MutationsCreateFrameworkInstanceArgs = {
+export type MutationsCreateFrameworkConfigArgs = {
   baselineYear: Scalars['Int']['input'];
   frameworkId: Scalars['ID']['input'];
   name: Scalars['String']['input'];
+};
+
+
+export type MutationsDeleteFrameworkConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationsRegisterUserArgs = {
+  email: Scalars['String']['input'];
+  password: Scalars['String']['input'];
 };
 
 
@@ -925,6 +1039,22 @@ export type MutationsSetParameterArgs = {
   id: Scalars['ID']['input'];
   numberValue?: InputMaybe<Scalars['Float']['input']>;
   stringValue?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationsUpdateFrameworkConfigArgs = {
+  baselineYear?: InputMaybe<Scalars['Int']['input']>;
+  id: Scalars['ID']['input'];
+  organizationName?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationsUpdateMeasureDataPointArgs = {
+  frameworkInstanceId: Scalars['ID']['input'];
+  internalNotes?: InputMaybe<Scalars['String']['input']>;
+  measureTemplateId: Scalars['ID']['input'];
+  value: Scalars['Float']['input'];
+  year?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Node = NodeInterface & {
@@ -1108,8 +1238,10 @@ export type OutcomePage = PageInterface & {
   live: Scalars['Boolean']['output'];
   locked?: Maybe<Scalars['Boolean']['output']>;
   lockedAt?: Maybe<Scalars['DateTime']['output']>;
+  lockedBy?: Maybe<UserType>;
   numchild: Scalars['Int']['output'];
   outcomeNode: Node;
+  owner?: Maybe<UserType>;
   pagePtr: Page;
   pageType?: Maybe<Scalars['String']['output']>;
   parent?: Maybe<PageInterface>;
@@ -1190,8 +1322,10 @@ export type Page = PageInterface & {
   live: Scalars['Boolean']['output'];
   locked?: Maybe<Scalars['Boolean']['output']>;
   lockedAt?: Maybe<Scalars['DateTime']['output']>;
+  lockedBy?: Maybe<UserType>;
   numchild: Scalars['Int']['output'];
   outcomepage?: Maybe<OutcomePage>;
+  owner?: Maybe<UserType>;
   pageType?: Maybe<Scalars['String']['output']>;
   parent?: Maybe<PageInterface>;
   path: Scalars['String']['output'];
@@ -1356,6 +1490,7 @@ export type Query = {
   frameworks?: Maybe<Array<Framework>>;
   impactOverviews: Array<ActionEfficiencyPairType>;
   instance: InstanceType;
+  me?: Maybe<UserType>;
   node?: Maybe<NodeInterface>;
   nodes: Array<NodeInterface>;
   page?: Maybe<PageInterface>;
@@ -1434,6 +1569,11 @@ export type RegexBlock = StreamFieldInterface & {
   id?: Maybe<Scalars['String']['output']>;
   rawValue: Scalars['String']['output'];
   value: Scalars['String']['output'];
+};
+
+export type RegisterUser = {
+  __typename?: 'RegisterUser';
+  user?: Maybe<UserType>;
 };
 
 export type ResetParameterMutation = {
@@ -1573,7 +1713,9 @@ export type StaticPage = PageInterface & {
   live: Scalars['Boolean']['output'];
   locked?: Maybe<Scalars['Boolean']['output']>;
   lockedAt?: Maybe<Scalars['DateTime']['output']>;
+  lockedBy?: Maybe<UserType>;
   numchild: Scalars['Int']['output'];
+  owner?: Maybe<UserType>;
   pageType?: Maybe<Scalars['String']['output']>;
   parent?: Maybe<PageInterface>;
   path: Scalars['String']['output'];
@@ -1736,33 +1878,133 @@ export type UnknownParameterType = ParameterInterface & {
   nodeRelativeId?: Maybe<Scalars['ID']['output']>;
 };
 
+export type UpdateFrameworkConfigMutation = {
+  __typename?: 'UpdateFrameworkConfigMutation';
+  frameworkConfig?: Maybe<FrameworkConfig>;
+  ok?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type UpdateMeasureDataPoint = {
+  __typename?: 'UpdateMeasureDataPoint';
+  measureDataPoint?: Maybe<MeasureDataPoint>;
+  ok?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type UserType = {
+  __typename?: 'UserType';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+};
+
 export type YearlyValue = {
   __typename?: 'YearlyValue';
   value: Scalars['Float']['output'];
   year: Scalars['Int']['output'];
 };
 
-export type GetMeasureTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
+export type CreateFrameworkMutationVariables = Exact<{
+  frameworkId: Scalars['ID']['input'];
+  baselineYear: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+}>;
+
+
+export type CreateFrameworkMutation = (
+  { createFrameworkConfig?: (
+    { frameworkConfig?: (
+      { id: string, organizationName: string, baselineYear: number }
+      & { __typename?: 'FrameworkConfig' }
+    ) | null }
+    & { __typename?: 'CreateFrameworkConfigMutation' }
+  ) | null }
+  & { __typename?: 'Mutations' }
+);
+
+export type DeleteFrameworkMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteFrameworkMutation = (
+  { deleteFrameworkConfig?: (
+    { ok?: boolean | null }
+    & { __typename?: 'DeleteFrameworkConfigMutation' }
+  ) | null }
+  & { __typename?: 'Mutations' }
+);
+
+export type GetFrameworkConfigQueryVariables = Exact<{
+  identifier: Scalars['ID']['input'];
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetFrameworkConfigQuery = (
+  { framework?: (
+    { id: string, config?: (
+      { id: string, organizationName: string, baselineYear: number }
+      & { __typename?: 'FrameworkConfig' }
+    ) | null, configs: Array<(
+      { id: string, organizationName: string, baselineYear: number }
+      & { __typename?: 'FrameworkConfig' }
+    )> }
+    & { __typename?: 'Framework' }
+  ) | null }
+  & { __typename?: 'Query' }
+);
+
+export type GetMeasureTemplateQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  frameworkConfigId: Scalars['ID']['input'];
+}>;
+
+
+export type GetMeasureTemplateQuery = (
+  { framework?: (
+    { id: string, measureTemplate?: (
+      { id: string, uuid: any, name: string, measure?: (
+        { id: string, internalNotes: string, dataPoints: Array<(
+          { id: string, value: number, year: number }
+          & { __typename?: 'MeasureDataPoint' }
+        )> }
+        & { __typename?: 'Measure' }
+      ) | null }
+      & { __typename?: 'MeasureTemplate' }
+    ) | null }
+    & { __typename?: 'Framework' }
+  ) | null }
+  & { __typename?: 'Query' }
+);
+
+export type GetMeasureTemplatesQueryVariables = Exact<{
+  frameworkConfigId: Scalars['ID']['input'];
+}>;
 
 
 export type GetMeasureTemplatesQuery = (
   { framework?: (
-    { dataCollection?: (
+    { id: string, dataCollection?: (
       { uuid: any, descendants: Array<(
         { uuid: any, name: string, path: string, parent?: (
           { uuid: any }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
-          { uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
             { htmlShort: string, htmlLong: string, short: string, long: string }
             & { __typename?: 'UnitType' }
           ), defaultDataPoints: Array<(
             { id: string, year: number, value: number }
             & { __typename?: 'MeasureTemplateDefaultDataPoint' }
-          )> }
+          )>, measure?: (
+            { id: string, internalNotes: string, dataPoints: Array<(
+              { id: string, value: number, year: number }
+              & { __typename: 'MeasureDataPoint' }
+            )> }
+            & { __typename: 'Measure' }
+          ) | null }
           & { __typename?: 'MeasureTemplate' }
         )> }
-        & { __typename?: 'Section' }
+        & { __typename: 'Section' }
       )> }
       & { __typename?: 'Section' }
     ) | null, futureAssumptions?: (
@@ -1771,16 +2013,22 @@ export type GetMeasureTemplatesQuery = (
           { uuid: any }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
-          { uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
             { htmlShort: string, htmlLong: string, short: string, long: string }
             & { __typename?: 'UnitType' }
           ), defaultDataPoints: Array<(
             { id: string, year: number, value: number }
             & { __typename?: 'MeasureTemplateDefaultDataPoint' }
-          )> }
+          )>, measure?: (
+            { id: string, internalNotes: string, dataPoints: Array<(
+              { id: string, value: number, year: number }
+              & { __typename: 'MeasureDataPoint' }
+            )> }
+            & { __typename: 'Measure' }
+          ) | null }
           & { __typename?: 'MeasureTemplate' }
         )> }
-        & { __typename?: 'Section' }
+        & { __typename: 'Section' }
       )> }
       & { __typename?: 'Section' }
     ) | null }
@@ -1798,16 +2046,22 @@ export type MainSectionMeasuresFragment = (
       { uuid: any }
       & { __typename?: 'Section' }
     ) | null, measureTemplates: Array<(
-      { uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+      { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
         { htmlShort: string, htmlLong: string, short: string, long: string }
         & { __typename?: 'UnitType' }
       ), defaultDataPoints: Array<(
         { id: string, year: number, value: number }
         & { __typename?: 'MeasureTemplateDefaultDataPoint' }
-      )> }
+      )>, measure?: (
+        { id: string, internalNotes: string, dataPoints: Array<(
+          { id: string, value: number, year: number }
+          & { __typename: 'MeasureDataPoint' }
+        )> }
+        & { __typename: 'Measure' }
+      ) | null }
       & { __typename?: 'MeasureTemplate' }
     )> }
-    & { __typename?: 'Section' }
+    & { __typename: 'Section' }
   )> }
   & { __typename?: 'Section' }
 );
@@ -1817,14 +2071,61 @@ export type SectionFragmentFragment = (
     { uuid: any }
     & { __typename?: 'Section' }
   ) | null, measureTemplates: Array<(
-    { uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+    { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
       { htmlShort: string, htmlLong: string, short: string, long: string }
       & { __typename?: 'UnitType' }
     ), defaultDataPoints: Array<(
       { id: string, year: number, value: number }
       & { __typename?: 'MeasureTemplateDefaultDataPoint' }
-    )> }
+    )>, measure?: (
+      { id: string, internalNotes: string, dataPoints: Array<(
+        { id: string, value: number, year: number }
+        & { __typename: 'MeasureDataPoint' }
+      )> }
+      & { __typename: 'Measure' }
+    ) | null }
     & { __typename?: 'MeasureTemplate' }
   )> }
-  & { __typename?: 'Section' }
+  & { __typename: 'Section' }
+);
+
+export type MeasureTemplateFragmentFragment = (
+  { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+    { htmlShort: string, htmlLong: string, short: string, long: string }
+    & { __typename?: 'UnitType' }
+  ), defaultDataPoints: Array<(
+    { id: string, year: number, value: number }
+    & { __typename?: 'MeasureTemplateDefaultDataPoint' }
+  )>, measure?: (
+    { id: string, internalNotes: string, dataPoints: Array<(
+      { id: string, value: number, year: number }
+      & { __typename: 'MeasureDataPoint' }
+    )> }
+    & { __typename: 'Measure' }
+  ) | null }
+  & { __typename?: 'MeasureTemplate' }
+);
+
+export type DataPointFragmentFragment = (
+  { id: string, value: number, year: number }
+  & { __typename: 'MeasureDataPoint' }
+);
+
+export type UpdateMeasureDataPointMutationVariables = Exact<{
+  frameworkInstanceId: Scalars['ID']['input'];
+  measureTemplateId: Scalars['ID']['input'];
+  internalNotes?: InputMaybe<Scalars['String']['input']>;
+  value: Scalars['Float']['input'];
+}>;
+
+
+export type UpdateMeasureDataPointMutation = (
+  { updateMeasureDataPoint?: (
+    { measureDataPoint?: (
+      { id: string, value: number, year: number }
+      & { __typename: 'MeasureDataPoint' }
+    ) | null }
+    & { __typename?: 'UpdateMeasureDataPoint' }
+  ) | null }
+  & { __typename?: 'Mutations' }
 );

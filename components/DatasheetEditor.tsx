@@ -8,6 +8,7 @@ import {
   GridCellModesModel,
   GridCellParams,
   GridColDef,
+  GridRenderCellParams,
   GridRenderEditCellParams,
   GridSlotsComponentsProps,
   useGridApiContext,
@@ -31,8 +32,17 @@ import { NumberFormatValues } from 'react-number-format';
 import { DataSectionSummary } from './DataSectionSummary';
 import { useDataCollectionStore } from '@/store/data-collection';
 import { Section } from '@/utils/measures';
-import { UnitType } from '@/types/__generated__/graphql';
+import {
+  MeasureTemplateFragmentFragment,
+  UnitType,
+  UpdateMeasureDataPointMutation,
+  UpdateMeasureDataPointMutationVariables,
+} from '@/types/__generated__/graphql';
 import { PriorityBadge } from './PriorityBadge';
+import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
+import { useMutation } from '@apollo/client';
+import { ChevronDown } from 'react-bootstrap-icons';
+import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -233,21 +243,25 @@ const GRID_COL_DEFS: GridColDef[] = [
     headerName: 'Label',
     field: 'label',
     flex: 2,
-    renderCell: (params) => (
-      <Typography
-        sx={{
-          my: 1,
-          ml: params.row.depth,
-          fontWeight: params.row.isTitle ? 'fontWeightMedium' : undefined,
-        }}
-        variant={params.row.isTitle ? 'caption' : 'body2'}
-      >
-        {params.value}
-      </Typography>
-    ),
+    renderCell: (params: GridRenderCellParams<Row>) => {
+      const isSection = params.row.type === 'SECTION';
+
+      return (
+        <Typography
+          sx={{
+            my: 1,
+            ml: params.row.depth,
+            fontWeight: isSection ? 'fontWeightMedium' : undefined,
+          }}
+          variant={isSection ? 'caption' : 'body2'}
+        >
+          {params.value}
+        </Typography>
+      );
+    },
     // Stretch title rows to the full width of the table
-    colSpan: (value, row) => {
-      if (row.isTitle) {
+    colSpan: (value, row: Row) => {
+      if (row.type === 'SECTION') {
         return GRID_COL_DEFS.length;
       }
 
@@ -270,7 +284,7 @@ const GRID_COL_DEFS: GridColDef[] = [
     field: 'unit',
     flex: 1,
     valueFormatter: (value: UnitType) => value.long,
-    renderCell: (params) => (
+    renderCell: (params: GridRenderCellParams<Row>) => (
       <Typography sx={{ my: 1 }} variant={'caption'}>
         {params.value.long}
       </Typography>
@@ -306,24 +320,30 @@ const GRID_COL_DEFS: GridColDef[] = [
   },
 ];
 
-type Row =
-  | {
-      id: string;
-      isTitle: false;
-      label: string;
-      value: number | null;
-      unit: UnitType;
-      fallback: number;
-      priority: string;
-      notes: string | null;
-      depth: number;
-    }
-  | {
-      isTitle: boolean;
-      id: string;
-      label: string;
-      depth: number;
-    };
+type MeasureRow = {
+  type: 'MEASURE';
+  id: string;
+  isTitle: false;
+  label: string;
+  value: number | null;
+  unit: UnitType;
+  originalId: string;
+  fallback: number;
+  priority: string;
+  notes: string | null;
+  depth: number;
+  originalMeasureTemplate: MeasureTemplateFragmentFragment;
+};
+
+type SectionRow = {
+  type: 'SECTION';
+  isTitle: boolean;
+  id: string;
+  label: string;
+  depth: number;
+};
+
+type Row = MeasureRow | SectionRow;
 
 const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -353,33 +373,52 @@ export function CustomFooter({
   );
 }
 
+function getMeasureValue(
+  measureTemplate: MeasureTemplateFragmentFragment,
+  baselineYear: number
+) {
+  if (measureTemplate.measure?.dataPoints.length) {
+    const measure = measureTemplate.measure.dataPoints.find(
+      (dataPoint) => dataPoint.year === baselineYear
+    );
+
+    return measure?.value ?? measureTemplate.measure.dataPoints[0].value;
+  }
+
+  return null;
+}
+
 function getRowsFromSection(
   { childSections = [], measureTemplates = [], ...section }: Section,
   depth = 0,
   isRoot: boolean = false
 ): Row[] {
+  const sectionRow: SectionRow = {
+    type: 'SECTION',
+    isTitle: true,
+    label: section.name,
+    id: section.id,
+    depth,
+  };
+
   return [
-    ...(isRoot
-      ? []
-      : [
-          {
-            isTitle: true,
-            label: section.name,
-            id: section.id,
-            depth,
-          },
-        ]),
-    ...measureTemplates.flatMap((measure) => ({
-      isTitle: false,
-      id: measure.uuid,
-      label: measure.name,
-      value: null, // TODO
-      unit: measure.unit,
-      fallback: measure.defaultDataPoints[0]?.value ?? null,
-      priority: measure.priority,
-      notes: null,
-      depth: depth + 1,
-    })),
+    ...(isRoot ? [] : [sectionRow]),
+    ...measureTemplates.flatMap(
+      (measure): MeasureRow => ({
+        isTitle: false,
+        type: 'MEASURE',
+        id: measure.uuid,
+        originalId: measure.id,
+        label: measure.name,
+        value: getMeasureValue(measure, 2019), // TODO: Get baseline year from API
+        unit: measure.unit,
+        fallback: measure.defaultDataPoints[0]?.value ?? null,
+        priority: measure.priority,
+        notes: measure.measure?.internalNotes ?? null,
+        depth: depth + 1,
+        originalMeasureTemplate: measure,
+      })
+    ),
     ...childSections.flatMap((section) =>
       getRowsFromSection(section, depth + 1)
     ),
@@ -399,6 +438,11 @@ function AccordionContentWrapper({
   index,
   withIndexes = false,
 }: AccordionContentWrapperProps) {
+  const [updateMeasureDataPoint, { data, loading, error }] = useMutation<
+    UpdateMeasureDataPointMutation,
+    UpdateMeasureDataPointMutationVariables
+  >(UPDATE_MEASURE_DATAPOINT);
+
   const singleClickEditProps = useSingleClickEdit();
   const setExpanded = useDataCollectionStore((store) => store.setAccordion);
 
@@ -416,7 +460,11 @@ function AccordionContentWrapper({
       onChange={handleChange(index)}
       key={section.id}
     >
-      <MuiAccordionSummary aria-controls="panel2-content" id="panel2-header">
+      <MuiAccordionSummary
+        expandIcon={<ChevronDown size={18} />}
+        aria-controls="panel2-content"
+        id="panel2-header"
+      >
         <Grid container>
           <Grid xs={6}>
             {withIndexes && `${index + 1}.`} {section.name}
@@ -430,11 +478,12 @@ function AccordionContentWrapper({
         <Box sx={{ height: 400 }}>
           <DataGrid
             {...singleClickEditProps}
+            loading={loading}
             slots={{ footer: CustomFooter }}
             slotProps={{ footer: { count: rows.length } }}
             sx={DATA_GRID_SX}
             getRowClassName={(params) =>
-              params.row.isTitle
+              params.row.type === 'SECTION'
                 ? `row-title ${
                     params.row.depth > 1 ? 'row-title--subtitle' : ''
                   }`
@@ -447,8 +496,71 @@ function AccordionContentWrapper({
             disableColumnFilter
             disableColumnMenu
             disableVirtualization
-            processRowUpdate={(updatedRow, originalRow) => {
-              console.log('PERSIST ROW CHANGE', updatedRow, originalRow);
+            processRowUpdate={async (updatedRow: Row, originalRow: Row) => {
+              if (
+                updatedRow.type === 'SECTION' ||
+                originalRow.type === 'SECTION'
+              ) {
+                return originalRow;
+              }
+
+              const haveNotesChanged = updatedRow.notes !== originalRow.notes;
+
+              if (updatedRow.value === originalRow.value && !haveNotesChanged) {
+                return originalRow;
+              }
+
+              try {
+                await updateMeasureDataPoint({
+                  refetchQueries() {
+                    const measure = updatedRow.originalMeasureTemplate.measure;
+
+                    if (measure) {
+                      return [];
+                    }
+
+                    return [
+                      {
+                        query: GET_MEASURE_TEMPLATE,
+                        variables: {
+                          id: updatedRow.originalId,
+                          frameworkConfigId: '3', // TODO: Get framework ID from backend
+                        },
+                      },
+                    ];
+                  },
+                  awaitRefetchQueries: true,
+                  variables: {
+                    frameworkInstanceId: '3', // TODO: Get framework ID from backend
+                    measureTemplateId: updatedRow.originalId,
+                    // @ts-ignore - TODO: Fix type error when backend supports null values
+                    value: updatedRow.value,
+                    internalNotes: updatedRow.notes,
+                  },
+                  /**
+                   * Manually update the cache when internalNotes are changed as the
+                   * full object isn't returned by the updateMeasureDataPoint mutation
+                   * preventing Apollo from updating the cache automatically.
+                   */
+                  update(cache) {
+                    const measure = updatedRow.originalMeasureTemplate.measure;
+
+                    if (measure && haveNotesChanged) {
+                      cache.modify({
+                        id: cache.identify(measure),
+                        fields: {
+                          internalNotes() {
+                            return updatedRow.notes;
+                          },
+                        },
+                      });
+                    }
+                  },
+                });
+              } catch (error) {
+                console.log('Mutation error', JSON.stringify(error, null, 2));
+                // TODO: Handle error
+              }
 
               return updatedRow;
             }}

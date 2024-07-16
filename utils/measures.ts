@@ -1,6 +1,6 @@
 import {
   MainSectionMeasuresFragment,
-  MeasureTemplate,
+  MeasureTemplateFragmentFragment,
 } from '@/types/__generated__/graphql';
 import { createFilterTypename } from './filter';
 
@@ -9,14 +9,14 @@ type BaseSectionOrMeasure = {
   name: string;
 };
 
+type SectionOrMeasure = MainSectionMeasuresFragment['descendants'][0];
+
 export type Section = BaseSectionOrMeasure & {
   type: 'ACCORDION_SECTION' | 'SECTION';
   availableYears: number[] | null;
   childSections: Section[];
-  measureTemplates?: MeasureTemplate[];
+  measureTemplates?: MeasureTemplateFragmentFragment[];
 };
-
-type SectionOrMeasure = MainSectionMeasuresFragment['descendants'][0];
 
 export function mapMeasureTemplatesToRows(
   mainSection: MainSectionMeasuresFragment
@@ -27,30 +27,33 @@ export function mapMeasureTemplatesToRows(
   ): Section[] {
     return sections
       .filter((section) => section.parent?.uuid === sectionId)
-      .reduce<Section[]>(
-        (previousSections, section) => [
-          ...previousSections,
-          {
-            id: section.uuid,
-            name: section.name,
-            childSections: createChildren(section.uuid, sections),
-            type:
-              section.parent?.uuid === mainSection.uuid
-                ? 'ACCORDION_SECTION'
-                : 'SECTION',
+      .reduce<Section[]>((previousSections, section) => {
+        const measureTemplates: MeasureTemplateFragmentFragment[] =
+          section.measureTemplates?.filter(
+            createFilterTypename<MeasureTemplateFragmentFragment>(
+              'MeasureTemplate'
+            )
+          );
 
-            availableYears:
-              'availableYears' in section
-                ? (section.availableYears as number[])
-                : null,
+        const nextSection: Section = {
+          id: section.uuid,
+          name: section.name,
+          childSections: createChildren(section.uuid, sections),
+          type:
+            section.parent?.uuid === mainSection.uuid
+              ? 'ACCORDION_SECTION'
+              : 'SECTION',
 
-            measureTemplates: section.measureTemplates?.filter(
-              createFilterTypename<MeasureTemplate>('MeasureTemplate')
-            ),
-          },
-        ],
-        []
-      );
+          availableYears:
+            'availableYears' in section
+              ? (section.availableYears as number[])
+              : null,
+
+          measureTemplates,
+        };
+
+        return [...previousSections, nextSection];
+      }, []);
   }
 
   return createChildren(mainSection.uuid, mainSection.descendants);
