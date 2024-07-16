@@ -533,7 +533,8 @@ function AccordionContentWrapper({
                   variables: {
                     frameworkInstanceId: '3', // TODO: Get framework ID from backend
                     measureTemplateId: updatedRow.originalId,
-                    value: updatedRow.value, // TODO: null values not yet supported
+                    // @ts-ignore - TODO: Fix type error when backend supports null values
+                    value: updatedRow.value,
                     internalNotes: updatedRow.notes,
                   },
                   /**
