@@ -27,6 +27,7 @@ export const GET_MEASURE_TEMPLATES = gql`
   }
 
   fragment SectionFragment on Section {
+    __typename
     uuid
     name
     path
@@ -34,29 +35,33 @@ export const GET_MEASURE_TEMPLATES = gql`
       uuid
     }
     measureTemplates {
+      ...MeasureTemplateFragment
+    }
+  }
+
+  fragment MeasureTemplateFragment on MeasureTemplate {
+    id
+    uuid
+    priority
+    name
+    unit {
+      htmlShort
+      htmlLong
+      short
+      long
+    }
+    defaultValueSource
+    defaultDataPoints {
       id
-      uuid
-      priority
-      name
-      unit {
-        htmlShort
-        htmlLong
-        short
-        long
-      }
-      defaultValueSource
-      defaultDataPoints {
-        id
-        year
-        value
-      }
-      measure(frameworkConfigId: $frameworkConfigId) {
-        __typename
-        id
-        internalNotes
-        dataPoints {
-          ...MeasureDataPointFragment
-        }
+      year
+      value
+    }
+    measure(frameworkConfigId: $frameworkConfigId) {
+      __typename
+      id
+      internalNotes
+      dataPoints {
+        ...DataPointFragment
       }
     }
   }

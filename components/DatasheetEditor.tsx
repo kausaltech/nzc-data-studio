@@ -33,7 +33,7 @@ import { DataSectionSummary } from './DataSectionSummary';
 import { useDataCollectionStore } from '@/store/data-collection';
 import { Section } from '@/utils/measures';
 import {
-  MeasureTemplate,
+  MeasureTemplateFragmentFragment,
   UnitType,
   UpdateMeasureDataPointMutation,
   UpdateMeasureDataPointMutationVariables,
@@ -332,7 +332,7 @@ type MeasureRow = {
   priority: string;
   notes: string | null;
   depth: number;
-  originalMeasureTemplate: MeasureTemplate;
+  originalMeasureTemplate: MeasureTemplateFragmentFragment;
 };
 
 type SectionRow = {
@@ -374,7 +374,7 @@ export function CustomFooter({
 }
 
 function getMeasureValue(
-  measureTemplate: MeasureTemplate,
+  measureTemplate: MeasureTemplateFragmentFragment,
   baselineYear: number
 ) {
   if (measureTemplate.measure?.dataPoints.length) {

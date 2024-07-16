@@ -3,7 +3,7 @@
 import { gql } from '@apollo/client';
 
 export const measureDataPointFragment = gql`
-  fragment MeasureDataPointFragment on MeasureDataPoint {
+  fragment DataPointFragment on MeasureDataPoint {
     __typename
     id
     value
@@ -25,7 +25,7 @@ export const UPDATE_MEASURE_DATAPOINT = gql`
       value: $value
     ) {
       measureDataPoint {
-        ...MeasureDataPointFragment
+        ...DataPointFragment
       }
     }
   }
