@@ -24,7 +24,13 @@ import { FileUpload } from './FileUpload';
 import { ParsedCsvResponse, parseMeasuresCsv } from '@/utils/csv-import';
 import { useMutation } from '@apollo/client';
 import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
-import { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
+import {
+  GetMeasureTemplatesQuery,
+  UpdateMeasureDataPointMutation,
+  UpdateMeasureDataPointMutationVariables,
+} from '@/types/__generated__/graphql';
+import useStore from '@/store/use-store';
+import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 
 type Props = {
   measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
@@ -73,7 +79,15 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
   const [count, setCount] = useState<Count>({ error: 0, success: 0, total: 0 });
   const [parsedCsv, setParsedCsv] = useState<ParsedCsvResponse>();
   const [importErrors, setImportErrors] = useState<ImportError[]>([]);
-  const [updateMeasureDataPoint] = useMutation(UPDATE_MEASURE_DATAPOINT);
+  const [updateMeasureDataPoint] = useMutation<
+    UpdateMeasureDataPointMutation,
+    UpdateMeasureDataPointMutationVariables
+  >(UPDATE_MEASURE_DATAPOINT);
+
+  const { data: selectedInstanceId } = useStore(
+    useFrameworkInstanceStore,
+    (state) => state.selectedInstance
+  );
 
   function handleClickUpload() {
     setModalOpen(true);
@@ -113,11 +127,16 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
             measureTemplates
           );
 
+          if (!selectedInstanceId) {
+            throw new Error('No plan selected');
+          }
+
           await updateMeasureDataPoint({
             variables: {
-              frameworkInstanceId: '3', // TODO: Get from backend
+              frameworkInstanceId: selectedInstanceId,
               measureTemplateId: id,
               internalNotes: measure.comment || '',
+              // @ts-ignore: remove this when the backend supports null values
               value: measure.value,
             },
           });
@@ -125,7 +144,6 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
           setCount((count) => ({ ...count, success: count.success + 1 }));
         } catch (error) {
           setCount((count) => ({ ...count, error: count.error + 1 }));
-          console.log(error, JSON.stringify(error, null, 2));
           setImportErrors((errors) => [
             {
               measureLabel: measure.label,

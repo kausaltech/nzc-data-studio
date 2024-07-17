@@ -1934,7 +1934,6 @@ export type DeleteFrameworkMutation = (
 );
 
 export type GetFrameworkConfigQueryVariables = Exact<{
-  identifier: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
 }>;
 
@@ -1944,7 +1943,18 @@ export type GetFrameworkConfigQuery = (
     { id: string, config?: (
       { id: string, organizationName: string, baselineYear: number }
       & { __typename?: 'FrameworkConfig' }
-    ) | null, configs: Array<(
+    ) | null }
+    & { __typename?: 'Framework' }
+  ) | null }
+  & { __typename?: 'Query' }
+);
+
+export type GetFrameworkConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFrameworkConfigsQuery = (
+  { framework?: (
+    { id: string, configs: Array<(
       { id: string, organizationName: string, baselineYear: number }
       & { __typename?: 'FrameworkConfig' }
     )> }
