@@ -43,6 +43,8 @@ import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
 import { useMutation } from '@apollo/client';
 import { ChevronDown } from 'react-bootstrap-icons';
 import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
+import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
+import useStore from '@/store/use-store';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -144,7 +146,7 @@ function CustomEditComponent({
         {...commonProps}
         fullWidth
         onValueChange={handleNumberValueChange}
-        value={value || ''}
+        value={typeof value === 'number' ? value : undefined}
       />
     );
   }
@@ -438,10 +440,15 @@ function AccordionContentWrapper({
   index,
   withIndexes = false,
 }: AccordionContentWrapperProps) {
-  const [updateMeasureDataPoint, { data, loading, error }] = useMutation<
+  const [updateMeasureDataPoint, { loading }] = useMutation<
     UpdateMeasureDataPointMutation,
     UpdateMeasureDataPointMutationVariables
   >(UPDATE_MEASURE_DATAPOINT);
+
+  const { data: selectedInstanceId } = useStore(
+    useFrameworkInstanceStore,
+    (state) => state.selectedInstance
+  );
 
   const singleClickEditProps = useSingleClickEdit();
   const setExpanded = useDataCollectionStore((store) => store.setAccordion);
@@ -511,6 +518,10 @@ function AccordionContentWrapper({
               }
 
               try {
+                if (!selectedInstanceId) {
+                  throw new Error('No plan selected');
+                }
+
                 await updateMeasureDataPoint({
                   refetchQueries() {
                     const measure = updatedRow.originalMeasureTemplate.measure;
@@ -524,14 +535,14 @@ function AccordionContentWrapper({
                         query: GET_MEASURE_TEMPLATE,
                         variables: {
                           id: updatedRow.originalId,
-                          frameworkConfigId: '3', // TODO: Get framework ID from backend
+                          frameworkConfigId: selectedInstanceId,
                         },
                       },
                     ];
                   },
                   awaitRefetchQueries: true,
                   variables: {
-                    frameworkInstanceId: '3', // TODO: Get framework ID from backend
+                    frameworkInstanceId: selectedInstanceId,
                     measureTemplateId: updatedRow.originalId,
                     // @ts-ignore - TODO: Fix type error when backend supports null values
                     value: updatedRow.value,
