@@ -66,7 +66,7 @@ const DataCollection = ({ measureTemplates }: Props) => {
         >
           <Tab label="Data collection" value="data" {...a11yProps('data')} />
           <Tab
-            label="Future assumptions (2035)"
+            label="Future assumptions (2030)"
             value="assumptions"
             {...a11yProps('assumptions')}
           />

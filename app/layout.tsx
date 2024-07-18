@@ -47,7 +47,7 @@ export default async function RootLayout({ children }: Props) {
             <AppRouterCacheProvider>
               <ThemeProvider>
                 <AppBar />
-                <Box component="main" sx={{ my: 8 }}>
+                <Box component="main" sx={{ my: 4 }}>
                   {children}
                 </Box>
                 <Box
