@@ -37,7 +37,7 @@ export function Logo({ variant = 'dark', size = 'sm' }: Props) {
       />
 
       <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-        NetZeroPaths
+        NetZeroPlanner
         <Typography variant="caption" sx={{ display: 'block' }}>
           Powered by Kausal Open Source
         </Typography>

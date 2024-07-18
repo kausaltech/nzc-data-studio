@@ -6,7 +6,7 @@ describe('Logo', () => {
   it('renders', () => {
     render(<Logo />);
 
-    const heading = screen.getByText('NetZeroPaths');
+    const heading = screen.getByText('NetZeroPlanner');
 
     expect(heading).toBeInTheDocument();
   });

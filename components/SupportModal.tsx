@@ -28,7 +28,7 @@ const FAQS = [
 
 const supportData = {
   imageSrc: 'https://placehold.co/600x400/000000/FFFFFF/png',
-  title: 'Welcome to NetZeroPaths',
+  title: 'Welcome to NetZeroPlanner',
   content:
     'Thanks for joining us on this journey towards a sustainable future for your city. Here are three quick tips to help you get started!',
   getStartedUrl: '/welcome',

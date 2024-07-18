@@ -1,6 +1,6 @@
-# NetZeroPaths Data Studio
+# NetZeroPlanner Data Studio
 
-Welcome to the NetZeroPaths Data Studio project! This repository contains the code for the NetZeroPaths Data Studio web application, built using Next.js, Material UI (MUI), and next-auth for authentication. This application is designed to help cities collect, manage, and visualize data related to their carbon reduction efforts.
+Welcome to the NetZeroPlanner Data Studio project! This repository contains the code for the NetZeroPlanner Data Studio web application, built using Next.js, Material UI (MUI), and next-auth for authentication. This application is designed to help cities collect, manage, and visualize data related to their carbon reduction efforts.
 
 ## Table of Contents
 
@@ -13,7 +13,7 @@ Welcome to the NetZeroPaths Data Studio project! This repository contains the co
 
 ## Getting Started
 
-This section will guide you through setting up your development environment to work on the NetZeroPaths Data Studio project.
+This section will guide you through setting up your development environment to work on the NetZeroPlanner Data Studio project.
 
 ### Prerequisites
 
@@ -54,11 +54,7 @@ Before you begin, ensure you have the following installed on your machine:
 
       Copy the output to `.env.local`.
 
-   2. To test authentication in development, add an `AUTH_TEST_PASSWORD` environment variable to `.env.local`. The value of this can be used to log in as a test user.
-
-      ```env
-      AUTH_TEST_PASSWORD=ExamplePassword123
-      ```
+   2. Add the `AUTH` [environment variables](#environment-variables) to support authentication. If you're not sure which ones to use, check with the Kausal team.
 
    3. Add the desired API URL depending on your environment, if you're not sure which one to use, check with the Kausal team
 
@@ -101,6 +97,11 @@ The application will be available on [http://localhost:3000](http://localhost:30
 Variables prefixed with `KAUSAL_PUBLIC_` are made available client side. When using these environment variables, import them from `@/constants/environment` to support fallbacks.
 
 - `KAUSAL_PUBLIC_API_URL`: Configure the API URL to be used by Apollo, e.g. a staging or local backend
+- `AUTH_SECRET`: Secret key used for encrypting tokens and cookies (this can be any random string)
+- `AUTH_CLIENT_ID`: Client ID for authentication
+- `AUTH_CLIENT_SECRET`: Client secret for authentication
+- `KAUSAL_PUBLIC_AUTH_ISSUER`: URL of the authentication issuer
+- `NEXTAUTH_URL`: URL of the application (used by NextAuth.js)
 
 ### Analyzing the Next Bundle
 
