@@ -18,6 +18,14 @@ interface SupportModalProps {
   onClose: () => void;
 }
 
+const FAQS = [
+  {
+    title: 'What is the purpose of the Baseline Year in tracking emissions?',
+    description:
+      'The "Baseline Year" serves as the reference point from which all emissions reduction efforts are measured. It is the starting year against which progress towards achieving climate targets is assessed. By selecting a baseline year, you establish a consistent benchmark to track changes in emissions over time, enabling accurate comparisons and evaluations of your city\'s efforts to reach net-zero emissions. This helps in understanding the impact of implemented actions and in planning future strategies effectively.',
+  },
+];
+
 const supportData = {
   imageSrc: 'https://placehold.co/600x400/000000/FFFFFF/png',
   title: 'Welcome to NetZeroPaths',

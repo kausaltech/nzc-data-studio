@@ -5,12 +5,7 @@ import {
   CardContent,
   Container,
   Fade,
-  FormControl,
-  InputLabel,
   Link,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   Skeleton,
   Stack,
   Typography,
@@ -27,11 +22,10 @@ import {
   GetMeasureTemplatesQuery,
   GetMeasureTemplatesQueryVariables,
 } from '@/types/__generated__/graphql';
-import Loading, { LoadingCard } from './loading';
+import Loading, { LoadingCard } from '../loading';
 import useStore from '@/store/use-store';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
-import { useEffect } from 'react';
 
 function DataCollectionContent({ instance }: { instance: string }) {
   const { data, error, loading } = useQuery<
@@ -75,69 +69,14 @@ function DataCollectionContent({ instance }: { instance: string }) {
   );
 }
 
-function InstanceSelector({
-  selectedInstanceId,
-  instances,
-}: {
-  selectedInstanceId: string;
-  instances: NonNullable<GetFrameworkConfigsQuery['framework']>['configs'];
-}) {
-  const setInstance = useFrameworkInstanceStore((state) => state.setInstance);
-
-  function handleChange(e: SelectChangeEvent<string>) {
-    setInstance(e.target.value);
-  }
-
-  return (
-    <FormControl>
-      <InputLabel id="select-instance">City plan</InputLabel>
-      <Select
-        labelId="select-instance-label"
-        id="select-instance"
-        value={selectedInstanceId}
-        label="City plan"
-        onChange={handleChange}
-      >
-        {instances.map((instance) => (
-          <MenuItem key={instance.id} value={instance.id}>
-            {instance.organizationName}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
-}
-
 function DashboardContent() {
   const {
     data: selectedInstanceId,
     isDataInitialized: isInstanceStoreInitialized,
   } = useStore(useFrameworkInstanceStore, (state) => state.selectedInstance);
-  const setInstance = useFrameworkInstanceStore((state) => state.setInstance);
 
   const { data: instanceData, error: instanceError } =
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
-
-  useEffect(() => {
-    if (
-      // If an instance is not selected, select the first one
-      (isInstanceStoreInitialized &&
-        !selectedInstanceId &&
-        instanceData.framework?.configs.length) ||
-      // If the selected instance is not in the list of instances, select the first one
-      (isInstanceStoreInitialized &&
-        !instanceData.framework?.configs.find(
-          (config) => config.id === selectedInstanceId
-        ))
-    ) {
-      setInstance(instanceData.framework?.configs[0].id ?? null);
-    }
-  }, [
-    instanceData,
-    setInstance,
-    isInstanceStoreInitialized,
-    selectedInstanceId,
-  ]);
 
   const selectedInstance =
     instanceData.framework?.configs.find(
@@ -153,9 +92,6 @@ function DashboardContent() {
     console.log('Error');
     return <h1>Something went wrong: Instance not found</h1>;
   }
-
-  const instanceConfigs = instanceData.framework?.configs ?? [];
-  const hasMultipleInstances = instanceConfigs.length > 1;
 
   return (
     <Fade in>
@@ -173,12 +109,6 @@ function DashboardContent() {
           ) : (
             <Card>
               <CardContent>
-                {hasMultipleInstances && selectedInstanceId && (
-                  <InstanceSelector
-                    selectedInstanceId={selectedInstanceId}
-                    instances={instanceConfigs}
-                  />
-                )}
                 <Typography variant="h1">
                   {selectedInstance.organizationName}
                 </Typography>
@@ -190,7 +120,7 @@ function DashboardContent() {
                   variant="body2"
                   direction="row"
                   spacing={1}
-                  sx={{ alignItems: 'center' }}
+                  sx={{ alignItems: 'center', display: 'inline-flex' }}
                 >
                   <span>
                     netzero.kausal.tech/{selectedInstance.organizationName}
@@ -213,7 +143,7 @@ function DashboardContent() {
 }
 
 export default function Dashboard() {
-  const { status, data } = useSession();
+  const { status } = useSession();
 
   if (status === 'loading') {
     return <Loading />;

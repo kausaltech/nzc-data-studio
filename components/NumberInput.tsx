@@ -26,7 +26,7 @@ export type NumberInputProps = Omit<
 };
 
 export const DEFAULT_NUMBER_PROPS: NumericFormatProps = {
-  allowNegative: false,
+  allowNegative: true,
   allowLeadingZeros: false,
   thousandSeparator: true,
   allowedDecimalSeparators: [',', '.'],

@@ -15,6 +15,15 @@ export const CREATE_FRAMEWORK_CONFIG = gql`
         id
         organizationName
         baselineYear
+        # Return the updated full list of framework configs to automatically update the cache
+        framework {
+          id
+          configs {
+            id
+            organizationName
+            baselineYear
+          }
+        }
       }
     }
   }
