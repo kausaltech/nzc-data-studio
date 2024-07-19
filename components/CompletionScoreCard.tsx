@@ -8,6 +8,7 @@ import {
   GetMeasureTemplatesQuery,
 } from '@/types/__generated__/graphql';
 import { measureTemplateHasValue, MeasureTemplates } from '@/utils/measures';
+import { getPriorityLabel } from './PriorityBadge';
 
 interface Props {
   measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
@@ -112,13 +113,13 @@ export const CompletionScoreCard = ({ measureTemplates }: Props) => {
   const scores = calculateScores(Object.values(scoreData));
   const completionPercentage = calculatePercentage(Object.values(scoreData));
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: Priority) => {
     switch (priority) {
-      case 'High':
+      case Priority.High:
         return theme.palette.error.main;
-      case 'Moderate':
+      case Priority.Medium:
         return theme.palette.warning.main;
-      case 'Low':
+      case Priority.Low:
         return theme.palette.success.main;
     }
   };
@@ -160,7 +161,7 @@ export const CompletionScoreCard = ({ measureTemplates }: Props) => {
                 }}
               />
             }
-            label={`${score.priority}: ${score.score}`}
+            label={`${getPriorityLabel(score.priority)}: ${score.score}`}
             sx={{
               '& .MuiChip-icon': {
                 color: getPriorityColor(score.priority),
