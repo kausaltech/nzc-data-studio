@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import {
   Dialog,
   DialogTitle,
@@ -9,9 +8,11 @@ import {
   Button,
   Stack,
   IconButton,
-  Box,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
-import { X } from 'react-bootstrap-icons';
+import { ChevronDown, X } from 'react-bootstrap-icons';
 
 interface SupportModalProps {
   open: boolean;
@@ -24,10 +25,14 @@ const FAQS = [
     description:
       'The "Baseline Year" serves as the reference point from which all emissions reduction efforts are measured. It is the starting year against which progress towards achieving climate targets is assessed. By selecting a baseline year, you establish a consistent benchmark to track changes in emissions over time, enabling accurate comparisons and evaluations of your city\'s efforts to reach net-zero emissions. This helps in understanding the impact of implemented actions and in planning future strategies effectively.',
   },
+  {
+    title: 'What do the priority levels (High, Moderate, Low) mean?',
+    description:
+      'Priority levels indicate the importance of providing data for different measures in NetZeroPlanner. High priority measures are crucial for tracking and achieving climate goals, requiring essential data inputs. Moderate priority measures are important but not critical, enhancing the overall understanding of progress. Low priority measures are less critical and providing data for them is helpful but not essential for the primary evaluation of climate action progress.',
+  },
 ];
 
 const supportData = {
-  imageSrc: 'https://placehold.co/600x400/000000/FFFFFF/png',
   title: 'Welcome to NetZeroPlanner',
   content:
     'Thanks for joining us on this journey towards a sustainable future for your city. Here are three quick tips to help you get started!',
@@ -36,7 +41,7 @@ const supportData = {
 
 const SupportModal = ({ open, onClose }: SupportModalProps) => {
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle
         sx={{
           display: 'flex',
@@ -56,33 +61,30 @@ const SupportModal = ({ open, onClose }: SupportModalProps) => {
           <X size={24} />
         </IconButton>
       </DialogTitle>
-      <DialogContent
-        sx={{
-          padding: 3,
-        }}
-      >
+      <DialogContent sx={{ padding: 3 }}>
         <Stack spacing={2} alignItems="flex-start">
-          <Box
-            sx={{
-              width: '100%',
-              paddingBottom: 3,
-            }}
-          >
-            <Image
-              src={supportData.imageSrc}
-              alt="Support Image"
-              layout="responsive"
-              width={200}
-              height={100}
-              style={{ width: '100%' }}
-            />
-          </Box>
-          <Typography variant="h6" component="div" align="left">
-            {supportData.title}
-          </Typography>
-          <Typography variant="body1" align="left">
-            {supportData.content}
-          </Typography>
+          <div>
+            <Typography variant="h5" gutterBottom>
+              Frequently asked questions
+            </Typography>
+            {FAQS.map((faq) => (
+              <Accordion disableGutters key={faq.title}>
+                <AccordionSummary
+                  sx={{ pl: 0 }}
+                  expandIcon={<ChevronDown size={20} />}
+                >
+                  <Typography color="primary.main" variant="subtitle1">
+                    {faq.title}
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography color="text.secondary">
+                    {faq.description}
+                  </Typography>
+                </AccordionDetails>
+              </Accordion>
+            ))}
+          </div>
         </Stack>
       </DialogContent>
       <DialogActions
@@ -92,13 +94,7 @@ const SupportModal = ({ open, onClose }: SupportModalProps) => {
           paddingRight: 3,
         }}
       >
-        <Button
-          variant="contained"
-          color="primary"
-          href={supportData.getStartedUrl}
-        >
-          Get started
-        </Button>
+        <Button onClick={onClose}>Close</Button>
       </DialogActions>
     </Dialog>
   );
