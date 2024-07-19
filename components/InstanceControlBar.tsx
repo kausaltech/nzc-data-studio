@@ -1,5 +1,6 @@
 'use client';
 
+import kebabCase from 'lodash/kebabCase';
 import { useSuspenseQuery } from '@apollo/client';
 import {
   Alert,
@@ -96,6 +97,7 @@ export function InstanceControlBar() {
             frameworkId: 'nzc',
             name: planName,
             baselineYear: Number(baselineYear),
+            slug: kebabCase(planName),
           },
         });
 
@@ -122,14 +124,14 @@ export function InstanceControlBar() {
       // If an instance is not selected, select the first one
       (isInstanceStoreInitialized &&
         !selectedInstanceId &&
-        instanceData.framework?.configs.length) ||
+        (instanceData.framework?.configs.length ?? 0 > 0)) ||
       // If the selected instance is not in the list of instances, select the first one
       (isInstanceStoreInitialized &&
         !instanceData.framework?.configs.find(
           (config) => config.id === selectedInstanceId
         ))
     ) {
-      setInstance(instanceData.framework?.configs[0].id ?? null);
+      setInstance(instanceData.framework?.configs[0]?.id ?? null);
     }
   }, [
     instanceData,
