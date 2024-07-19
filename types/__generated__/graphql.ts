@@ -2140,7 +2140,7 @@ export type UpdateMeasureDataPointMutationVariables = Exact<{
   frameworkInstanceId: Scalars['ID']['input'];
   measureTemplateId: Scalars['ID']['input'];
   internalNotes?: InputMaybe<Scalars['String']['input']>;
-  value: Scalars['Float']['input'];
+  value?: InputMaybe<Scalars['Float']['input']>;
 }>;
 
 

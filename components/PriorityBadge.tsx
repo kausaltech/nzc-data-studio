@@ -44,7 +44,7 @@ interface CountPriorityBadgeProps {
 
 type PriorityBadgeProps = BadgePriorityBadgeProps | CountPriorityBadgeProps;
 
-function getLabel(priority: Priority) {
+export function getPriorityLabel(priority: Priority) {
   switch (priority) {
     case Priority.Low:
       return 'Low';
@@ -67,7 +67,7 @@ export function PriorityBadge({
       <Stack spacing={1} direction="row" alignItems="center">
         <PriorityIcon priorityType={priority} />
         <Typography component="span" variant="caption">
-          {getLabel(priority)}
+          {getPriorityLabel(priority)}
         </Typography>
       </Stack>
     );
@@ -78,7 +78,7 @@ export function PriorityBadge({
 
     return (
       <Tooltip
-        title={`${completedCount}/${totalCount} ${getLabel(
+        title={`${completedCount}/${totalCount} ${getPriorityLabel(
           priority
         )} priority data points provided`}
       >
