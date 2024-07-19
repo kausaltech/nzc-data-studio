@@ -1,5 +1,5 @@
 import { FrameworksMeasureTemplatePriorityChoices as Priority } from '@/types/__generated__/graphql';
-import { Stack, Typography } from '@mui/material';
+import { Stack, Tooltip, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import {
   Icon3CircleFill as LowPriorityIcon,
@@ -44,6 +44,19 @@ interface CountPriorityBadgeProps {
 
 type PriorityBadgeProps = BadgePriorityBadgeProps | CountPriorityBadgeProps;
 
+export function getPriorityLabel(priority: Priority) {
+  switch (priority) {
+    case Priority.Low:
+      return 'Low';
+    case Priority.Medium:
+      return 'Moderate';
+    case Priority.High:
+      return 'High';
+    default:
+      return 'Unknown';
+  }
+}
+
 export function PriorityBadge({
   variant = 'count',
   priority,
@@ -51,10 +64,10 @@ export function PriorityBadge({
 }: PriorityBadgeProps) {
   if (variant === 'badge') {
     return (
-      <Stack spacing={1} direction="row" alignItems={'center'}>
+      <Stack spacing={1} direction="row" alignItems="center">
         <PriorityIcon priorityType={priority} />
-        <Typography component="span" variant={'caption'}>
-          {priority}
+        <Typography component="span" variant="caption">
+          {getPriorityLabel(priority)}
         </Typography>
       </Stack>
     );
@@ -64,21 +77,27 @@ export function PriorityBadge({
     const { totalCount, completedCount } = rest;
 
     return (
-      <Stack
-        sx={{ marginRight: 1, flex: '60px 0 0' }}
-        direction="row"
-        alignItems="center"
-        spacing={1}
+      <Tooltip
+        title={`${completedCount}/${totalCount} ${getPriorityLabel(
+          priority
+        )} priority data points provided`}
       >
-        {typeof totalCount === 'number' && totalCount > 0 && (
-          <>
-            <PriorityIcon priorityType={priority} />
-            <Typography variant="caption">
-              {completedCount}/{totalCount}
-            </Typography>
-          </>
-        )}
-      </Stack>
+        <Stack
+          sx={{ marginRight: 1, flex: '60px 0 0' }}
+          direction="row"
+          alignItems="center"
+          spacing={1}
+        >
+          {typeof totalCount === 'number' && totalCount > 0 && (
+            <>
+              <PriorityIcon priorityType={priority} />
+              <Typography variant="caption">
+                {completedCount}/{totalCount}
+              </Typography>
+            </>
+          )}
+        </Stack>
+      </Tooltip>
     );
   }
 }

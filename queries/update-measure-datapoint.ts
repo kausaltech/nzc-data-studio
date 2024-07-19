@@ -16,7 +16,7 @@ export const UPDATE_MEASURE_DATAPOINT = gql`
     $frameworkInstanceId: ID!
     $measureTemplateId: ID!
     $internalNotes: String
-    $value: Float!
+    $value: Float
   ) {
     updateMeasureDataPoint(
       frameworkInstanceId: $frameworkInstanceId

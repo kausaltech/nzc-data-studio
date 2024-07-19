@@ -4,6 +4,10 @@ import {
 } from '@/types/__generated__/graphql';
 import { createFilterTypename } from './filter';
 
+export type MeasureTemplates = NonNullable<
+  MainSectionMeasuresFragment['descendants'][0]['measureTemplates']
+>;
+
 type BaseSectionOrMeasure = {
   id: string;
   name: string;
@@ -57,4 +61,10 @@ export function mapMeasureTemplatesToRows(
   }
 
   return createChildren(mainSection.uuid, mainSection.descendants);
+}
+
+export function measureTemplateHasValue(measureTemplate: MeasureTemplates[0]) {
+  return !!measureTemplate.measure?.dataPoints?.find((dataPoint) => {
+    return typeof dataPoint.value === 'number';
+  });
 }

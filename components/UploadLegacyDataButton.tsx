@@ -136,7 +136,6 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
               frameworkInstanceId: selectedInstanceId,
               measureTemplateId: id,
               internalNotes: measure.comment || '',
-              // @ts-ignore: remove this when the backend supports null values
               value: measure.value,
             },
           });

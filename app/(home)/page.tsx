@@ -26,6 +26,34 @@ import Loading, { LoadingCard } from '../loading';
 import useStore from '@/store/use-store';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
+import CompletionScoreCard from '@/components/CompletionScoreCard';
+
+function CompletionScoreCardWrapper({ instance }: { instance: string }) {
+  const { data, error, loading } = useQuery<
+    GetMeasureTemplatesQuery,
+    GetMeasureTemplatesQueryVariables
+  >(GET_MEASURE_TEMPLATES, {
+    variables: { frameworkConfigId: instance },
+  });
+
+  if (loading) {
+    return <Skeleton height={100} />;
+  }
+
+  if (!data?.framework || error) {
+    // TODO: Return error component
+    console.log('Error', error);
+    return <h1>Something went wrong</h1>;
+  }
+
+  return (
+    <Fade in>
+      <div>
+        <CompletionScoreCard measureTemplates={data.framework} />
+      </div>
+    </Fade>
+  );
+}
 
 function DataCollectionContent({ instance }: { instance: string }) {
   const { data, error, loading } = useQuery<
@@ -109,23 +137,35 @@ function DashboardContent() {
           ) : (
             <Card>
               <CardContent>
-                <Typography variant="h1">
-                  {selectedInstance.organizationName}
-                </Typography>
-                <Stack
-                  component={Link}
-                  href="#"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  variant="body2"
-                  direction="row"
-                  spacing={1}
-                  sx={{ alignItems: 'center', display: 'inline-flex' }}
-                >
-                  <span>
-                    netzero.kausal.tech/{selectedInstance.organizationName}
-                  </span>
-                  <BoxArrowUpRight size={14} />
+                <Stack spacing={2}>
+                  <div>
+                    <Typography variant="h1">
+                      {selectedInstance.organizationName}
+                    </Typography>
+                    {!!selectedInstance.viewUrl && (
+                      <Stack
+                        component={Link}
+                        href={selectedInstance.viewUrl}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        variant="body2"
+                        direction="row"
+                        spacing={1}
+                        sx={{ alignItems: 'center', display: 'inline-flex' }}
+                      >
+                        <span>
+                          {selectedInstance.viewUrl.replace('https://', '')}
+                        </span>
+                        <BoxArrowUpRight size={14} />
+                      </Stack>
+                    )}
+                  </div>
+
+                  {selectedInstanceId ? (
+                    <CompletionScoreCardWrapper instance={selectedInstanceId} />
+                  ) : (
+                    <Skeleton />
+                  )}
                 </Stack>
               </CardContent>
             </Card>

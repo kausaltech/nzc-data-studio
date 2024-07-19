@@ -131,7 +131,11 @@ function CustomEditComponent({
   };
 
   function handleNumberValueChange(value: NumberFormatValues) {
-    apiRef.current.setEditCellValue({ id, field, value: value.floatValue });
+    apiRef.current.setEditCellValue({
+      id,
+      field,
+      value: value.floatValue ?? '',
+    });
   }
 
   const commonProps: Pick<TextFieldProps, 'sx' | 'inputRef' | 'size'> = {
@@ -322,7 +326,7 @@ const GRID_COL_DEFS: GridColDef[] = [
   },
 ];
 
-type MeasureRow = {
+export type MeasureRow = {
   type: 'MEASURE';
   id: string;
   isTitle: false;
@@ -523,13 +527,19 @@ function AccordionContentWrapper({
                 }
 
                 await updateMeasureDataPoint({
+                  variables: {
+                    frameworkInstanceId: selectedInstanceId,
+                    measureTemplateId: updatedRow.originalId,
+                    value: updatedRow.value,
+                    internalNotes: updatedRow.notes,
+                  },
                   refetchQueries() {
-                    const measure = updatedRow.originalMeasureTemplate.measure;
-
-                    if (measure) {
-                      return [];
-                    }
-
+                    /**
+                     * Refetch the measure template to ensure the cache is up to date:
+                     * - If a measure data point is deleted
+                     * - If a measure data point is added
+                     * - If a note is changed (notes are not returned in the mutation)
+                     */
                     return [
                       {
                         query: GET_MEASURE_TEMPLATE,
@@ -539,33 +549,6 @@ function AccordionContentWrapper({
                         },
                       },
                     ];
-                  },
-                  awaitRefetchQueries: true,
-                  variables: {
-                    frameworkInstanceId: selectedInstanceId,
-                    measureTemplateId: updatedRow.originalId,
-                    // @ts-ignore - TODO: Fix type error when backend supports null values
-                    value: updatedRow.value,
-                    internalNotes: updatedRow.notes,
-                  },
-                  /**
-                   * Manually update the cache when internalNotes are changed as the
-                   * full object isn't returned by the updateMeasureDataPoint mutation
-                   * preventing Apollo from updating the cache automatically.
-                   */
-                  update(cache) {
-                    const measure = updatedRow.originalMeasureTemplate.measure;
-
-                    if (measure && haveNotesChanged) {
-                      cache.modify({
-                        id: cache.identify(measure),
-                        fields: {
-                          internalNotes() {
-                            return updatedRow.notes;
-                          },
-                        },
-                      });
-                    }
                   },
                 });
               } catch (error) {

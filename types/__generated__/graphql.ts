@@ -147,6 +147,7 @@ export type ActionNode = NodeInterface & {
   description?: Maybe<Scalars['String']['output']>;
   dimensionalFlow?: Maybe<DimensionalFlowType>;
   downstreamNodes: Array<NodeInterface>;
+  explanation?: Maybe<Scalars['String']['output']>;
   goal?: Maybe<Scalars['RichText']['output']>;
   goals: Array<NodeGoal>;
   group?: Maybe<ActionGroupType>;
@@ -594,6 +595,10 @@ export type FrameworkConfig = {
   id: Scalars['ID']['output'];
   measures: Array<Measure>;
   organizationName: Scalars['String']['output'];
+  /** URL for downloading a results file */
+  resultsDownloadUrl?: Maybe<Scalars['String']['output']>;
+  /** Public URL for instance dashboard */
+  viewUrl?: Maybe<Scalars['String']['output']>;
 };
 
 /** An enumeration. */
@@ -1009,6 +1014,7 @@ export type MutationsActivateScenarioArgs = {
 export type MutationsCreateFrameworkConfigArgs = {
   baselineYear: Scalars['Int']['input'];
   frameworkId: Scalars['ID']['input'];
+  instanceIdentifier: Scalars['ID']['input'];
   name: Scalars['String']['input'];
 };
 
@@ -1053,7 +1059,7 @@ export type MutationsUpdateMeasureDataPointArgs = {
   frameworkInstanceId: Scalars['ID']['input'];
   internalNotes?: InputMaybe<Scalars['String']['input']>;
   measureTemplateId: Scalars['ID']['input'];
-  value: Scalars['Float']['input'];
+  value?: InputMaybe<Scalars['Float']['input']>;
   year?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -1064,6 +1070,7 @@ export type Node = NodeInterface & {
   description?: Maybe<Scalars['String']['output']>;
   dimensionalFlow?: Maybe<DimensionalFlowType>;
   downstreamNodes: Array<NodeInterface>;
+  explanation?: Maybe<Scalars['String']['output']>;
   goals: Array<NodeGoal>;
   id: Scalars['ID']['output'];
   impactMetric?: Maybe<ForecastMetricType>;
@@ -1135,6 +1142,7 @@ export type NodeInterface = {
   description?: Maybe<Scalars['String']['output']>;
   dimensionalFlow?: Maybe<DimensionalFlowType>;
   downstreamNodes: Array<NodeInterface>;
+  explanation?: Maybe<Scalars['String']['output']>;
   goals: Array<NodeGoal>;
   id: Scalars['ID']['output'];
   impactMetric?: Maybe<ForecastMetricType>;
@@ -1906,13 +1914,20 @@ export type CreateFrameworkMutationVariables = Exact<{
   frameworkId: Scalars['ID']['input'];
   baselineYear: Scalars['Int']['input'];
   name: Scalars['String']['input'];
+  slug: Scalars['ID']['input'];
 }>;
 
 
 export type CreateFrameworkMutation = (
   { createFrameworkConfig?: (
     { frameworkConfig?: (
-      { id: string, organizationName: string, baselineYear: number }
+      { id: string, organizationName: string, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null, framework: (
+        { id: string, configs: Array<(
+          { id: string, viewUrl?: string | null, resultsDownloadUrl?: string | null, organizationName: string, baselineYear: number }
+          & { __typename?: 'FrameworkConfig' }
+        )> }
+        & { __typename?: 'Framework' }
+      ) }
       & { __typename?: 'FrameworkConfig' }
     ) | null }
     & { __typename?: 'CreateFrameworkConfigMutation' }
@@ -1941,7 +1956,7 @@ export type GetFrameworkConfigQueryVariables = Exact<{
 export type GetFrameworkConfigQuery = (
   { framework?: (
     { id: string, config?: (
-      { id: string, organizationName: string, baselineYear: number }
+      { id: string, organizationName: string, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null }
       & { __typename?: 'FrameworkConfig' }
     ) | null }
     & { __typename?: 'Framework' }
@@ -1955,7 +1970,7 @@ export type GetFrameworkConfigsQueryVariables = Exact<{ [key: string]: never; }>
 export type GetFrameworkConfigsQuery = (
   { framework?: (
     { id: string, configs: Array<(
-      { id: string, organizationName: string, baselineYear: number }
+      { id: string, organizationName: string, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null }
       & { __typename?: 'FrameworkConfig' }
     )> }
     & { __typename?: 'Framework' }
@@ -2125,7 +2140,7 @@ export type UpdateMeasureDataPointMutationVariables = Exact<{
   frameworkInstanceId: Scalars['ID']['input'];
   measureTemplateId: Scalars['ID']['input'];
   internalNotes?: InputMaybe<Scalars['String']['input']>;
-  value: Scalars['Float']['input'];
+  value?: InputMaybe<Scalars['Float']['input']>;
 }>;
 
 

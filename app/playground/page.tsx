@@ -109,7 +109,6 @@ export default function Playground() {
             <ExampleButtons size="small" />
           </Stack>
         </div>
-        <CompletionScoreCard />
       </Stack>
     </Container>
   );

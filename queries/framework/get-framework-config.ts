@@ -8,6 +8,8 @@ export const GET_FRAMEWORK_CONFIG = gql`
         id
         organizationName
         baselineYear
+        viewUrl
+        resultsDownloadUrl
       }
     }
   }
@@ -21,6 +23,8 @@ export const GET_FRAMEWORK_CONFIGS = gql`
         id
         organizationName
         baselineYear
+        viewUrl
+        resultsDownloadUrl
       }
     }
   }
