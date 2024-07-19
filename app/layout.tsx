@@ -17,7 +17,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'NetZeroPlanner',
   description:
-    'NetZeroPaths is an innovative tool designed to help cities achieve climate goals by tracking emissions, forecasting reductions, and evaluating potential actions. Achieve net-zero with our powerful, data-driven platform. Powered by Kausal Open Source in partnership with NetZeroCities.',
+    'NetZeroPlanner is an innovative tool designed to help cities achieve climate goals by tracking emissions, forecasting reductions, and evaluating potential actions. Achieve net-zero with our powerful, data-driven platform. Powered by Kausal Open Source in partnership with NetZeroCities.',
   robots: {
     index: false,
     follow: false,
