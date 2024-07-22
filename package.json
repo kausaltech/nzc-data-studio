@@ -24,8 +24,8 @@
     "@next/bundle-analyzer": "^14.2.3",
     "@types/lodash": "^4.17.5",
     "@types/papaparse": "^5.3.14",
-    "lodash": "^4.17.21",
     "docker-secret": "^2.0.6",
+    "lodash": "^4.17.21",
     "next": "14.2.3",
     "next-auth": "^5.0.0-beta.19",
     "papaparse": "^5.4.1",
@@ -33,6 +33,7 @@
     "react-bootstrap-icons": "^1.11.4",
     "react-dom": "^18.2.0",
     "react-number-format": "^5.4.0",
+    "sharp": "^0.33.4",
     "zustand": "^4.5.4"
   },
   "devDependencies": {
