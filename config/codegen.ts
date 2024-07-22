@@ -17,7 +17,7 @@ const tsoConfig: TypeScriptDocumentsPluginConfig = {
 };
 
 const config: CodegenConfig = {
-  schema: `${apiUrl}/v1/graphql/`,
+  schema: `${apiUrl}/graphql/`,
   documents: ['**/*.{ts,tsx}'],
   generates: {
     'types/__generated__/possible_types.json': {

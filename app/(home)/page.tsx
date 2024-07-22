@@ -117,7 +117,7 @@ function DashboardContent() {
     (isInstanceStoreInitialized && !selectedInstance)
   ) {
     // TODO: Return error page
-    console.log('Error');
+    console.log(`Error - Selected instance: ${selectedInstanceId}`);
     return <h1>Something went wrong: Instance not found</h1>;
   }
 
