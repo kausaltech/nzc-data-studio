@@ -5,24 +5,25 @@ import {
   Icon3CircleFill as LowPriorityIcon,
   Icon2CircleFill as MedPriorityIcon,
   Icon1CircleFill as HighPriorityIcon,
+  IconProps,
 } from 'react-bootstrap-icons';
 
 export const PRIORITY_TYPES = [Priority.High, Priority.Medium, Priority.Low];
 
-interface PriorityIconProps {
+interface PriorityIconProps extends IconProps {
   priorityType: Priority;
 }
 
-export const PriorityIcon = ({ priorityType }: PriorityIconProps) => {
+export const PriorityIcon = ({ priorityType, ...rest }: PriorityIconProps) => {
   const theme = useTheme();
 
   switch (priorityType) {
     case Priority.Low:
-      return <LowPriorityIcon color={theme.palette.success.main} />;
+      return <LowPriorityIcon color={theme.palette.success.main} {...rest} />;
     case Priority.Medium:
-      return <MedPriorityIcon color={theme.palette.warning.main} />;
+      return <MedPriorityIcon color={theme.palette.warning.main} {...rest} />;
     case Priority.High:
-      return <HighPriorityIcon color={theme.palette.error.main} />;
+      return <HighPriorityIcon color={theme.palette.error.main} {...rest} />;
     default:
       null;
   }

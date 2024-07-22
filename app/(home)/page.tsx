@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Button,
   Card,
   CardContent,
   Container,
@@ -11,7 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import { RedirectType, redirect } from 'next/navigation';
-import { BoxArrowUpRight } from 'react-bootstrap-icons';
+import { BoxArrowUpRight, Download } from 'react-bootstrap-icons';
 import DataCollection from '@/components/DataCollection';
 import { UploadLegacyDataButton } from '@/components/UploadLegacyDataButton';
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
@@ -139,26 +140,15 @@ function DashboardContent() {
               <CardContent>
                 <Stack spacing={2}>
                   <div>
-                    <Typography variant="h1">
-                      {selectedInstance.organizationName}
-                    </Typography>
-                    {!!selectedInstance.viewUrl && (
-                      <Stack
-                        component={Link}
-                        href={selectedInstance.viewUrl}
-                        rel="noopener noreferrer"
-                        target="_blank"
-                        variant="body2"
-                        direction="row"
-                        spacing={1}
-                        sx={{ alignItems: 'center', display: 'inline-flex' }}
-                      >
-                        <span>
-                          {selectedInstance.viewUrl.replace('https://', '')}
-                        </span>
-                        <BoxArrowUpRight size={14} />
-                      </Stack>
-                    )}
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <Typography variant="h1">
+                        {selectedInstance.organizationName}
+                      </Typography>
+                    </Stack>
                   </div>
 
                   {selectedInstanceId ? (
@@ -166,6 +156,32 @@ function DashboardContent() {
                   ) : (
                     <Skeleton />
                   )}
+
+                  <Stack direction="row" spacing={2}>
+                    {!!selectedInstance.viewUrl && (
+                      <Button
+                        variant="outlined"
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        endIcon={<BoxArrowUpRight size={16} />}
+                        href={selectedInstance.viewUrl}
+                        download
+                      >
+                        View Outcomes Dashboard
+                      </Button>
+                    )}
+
+                    {selectedInstance.resultsDownloadUrl && (
+                      <Button
+                        variant="outlined"
+                        endIcon={<Download size={18} />}
+                        href={selectedInstance?.resultsDownloadUrl}
+                        download
+                      >
+                        Export Outcomes as Excel
+                      </Button>
+                    )}
+                  </Stack>
                 </Stack>
               </CardContent>
             </Card>
