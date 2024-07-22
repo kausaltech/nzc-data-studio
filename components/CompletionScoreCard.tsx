@@ -156,11 +156,6 @@ export const CompletionScoreCard = ({ measureTemplates }: Props) => {
             label={`${getPriorityLabel(score.priority)} priority: ${
               score.score
             }`}
-            sx={{
-              '& .MuiChip-icon': {
-                color: getPriorityColor(score.priority),
-              },
-            }}
           />
         ))}
       </Stack>

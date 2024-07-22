@@ -1910,6 +1910,17 @@ export type YearlyValue = {
   year: Scalars['Int']['output'];
 };
 
+export type ProfileQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ProfileQuery = (
+  { me?: (
+    { id: string, email: string }
+    & { __typename?: 'UserType' }
+  ) | null }
+  & { __typename?: 'Query' }
+);
+
 export type CreateFrameworkMutationVariables = Exact<{
   frameworkId: Scalars['ID']['input'];
   baselineYear: Scalars['Int']['input'];

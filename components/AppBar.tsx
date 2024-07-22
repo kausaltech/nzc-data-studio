@@ -5,10 +5,12 @@ import {
   Menu,
   MenuItem,
   AppBar as MuiAppBar,
+  Skeleton,
   Stack,
   SxProps,
   Theme,
   Toolbar,
+  Typography,
 } from '@mui/material';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
@@ -17,13 +19,48 @@ import SupportModal from './SupportModal';
 
 import { getUserDisplay } from '@/utils/session';
 import { Logo } from './Logo';
-import { useHandleSignOut } from '@/hooks/use-handle-signout';
+import { Session } from 'next-auth';
+import { gql, useQuery } from '@apollo/client';
+import { ProfileQuery } from '@/types/__generated__/graphql';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
   color: 'primary.dark',
   boxShadow: (theme) => theme.customShadows.z1,
 };
+
+function UserDisplay({ sessionData }: { sessionData: Session }) {
+  const { data: profile, loading } = useQuery<ProfileQuery>(
+    gql`
+      query Profile {
+        me {
+          id
+          email
+        }
+      }
+    `
+  );
+
+  const sessionUser = getUserDisplay(sessionData);
+
+  if (sessionUser) {
+    return sessionUser;
+  }
+
+  if (loading) {
+    return (
+      <Skeleton>
+        <Typography variant="body2">Placeholder email</Typography>
+      </Skeleton>
+    );
+  }
+
+  if (profile?.me?.email) {
+    return profile.me.email;
+  }
+
+  return null;
+}
 
 export function AppBar() {
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
@@ -89,9 +126,11 @@ export function AppBar() {
                 color="inherit"
                 endIcon={<PersonCircle size={22} />}
               >
-                {isAuthenticated
-                  ? getUserDisplay(session.data)
-                  : 'Create Your City Plan'}
+                {isAuthenticated ? (
+                  <UserDisplay sessionData={session.data} />
+                ) : (
+                  'Sign in'
+                )}
               </Button>
             </Stack>
 
@@ -112,11 +151,11 @@ export function AppBar() {
             >
               {!isAuthenticated ? (
                 [
-                  <MenuItem key="sign-up" onClick={handleSignUp}>
-                    Sign up
-                  </MenuItem>,
+                  // <MenuItem key="sign-up" onClick={handleSignUp}>
+                  //   Sign up
+                  // </MenuItem>,
                   <MenuItem key="log-in" onClick={handleLogIn}>
-                    Log in
+                    Sign in
                   </MenuItem>,
                 ]
               ) : (
