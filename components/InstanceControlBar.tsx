@@ -202,7 +202,7 @@ export function InstanceControlBar() {
             <Stack spacing={2}>
               <TextField
                 required
-                label="Plan name"
+                label="Plan or city name"
                 value={planName}
                 onChange={(e) => setPlanName(e.target.value)}
               />
