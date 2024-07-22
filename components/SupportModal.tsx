@@ -49,16 +49,9 @@ const SupportModal = ({ open, onClose }: SupportModalProps) => {
           alignItems: 'center',
         }}
       >
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{
-            position: 'absolute',
-            right: 0,
-            top: 0,
-          }}
-        >
-          <X size={24} />
+        <span>Support</span>
+        <IconButton aria-label="close" onClick={onClose}>
+          <X size={28} />
         </IconButton>
       </DialogTitle>
       <DialogContent sx={{ padding: 3 }}>
