@@ -17,7 +17,6 @@ import SupportModal from './SupportModal';
 
 import { getUserDisplay } from '@/utils/session';
 import { Logo } from './Logo';
-import { useHandleSignOut } from '@/hooks/use-handle-signout';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
@@ -112,11 +111,11 @@ export function AppBar() {
             >
               {!isAuthenticated ? (
                 [
-                  <MenuItem key="sign-up" onClick={handleSignUp}>
-                    Sign up
-                  </MenuItem>,
+                  // <MenuItem key="sign-up" onClick={handleSignUp}>
+                  //   Sign up
+                  // </MenuItem>,
                   <MenuItem key="log-in" onClick={handleLogIn}>
-                    Log in
+                    Sign in
                   </MenuItem>,
                 ]
               ) : (
