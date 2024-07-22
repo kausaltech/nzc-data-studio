@@ -91,15 +91,16 @@ const calculateScores = (scoreData: ScoreData[]) => {
 };
 
 const calculatePercentage = (scoreData: ScoreData[]) => {
-  const coeff: { [key: string]: number } = {
-    High: 0.6,
-    Moderate: 0.3,
-    Low: 0.1,
+  const coeff: { [key in Priority]: number } = {
+    [Priority.High]: 0.6,
+    [Priority.Medium]: 0.3,
+    [Priority.Low]: 0.1,
   };
 
   const totalPercentage = scoreData.reduce((acc, data) => {
     const completionPercentage =
       data.total > 0 ? data.completed / data.total : 0;
+
     return acc + completionPercentage * (coeff[data.priority] || 0);
   }, 0);
 
@@ -149,7 +150,11 @@ export const CompletionScoreCard = ({ measureTemplates }: Props) => {
         values for accurate predictions. Enter city data to improve your score
         and get better projections.
       </Typography>
-      <Stack direction="row" spacing={2}>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={1}
+        alignItems="flex-start"
+      >
         {scores.map((score, index) => (
           <Chip
             key={`${score.priority}-${index}`}
@@ -161,7 +166,9 @@ export const CompletionScoreCard = ({ measureTemplates }: Props) => {
                 }}
               />
             }
-            label={`${getPriorityLabel(score.priority)}: ${score.score}`}
+            label={`${getPriorityLabel(score.priority)} priority: ${
+              score.score
+            }`}
             sx={{
               '& .MuiChip-icon': {
                 color: getPriorityColor(score.priority),
