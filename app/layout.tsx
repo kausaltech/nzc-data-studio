@@ -43,8 +43,8 @@ export default async function RootLayout({ children }: Props) {
           flexDirection: 'column',
         }}
       >
-        <ApolloWrapper>
-          <AuthProvider session={session}>
+        <AuthProvider session={session}>
+          <ApolloWrapper>
             <AppRouterCacheProvider>
               <ThemeProvider>
                 <AppBar />
@@ -66,8 +66,8 @@ export default async function RootLayout({ children }: Props) {
                 </Box>
               </ThemeProvider>
             </AppRouterCacheProvider>
-          </AuthProvider>
-        </ApolloWrapper>
+          </ApolloWrapper>
+        </AuthProvider>
       </Box>
     </html>
   );
