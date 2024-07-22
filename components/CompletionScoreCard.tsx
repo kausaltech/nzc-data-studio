@@ -2,13 +2,12 @@
 
 import * as React from 'react';
 import { Box, Typography, Chip, useTheme, Stack } from '@mui/material';
-import { CircleFill } from 'react-bootstrap-icons';
 import {
   FrameworksMeasureTemplatePriorityChoices as Priority,
   GetMeasureTemplatesQuery,
 } from '@/types/__generated__/graphql';
 import { measureTemplateHasValue, MeasureTemplates } from '@/utils/measures';
-import { getPriorityLabel } from './PriorityBadge';
+import { getPriorityLabel, PriorityIcon } from './PriorityBadge';
 
 interface Props {
   measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
@@ -136,11 +135,6 @@ export const CompletionScoreCard = ({ measureTemplates }: Props) => {
       }}
     >
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-        <CircleFill
-          style={{
-            color: theme.palette.error.main,
-          }}
-        />
         <Typography variant="subtitle1">
           Data completion score: {completionPercentage.toFixed(0)}%
         </Typography>
@@ -158,14 +152,7 @@ export const CompletionScoreCard = ({ measureTemplates }: Props) => {
         {scores.map((score, index) => (
           <Chip
             key={`${score.priority}-${index}`}
-            icon={
-              <CircleFill
-                style={{
-                  color: getPriorityColor(score.priority),
-                  marginLeft: '0.5em',
-                }}
-              />
-            }
+            icon={<PriorityIcon priorityType={score.priority} size={16} />}
             label={`${getPriorityLabel(score.priority)} priority: ${
               score.score
             }`}
