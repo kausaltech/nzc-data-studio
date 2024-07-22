@@ -83,7 +83,7 @@ export const errorLink = onError(
 
 function makeClient() {
   const httpLink = new HttpLink({
-    uri: `${apiUrl}/v1/graphql/`,
+    uri: `${apiUrl}/graphql/`,
     fetchOptions: { cache: 'no-store' },
   });
 
