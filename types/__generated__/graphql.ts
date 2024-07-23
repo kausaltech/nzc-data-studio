@@ -902,6 +902,21 @@ export type MeasureDataPoint = {
   year: Scalars['Int']['output'];
 };
 
+export type MeasureDataPointInput = {
+  /** Value for the data point (set to null to remove) */
+  value?: InputMaybe<Scalars['Float']['input']>;
+  /** Year of the data point. If not given, defaults to the baseline year for the framework instance */
+  year?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type MeasureInput = {
+  dataPoints?: InputMaybe<Array<MeasureDataPointInput>>;
+  /** Internal notes for the measure instance */
+  internalNotes?: InputMaybe<Scalars['String']['input']>;
+  /** ID of the measure template within a framework */
+  measureTemplateId: Scalars['ID']['input'];
+};
+
 /**
  * Represents a template for measures within a framework.
  *
@@ -1003,6 +1018,7 @@ export type Mutations = {
   setParameter?: Maybe<SetParameterMutation>;
   updateFrameworkConfig?: Maybe<UpdateFrameworkConfigMutation>;
   updateMeasureDataPoint?: Maybe<UpdateMeasureDataPoint>;
+  updateMeasureDataPoints?: Maybe<UpdateMeasureDataPoints>;
 };
 
 
@@ -1061,6 +1077,12 @@ export type MutationsUpdateMeasureDataPointArgs = {
   measureTemplateId: Scalars['ID']['input'];
   value?: InputMaybe<Scalars['Float']['input']>;
   year?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type MutationsUpdateMeasureDataPointsArgs = {
+  frameworkConfigId: Scalars['ID']['input'];
+  measures: Array<MeasureInput>;
 };
 
 export type Node = NodeInterface & {
@@ -1896,6 +1918,14 @@ export type UpdateMeasureDataPoint = {
   __typename?: 'UpdateMeasureDataPoint';
   measureDataPoint?: Maybe<MeasureDataPoint>;
   ok?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type UpdateMeasureDataPoints = {
+  __typename?: 'UpdateMeasureDataPoints';
+  createdDataPoints?: Maybe<Array<Maybe<MeasureDataPoint>>>;
+  deletedDataPointCount: Scalars['Int']['output'];
+  ok?: Maybe<Scalars['Boolean']['output']>;
+  updatedDataPoints?: Maybe<Array<Maybe<MeasureDataPoint>>>;
 };
 
 export type UserType = {
