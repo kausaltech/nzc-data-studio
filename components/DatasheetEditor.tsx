@@ -150,7 +150,7 @@ function CustomEditComponent({
         {...commonProps}
         fullWidth
         onValueChange={handleNumberValueChange}
-        value={typeof value === 'number' ? value : undefined}
+        value={typeof value === 'number' ? value : ''}
       />
     );
   }
