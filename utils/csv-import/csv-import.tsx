@@ -22,6 +22,10 @@ const EXCLUDED_ROWS_BY_LABEL = [
   /^(Total emissions \(scope 1 & scope 2; scope 3 only for waste disposed of outside city boundaries\))/,
   /^(Total emissions from road transport)/,
 ];
+// Some measures from the original excel have missing priorities, avoid using these to determine if a row is a section
+const EXPECTED_INVALID_PRIORITY = [
+  'Reduction of total distance travelled through route optimisation',
+];
 
 const isValidPriority = (priority: string) =>
   SPREADSHEET_PRIORITIES.includes(priority);
@@ -77,7 +81,10 @@ export function parseMeasuresCsv(csvData: string): ParsedCsvResponse {
       return;
     }
 
-    const isSection = unit === '' || !isValidPriority(priority);
+    const isSection =
+      unit === '' ||
+      (!isValidPriority(priority) &&
+        !EXPECTED_INVALID_PRIORITY.includes(label));
 
     if (isSection) {
       currentSection = label;

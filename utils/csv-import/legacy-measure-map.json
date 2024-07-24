@@ -395,11 +395,6 @@
     "uuid": "7ade3b4c-c3b1-4727-82d5-f36d1955e18f"
   },
   {
-    "name": "Total collected waste within city boundaries",
-    "parentSection": "Waste generation / collection",
-    "uuid": "af265f71-adee-4afa-b971-14c9e3f9fedb"
-  },
-  {
     "name": "Paper and cardboard",
     "parentSection": "Total collected waste within city boundaries",
     "uuid": "372c2783-4bf1-413c-b1b3-6f3565502b7e"
@@ -588,11 +583,6 @@
     "name": "Other building-related emissions",
     "parentSection": "Emissions from buildings & heating",
     "uuid": "34cc7425-8d60-4e2c-918a-2b7fdd96b1ee"
-  },
-  {
-    "name": "Total emissions from electricity demand",
-    "parentSection": "Emissions from electricity",
-    "uuid": "a5cd93d1-c50b-4091-9381-9fd4ed7d9e53"
   },
   {
     "name": "Buildings",
@@ -968,11 +958,6 @@
     "name": "Composting",
     "parentSection": "Treatment of organic, 2030",
     "uuid": "9557785b-f6be-44a7-a7e9-9b025e93c473"
-  },
-  {
-    "name": "Total amount of trees planted",
-    "parentSection": "Number of planted trees until 2030",
-    "uuid": "f2c64014-1c26-4be8-8eaf-1ff6341fcabc"
   },
   {
     "name": "Trees planted inside city",

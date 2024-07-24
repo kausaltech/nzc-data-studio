@@ -3,6 +3,10 @@ export function convertStringToNumber(str: string): number {
     return str;
   }
 
+  if (str === '-') {
+    return 0;
+  }
+
   return parseFloat(str.replace('%', '').replace(/,/g, ''));
 }
 

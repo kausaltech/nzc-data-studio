@@ -579,11 +579,11 @@ export const EXPECTED_MEASURES = new Map([
   ],
   [
     '4f2a53a1-17e1-4625-b302-e4559811ec7f',
-    { label: 'Cooling', value: null, comment: '' },
+    { label: 'Cooling', value: 0, comment: '' },
   ],
   [
     '34cc7425-8d60-4e2c-918a-2b7fdd96b1ee',
-    { label: 'Other building-related emissions', value: null, comment: '' },
+    { label: 'Other building-related emissions', value: 0, comment: '' },
   ],
   [
     'ca614bd8-e4db-4f60-a708-b04d79731f89',
@@ -591,11 +591,11 @@ export const EXPECTED_MEASURES = new Map([
   ],
   [
     '6ea103a2-c602-4da4-88b1-3b134016bbdc',
-    { label: 'Other', value: null, comment: '' },
+    { label: 'Other', value: 0, comment: '' },
   ],
   [
     '9be7ad3e-faa0-4010-ad9c-528f91f8ce72',
-    { label: 'Incineration of waste', value: null, comment: '' },
+    { label: 'Incineration of waste', value: 0, comment: '' },
   ],
   [
     '714f3c89-3b0b-448e-b55e-97e5bb625678',
@@ -771,6 +771,14 @@ export const EXPECTED_MEASURES = new Map([
       label: 'Renovation rate - decarbonisation scenario',
       value: 2.5,
       comment: '',
+    },
+  ],
+  [
+    'eae9054e-4e44-4a8e-abb9-7181ecca9a0c',
+    {
+      comment: '',
+      label: 'Reduction of total distance travelled through route optimisation',
+      value: 10,
     },
   ],
   [
