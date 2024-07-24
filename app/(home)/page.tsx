@@ -165,7 +165,6 @@ function DashboardContent() {
                         target="_blank"
                         endIcon={<BoxArrowUpRight size={16} />}
                         href={selectedInstance.viewUrl}
-                        download
                       >
                         View Outcomes Dashboard
                       </Button>
