@@ -22,7 +22,7 @@ import { useCallback, useState } from 'react';
 import { Upload } from 'react-bootstrap-icons';
 import { FileUpload } from './FileUpload';
 import { ParsedCsvResponse, parseMeasuresCsv } from '@/utils/csv-import';
-import { useMutation } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
 import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
 import {
   GetMeasureTemplatesQuery,
@@ -79,6 +79,7 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
   const [count, setCount] = useState<Count>({ error: 0, success: 0, total: 0 });
   const [parsedCsv, setParsedCsv] = useState<ParsedCsvResponse>();
   const [importErrors, setImportErrors] = useState<ImportError[]>([]);
+  const client = useApolloClient();
   const [updateMeasureDataPoint] = useMutation<
     UpdateMeasureDataPointMutation,
     UpdateMeasureDataPointMutationVariables
@@ -98,9 +99,12 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
   }
 
   function reset() {
-    if (!isModalOpen) {
+    if (status !== 'IMPORTING') {
       setStatus('IDLE');
       setFileContent(null);
+      setImportErrors([]);
+      setCount({ error: 0, success: 0, total: 0 });
+      setParsedCsv(undefined);
     }
   }
 
@@ -161,7 +165,7 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
 
     try {
       await Promise.all(updatePromises);
-
+      await client.refetchQueries({ include: ['GetMeasureTemplates'] });
       setStatus('COMPLETED');
     } catch (error) {
       console.error('Unexpected error during import:', error);
@@ -198,7 +202,7 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
       </IconButton>
 
       <Dialog
-        onTransitionEnd={reset}
+        onTransitionExited={reset}
         fullWidth
         maxWidth="md"
         onClose={handleClose}
@@ -334,19 +338,21 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
           </Box>
 
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
             {status !== 'COMPLETED' && (
-              <Button
-                disabled={!fileContent || status === 'IMPORTING'}
-                onClick={handleUpload}
-                endIcon={
-                  status === 'IMPORTING' && (
-                    <CircularProgress size={18} color="inherit" />
-                  )
-                }
-              >
-                {status === 'IMPORTING' ? 'Importing' : 'Import'}
-              </Button>
+              <>
+                <Button onClick={handleClose}>Cancel</Button>
+                <Button
+                  disabled={!fileContent || status === 'IMPORTING'}
+                  onClick={handleUpload}
+                  endIcon={
+                    status === 'IMPORTING' && (
+                      <CircularProgress size={18} color="inherit" />
+                    )
+                  }
+                >
+                  {status === 'IMPORTING' ? 'Importing' : 'Import'}
+                </Button>
+              </>
             )}
             {status === 'COMPLETED' && (
               <Button onClick={handleClose}>Done</Button>
