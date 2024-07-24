@@ -14,7 +14,7 @@ import { convertStringToNumber, isStringNumber } from '../numbers';
 
 const NOT_FOUND_ERROR = 'Unable to parse the row.';
 const GENERAL_ERROR = 'Unable to parse the file.';
-const SPREADSHEET_PRIORITIES = ['High', 'Medium', 'Low'];
+const SPREADSHEET_PRIORITIES = ['High', 'Moderate', 'Low'];
 const EXCLUDED_ROWS_BY_LABEL = [
   /^(Total)$/,
   /^(Legend for cell colour coding)$/,
