@@ -182,11 +182,15 @@ export const EXPECTED_MEASURES = new Map([
   ],
   [
     '327a3e7e-0778-4098-b644-901533cfda3b',
-    { label: 'Of which less than 2 years old', value: 4, comment: '' },
+    { label: 'Of which less than 2 years old', value: 7, comment: '' },
   ],
   [
     'be4a0009-a06f-4b69-a22c-babf4c616980',
     { label: 'Heavy duty trucks >3.5 tonnes', value: 4410, comment: '' },
+  ],
+  [
+    'b03bcb8c-cb77-4d7a-bed4-2a0150090aa1',
+    { label: 'Of which less than 2 years old', value: 4, comment: '' },
   ],
   [
     'ada6b0d9-4da0-420e-9e0b-adf7d19421b2',
