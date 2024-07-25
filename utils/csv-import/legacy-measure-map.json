@@ -186,6 +186,7 @@
   },
   {
     "name": "Of which less than 2 years old",
+    "previousRow": "Light duty trucks <3.5 tonnes",
     "parentSection": "Number of trucks registered within city",
     "uuid": "327a3e7e-0778-4098-b644-901533cfda3b"
   },
@@ -196,6 +197,7 @@
   },
   {
     "name": "Of which less than 2 years old",
+    "previousRow": "Heavy duty trucks >3.5 tonnes",
     "parentSection": "Number of trucks registered within city",
     "uuid": "b03bcb8c-cb77-4d7a-bed4-2a0150090aa1"
   },
