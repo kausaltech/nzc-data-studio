@@ -119,6 +119,7 @@ nzc-data-studio/
 ├── components/            # React components
 ├── theme/                 # Material UI theme overrides
 ├── utils/                 # Shared utility functions
+├── store/                 # Shared application state
 ```
 
 ## License
