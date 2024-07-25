@@ -57,6 +57,8 @@ export type ParsedCsvResponse = {
 export function parseMeasuresCsv(csvData: string): ParsedCsvResponse {
   const parsedCsv = Papa.parse<string>(csvData);
   let currentSection: string | null = null;
+  // In cases where measures have the same name and are in the same section, keep track of the previous row for context
+  let previousRow: string | null = null;
   let measuresNotFound: ImportedMeasure[] = [];
   let measureValueMap = new Map<string, ImportedMeasure>();
 
@@ -78,6 +80,7 @@ export function parseMeasuresCsv(csvData: string): ParsedCsvResponse {
       !label ||
       EXCLUDED_ROWS_BY_LABEL.some((excludedLabel) => label.match(excludedLabel))
     ) {
+      previousRow = label;
       return;
     }
 
@@ -88,6 +91,7 @@ export function parseMeasuresCsv(csvData: string): ParsedCsvResponse {
 
     if (isSection) {
       currentSection = label;
+      previousRow = label;
       return;
     }
 
@@ -103,15 +107,27 @@ export function parseMeasuresCsv(csvData: string): ParsedCsvResponse {
       measuresNotFound.push(importedMeasure);
     } else {
       // Multiple measures found with the same name, filter by parent section
-      const measure = matchesByName.find(
+      const measures = matchesByName.filter(
         (measure) => measure.parentSection === currentSection
       );
+
+      /**
+       * Some freight transportation measures have the same name and parent section,
+       * and use the previous row as context. If multiple measures are found with the
+       * same name and parent section, find the correct measure by previous row.
+       */
+      const measure =
+        measures.length === 1
+          ? measures[0]
+          : measures.find((measure) => measure.previousRow === previousRow);
 
       if (measure) {
         measureValueMap.set(measure.uuid, importedMeasure);
       } else {
         measuresNotFound.push(importedMeasure);
       }
+
+      previousRow = label;
     }
   });
 
