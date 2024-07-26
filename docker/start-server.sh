@@ -22,7 +22,7 @@ function replace_asset_prefix() {
   else
     asset_prefix=""
   fi
-  dotnext_files=$(find .next -name '*.json' -o -name '*.html' -o -name '*.js' | xargs grep -l "$prefix_placeholder" | xargs)
+  dotnext_files=$(find .next -name '*.json' -o -name '*.html' -o -name '*.js' -o -name '*.css' | xargs grep -l "$prefix_placeholder" | xargs)
   if [ -f server.js ] ; then
     dotnext_files="$dotnext_files server.js"
   fi
