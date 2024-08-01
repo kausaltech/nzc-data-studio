@@ -62,7 +62,7 @@ const WelcomeSection: React.FC = () => {
         )}
         {status === 'unauthenticated' && (
           <Button
-            sx={{ marginTop: 2 }}
+            sx={{ marginTop: 2, maxWidth: 150 }}
             variant="contained"
             color="primary"
             onClick={handleSignIn}
