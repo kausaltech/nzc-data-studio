@@ -6,7 +6,7 @@ import {
   CardContent,
   CardMedia,
   Container,
-  Grid,
+  Stack,
   Box,
   Typography,
   Link as MuiLink,
@@ -14,6 +14,14 @@ import {
 } from '@mui/material';
 import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
+import IntroSection from '../../components/IntroSection';
+import {
+  introContent,
+  benefitsTitle,
+  benefits,
+  servicesTitle,
+  services,
+} from '../../constants/IntroContent';
 
 export default function Welcome() {
   const { status } = useSession();
@@ -25,57 +33,53 @@ export default function Welcome() {
   return (
     <Container
       maxWidth={false}
+      disableGutters
       sx={{
-        width: '100%',
-        height: '100%',
+        minHeight: '100vh',
         padding: 0,
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
         boxSizing: 'border-box',
-        backgroundColor: 'grey.200',
       }}
     >
-      <Card
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          width: '100%',
-          height: '100%',
-          borderRadius: 2,
-          overflow: 'hidden',
-        }}
+      <Stack
+        spacing={4}
+        sx={{ width: '100%', maxWidth: 'lg', margin: 'auto', padding: 0 }}
       >
-        <CardContent
+        <Card
           sx={{
-            flex: 1,
-            padding: 3,
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
+            flexDirection: { xs: 'column', md: 'row' },
+            width: '100%',
+            borderRadius: 2,
+            overflow: 'hidden',
           }}
         >
-          <Typography variant="h1" paragraph>
-            Welcome to NetZeroPlanner
-          </Typography>
-          <Typography variant="h5" color="text.secondary" paragraph>
-            In partnership with NetZeroCities and Kausal
-          </Typography>
-          {status === 'loading' && <Skeleton width={80} height={40} />}
-          <Typography variant="body1" color="text.secondary" paragraph>
-            Welcome to NetZeroPlanner, your partner in creating sustainable and
-            resilient communities. Our platform empowers cities worldwide to
-            take decisive action towards achieving net-zero emissions and
-            building a greener future for generations to come.
-          </Typography>
-          <Typography variant="body1" color="text.secondary" paragraph>
-            Ready to lead your city towards a sustainable future? Sign up now
-            and join the global movement towards net-zero emissions. Let's work
-            together to make a lasting impact on our planet!
-          </Typography>
-          {status === 'loading' && <Typography>Loading...</Typography>}
-          {status === 'authenticated' && (
-            <>
+          <CardContent
+            sx={{
+              flex: 1,
+              padding: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="h2" paragraph>
+              {introContent.title}
+            </Typography>
+            <Typography variant="h5" color="text.secondary" paragraph>
+              {introContent.subtitle}
+            </Typography>
+            {status === 'loading' && <Skeleton width={80} height={40} />}
+            <Typography variant="body1" color="text.secondary" paragraph>
+              {introContent.introduction}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" paragraph>
+              {introContent.callToAction}
+            </Typography>
+            {status === 'loading' && <Typography>Loading...</Typography>}
+            {status === 'authenticated' && (
               <MuiLink
                 component={Link}
                 href="/"
@@ -85,28 +89,30 @@ export default function Welcome() {
                   Go to Dashboard
                 </Button>
               </MuiLink>
-            </>
-          )}
-          {status === 'unauthenticated' && (
-            <Button
-              sx={{ marginTop: 2 }}
-              variant="contained"
-              color="primary"
-              onClick={handleSignIn}
-            >
-              Sign in
-            </Button>
-          )}
-        </CardContent>
-        <Box sx={{ flex: 1, height: '100%' }}>
-          <CardMedia
-            component="img"
-            image="/images/nzc-welcome.png"
-            alt="NetZeroCities welcome image"
-            sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        </Box>
-      </Card>
+            )}
+            {status === 'unauthenticated' && (
+              <Button
+                sx={{ marginTop: 2 }}
+                variant="contained"
+                color="primary"
+                onClick={handleSignIn}
+              >
+                Sign in
+              </Button>
+            )}
+          </CardContent>
+          <Box sx={{ flex: 1 }}>
+            <CardMedia
+              component="img"
+              image="/images/nzc-welcome.png"
+              alt="NetZeroCities welcome image"
+              sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </Box>
+        </Card>
+        <IntroSection title={benefitsTitle} items={benefits} />
+        <IntroSection title={servicesTitle} items={services} />
+      </Stack>
     </Container>
   );
 }
