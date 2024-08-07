@@ -20,16 +20,16 @@ const Accordion = styled((props: AccordionProps) => (
   borderTopRightRadius: theme.shape.borderRadius,
 }));
 
-const AccordionSummary = styled(MuiAccordionSummary)(({ theme }) => ({
+const AccordionSummary = styled(MuiAccordionSummary)({
   '& .MuiAccordionSummary-content': {
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-}));
+});
 
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+const AccordionDetails = styled(MuiAccordionDetails)({
   borderTop: 'none',
-}));
+});
 
 interface EssentialDataProps {
   baselineYear: string;
