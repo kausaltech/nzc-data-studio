@@ -14,6 +14,8 @@ import {
 import { RedirectType, redirect } from 'next/navigation';
 import { BoxArrowUpRight, Download } from 'react-bootstrap-icons';
 import DataCollection from '@/components/DataCollection';
+import ErrorComponent from '@/components/ErrorComponent';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { UploadLegacyDataButton } from '@/components/UploadLegacyDataButton';
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
 import { useSession } from 'next-auth/react';
@@ -42,9 +44,9 @@ function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   }
 
   if (!data?.framework || error) {
-    // TODO: Return error component
-    console.log('Error', error);
-    return <h1>Something went wrong</h1>;
+    return (
+      <ErrorComponent message="Unable to load Completion score. Please try again." />
+    );
   }
 
   return (
@@ -69,9 +71,9 @@ function DataCollectionContent({ instance }: { instance: string }) {
   }
 
   if (!data || error) {
-    // TODO: Return error page
-    console.log('Error', error);
-    return <h1>Something went wrong</h1>;
+    return (
+      <ErrorComponent message="Unable to load Data collection. Please try again." />
+    );
   }
 
   return (
@@ -117,9 +119,7 @@ function DashboardContent() {
     instanceError ||
     (isInstanceStoreInitialized && !selectedInstance)
   ) {
-    // TODO: Return error page
-    console.log(`Error - Selected instance: ${selectedInstanceId}`);
-    return <h1>Something went wrong: Instance not found</h1>;
+    return <ErrorComponent message="Instance not found. Please try again." />;
   }
 
   return (
@@ -208,5 +208,16 @@ export default function Dashboard() {
     return redirect('/welcome', RedirectType.replace);
   }
 
-  return <DashboardContent />;
+  return (
+    <ErrorBoundary
+      fallback={
+        <ErrorComponent
+          isBoundaryError={true}
+          message="Something went wrong. Please try again."
+        />
+      }
+    >
+      <DashboardContent />
+    </ErrorBoundary>
+  );
 }
