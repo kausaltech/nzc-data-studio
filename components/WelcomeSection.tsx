@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { introContent } from '../constants/IntroContent';
+import { introContent } from '@/constants/intro-content';
 
 const WelcomeSection: React.FC = () => {
   const { status } = useSession();
@@ -24,7 +24,7 @@ const WelcomeSection: React.FC = () => {
     <Card
       sx={{
         display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' },
+        flexDirection: { xs: 'column-reverse', md: 'row' },
         width: '100%',
         borderRadius: 2,
         overflow: 'hidden',

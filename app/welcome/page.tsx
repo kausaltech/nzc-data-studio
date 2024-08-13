@@ -8,22 +8,11 @@ import {
   benefits,
   servicesTitle,
   services,
-} from '../../constants/IntroContent';
+} from '@/constants/intro-content';
 
 const Welcome: React.FC = () => {
   return (
-    <Container
-      maxWidth={false}
-      disableGutters
-      sx={{
-        minHeight: '100vh',
-        padding: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        boxSizing: 'border-box',
-      }}
-    >
+    <Container maxWidth={false}>
       <Stack
         spacing={4}
         sx={{ width: '100%', maxWidth: 'lg', margin: 'auto', padding: 0 }}

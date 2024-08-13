@@ -14,20 +14,19 @@ interface InfoSectionProps {
 
 const InfoSection: React.FC<InfoSectionProps> = ({ title, items }) => {
   return (
-    <Card sx={{ margin: '24 0', padding: 4 }}>
-      <Typography variant="h5" align="left" gutterBottom>
+    <div>
+      <Typography variant="h5" align="left" paragraph>
         {title}
       </Typography>
-      <Box sx={{ marginTop: 2 }}>
+      <Box>
         <Grid container spacing={4} sx={{ justifyContent: 'flex-start' }}>
           {items.map((item, index) => (
-            <Grid item xs={12} md={2} key={index}>
+            <Grid item xs={12} sm={6} md={3} key={index}>
               <Card
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  backgroundColor: 'grey.200',
                   padding: 2,
                   transition: 'transform 0.3s ease',
                   '&:hover': {
@@ -62,7 +61,7 @@ const InfoSection: React.FC<InfoSectionProps> = ({ title, items }) => {
           ))}
         </Grid>
       </Box>
-    </Card>
+    </div>
   );
 };
 
