@@ -151,6 +151,7 @@ function CustomEditComponent({
         fullWidth
         onValueChange={handleNumberValueChange}
         value={typeof value === 'number' ? value : ''}
+        inputProps={{ 'aria-label': 'Input field' }}
       />
     );
   }
@@ -161,7 +162,10 @@ function CustomEditComponent({
       onChange={handleValueChange}
       fullWidth
       value={value || ''}
-      inputProps={{ style: { fontSize: '0.9em' } }}
+      inputProps={{
+        style: { fontSize: '0.9em' },
+        'aria-label': 'Input field',
+      }}
     />
   );
 }
