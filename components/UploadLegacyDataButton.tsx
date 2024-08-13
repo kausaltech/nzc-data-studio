@@ -197,7 +197,11 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
 
   return (
     <div>
-      <IconButton color="primary" onClick={handleClickUpload}>
+      <IconButton
+        color="primary"
+        onClick={handleClickUpload}
+        aria-label="Import city data"
+      >
         <Upload size={24} />
       </IconButton>
 
