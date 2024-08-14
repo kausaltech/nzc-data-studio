@@ -1,44 +1,28 @@
 'use client';
-
+import React from 'react';
+import { Container, Stack } from '@mui/material';
+import WelcomeSection from '../../components/WelcomeSection';
+import IntroSection from '../../components/IntroSection';
 import {
-  Button,
-  Card,
-  CardContent,
-  Container,
-  Typography,
-  Link as MuiLink,
-  Skeleton,
-} from '@mui/material';
-import { signIn, useSession } from 'next-auth/react';
-import Link from 'next/link';
+  benefitsTitle,
+  benefits,
+  servicesTitle,
+  services,
+} from '@/constants/intro-content';
 
-export default function Welcome() {
-  const { status } = useSession();
-
-  function handleSignIn() {
-    signIn('paths-oidc-provider', { callbackUrl: '/' });
-  }
-
+const Welcome: React.FC = () => {
   return (
-    <Container>
-      <Card>
-        <CardContent>
-          <Typography variant="h1" paragraph>
-            Welcome to NetZeroPlanner
-          </Typography>
-          {status === 'loading' && <Skeleton width={80} height={40} />}
-          {status === 'authenticated' && (
-            <MuiLink component={Link} href="/">
-              Home
-            </MuiLink>
-          )}
-          {status === 'unauthenticated' && (
-            <Button variant="contained" onClick={handleSignIn}>
-              Sign in
-            </Button>
-          )}
-        </CardContent>
-      </Card>
+    <Container maxWidth={false}>
+      <Stack
+        spacing={4}
+        sx={{ width: '100%', maxWidth: 'lg', margin: 'auto', padding: 0 }}
+      >
+        <WelcomeSection />
+        <IntroSection title={benefitsTitle} items={benefits} />
+        <IntroSection title={servicesTitle} items={services} />
+      </Stack>
     </Container>
   );
-}
+};
+
+export default Welcome;
