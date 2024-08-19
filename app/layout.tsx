@@ -34,6 +34,12 @@ type Props = {
 export default async function RootLayout({ children }: Props) {
   const session = await auth();
   const headersList = headers();
+  /**
+   * Extract the preferred language from the 'accept-language' header. Languages are split by
+   * a comma, but may also include a semi-colon to denote the quality factor weighting. 
+   * Example: "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7"
+   * This code will return "en-US" as it's the first language in the list
+   */
   const preferredLanguage =
     headersList.get('accept-language')?.split(',')[0]?.split(';')[0] || 'en';
 
