@@ -9,6 +9,7 @@ import {
   TextField,
   TextFieldProps,
 } from '@mui/material';
+import { usePreferredLocale } from './providers/PreferredLocaleProvider';
 
 export type NumberInputProps = Omit<
   TextFieldProps,
@@ -32,10 +33,34 @@ export const DEFAULT_NUMBER_PROPS: NumericFormatProps = {
   allowedDecimalSeparators: [',', '.'],
 };
 
+function getSeparator(
+  defaultSeparator: string,
+  sampleNumber: number,
+  partType: keyof Intl.NumberFormatPartTypeRegistry,
+  locale?: string
+) {
+  const formatter = new Intl.NumberFormat(locale);
+
+  return (
+    formatter.formatToParts(sampleNumber).find((part) => part.type === partType)
+      ?.value ?? defaultSeparator
+  );
+}
+
+function getDecimalSeparator(locale?: string) {
+  return getSeparator('.', 1.1, 'decimal', locale);
+}
+
+function getThousandsSeparator(locale?: string) {
+  return getSeparator(' ', 1000, 'group', locale);
+}
+
 export const NumberFormatInput = forwardRef<
   typeof NumericFormat<NumericFormatProps>,
   NumericFormatProps
 >(function NumberFormatInput({ onValueChange, isAllowed, max, ...rest }, ref) {
+  const preferredLocale = usePreferredLocale();
+
   function isAllowedAndBelowMax(values: NumberFormatValues) {
     const { floatValue } = values;
     const belowMax =
@@ -51,6 +76,8 @@ export const NumberFormatInput = forwardRef<
       getInputRef={ref}
       onValueChange={onValueChange}
       isAllowed={isAllowedAndBelowMax}
+      decimalSeparator={getDecimalSeparator(preferredLocale)}
+      thousandSeparator={getThousandsSeparator(preferredLocale)}
     />
   );
 });
