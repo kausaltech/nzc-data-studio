@@ -90,6 +90,8 @@ export function getOverrides(theme: Theme): ThemeOptions['components'] {
           '&:hover, &:focus': {
             borderWidth: 2,
           },
+          color: theme.palette.brand[700],
+          borderColor: theme.palette.brand[700],
         },
         sizeLarge: {
           minHeight: 48,
@@ -120,6 +122,13 @@ export function getOverrides(theme: Theme): ThemeOptions['components'] {
         },
       },
     },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: theme.palette.grey[700],
+        },
+      },
+    },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
@@ -132,6 +141,23 @@ export function getOverrides(theme: Theme): ThemeOptions['components'] {
     MuiPaper: {
       defaultProps: {
         elevation: 0,
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          color: theme.palette.text.secondary,
+          '&.Mui-selected': {
+            color: theme.palette.brand[700],
+          },
+        },
+      },
+    },
+    MuiTabs: {
+      styleOverrides: {
+        indicator: {
+          backgroundColor: theme.palette.brand[700],
+        },
       },
     },
     MuiTableCell: {
