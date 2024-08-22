@@ -15,6 +15,7 @@ import {
   DialogTitle,
   FormControl,
   FormHelperText,
+  FormLabel,
   IconButton,
   InputLabel,
   MenuItem,
@@ -22,10 +23,11 @@ import {
   SelectChangeEvent,
   Stack,
   TextField,
+  Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { X } from 'react-bootstrap-icons';
+import { ExclamationTriangle, Triangle, X } from 'react-bootstrap-icons';
 
 import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
@@ -36,8 +38,39 @@ import {
   CreateFrameworkMutationVariables,
 } from '@/types/__generated__/graphql';
 import { CREATE_FRAMEWORK_CONFIG } from '@/queries/framework/create-framework-config';
+import NumberInput from './NumberInput';
+
+type ClimateOption = 'warm' | 'cold';
+type RenewableMixOption = 'low' | 'high';
+type Option<T> = { label: string; value: T };
 
 const BASELINE_OPTIONS = [2018, 2019, 2020, 2021, 2022, 2023];
+const PANDEMIC_YEARS = [2019, 2020];
+
+const CLIMATE_OPTIONS: Option<ClimateOption>[] = [
+  { label: 'Warm (over 12°C yearly average temperature)', value: 'warm' },
+  { label: 'Cold (under 12°C yearly average temperature)', value: 'cold' },
+];
+
+const RENEWABLE_ELECTRICITY_OPTIONS: Option<RenewableMixOption>[] = [
+  { label: 'High (50-100% renewable)', value: 'high' },
+  { label: 'Low (0-50% renewable)', value: 'low' },
+];
+
+function isValid(data: Data, onlyStepOne = false): boolean {
+  const validFirstStep = !!(data.planName && data.baselineYear);
+
+  if (onlyStepOne) {
+    return validFirstStep;
+  }
+
+  return !!(
+    validFirstStep &&
+    data.population &&
+    data.renewableElectricityMix &&
+    data.climate
+  );
+}
 
 function InstanceSelector({
   selectedInstanceId,
@@ -74,10 +107,26 @@ function InstanceSelector({
   );
 }
 
+type Data = {
+  planName: string;
+  baselineYear: number | '';
+  population: number | '';
+  climate: ClimateOption | null;
+  renewableElectricityMix: RenewableMixOption | null;
+};
+
+const INITIAL_DATA: Data = {
+  planName: '',
+  baselineYear: '',
+  population: '',
+  climate: null,
+  renewableElectricityMix: null,
+};
+
 export function InstanceControlBar() {
-  const [planName, setPlanName] = useState('');
-  const [baselineYear, setBaselineYear] = useState<number | ''>('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [step, setStep] = useState(0);
+  const [data, setData] = useState<Data>(INITIAL_DATA);
 
   const { data: instanceData, error: instanceError } =
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
@@ -90,14 +139,15 @@ export function InstanceControlBar() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (planName && baselineYear) {
+    if (data.planName && data.baselineYear) {
       try {
         const resp = await createFrameworkConfig({
           variables: {
+            // TODO: Add climate, population and renewableElectricityMix to the mutation
             frameworkId: 'nzc',
-            name: planName,
-            baselineYear: Number(baselineYear),
-            slug: kebabCase(planName),
+            name: data.planName,
+            baselineYear: Number(data.baselineYear),
+            slug: kebabCase(data.planName),
           },
         });
 
@@ -149,9 +199,13 @@ export function InstanceControlBar() {
   const hasMultipleInstances = instanceConfigs.length > 1;
 
   function handleClose() {
+    setStep(0);
     setIsAddModalOpen(false);
-    setPlanName('');
-    setBaselineYear('');
+    setData(INITIAL_DATA);
+  }
+
+  function handleChange(field: keyof Data, value: Data[typeof field]) {
+    setData((prev) => ({ ...prev, [field]: value }));
   }
 
   return (
@@ -200,33 +254,152 @@ export function InstanceControlBar() {
         <form noValidate autoComplete="off" onSubmit={handleSubmit}>
           <DialogContent sx={{ px: 3 }}>
             <Stack spacing={2}>
-              <TextField
-                required
-                label="Plan or city name"
-                value={planName}
-                onChange={(e) => setPlanName(e.target.value)}
-              />
+              {step === 0 && (
+                <Stack spacing={2}>
+                  <TextField
+                    required
+                    label="Plan or city name"
+                    value={data.planName}
+                    onChange={(e) => handleChange('planName', e.target.value)}
+                  />
+                  <FormControl required>
+                    <InputLabel id="baseline-select">Baseline year</InputLabel>
+                    <Select
+                      label="Baseline year"
+                      labelId="baseline-select"
+                      id="baseline-select-component"
+                      renderValue={(value) => value}
+                      value={data.baselineYear}
+                      onChange={(e) =>
+                        handleChange('baselineYear', Number(e.target.value))
+                      }
+                    >
+                      {BASELINE_OPTIONS.map((year) => (
+                        <MenuItem key={year} value={year}>
+                          <Stack spacing={0.5}>
+                            <Typography>{year}</Typography>
+                            {PANDEMIC_YEARS.includes(year) && (
+                              <Stack
+                                sx={{ color: 'text.secondary' }}
+                                direction="row"
+                                spacing={0.5}
+                                justifyContent="center"
+                              >
+                                <Box sx={{ color: 'warning.main' }}>
+                                  <ExclamationTriangle size={16} />
+                                </Box>
+                                <Typography variant="caption">
+                                  COVID-19 may have skewed data for this year
+                                </Typography>
+                              </Stack>
+                            )}
+                          </Stack>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {data.baselineYear &&
+                    PANDEMIC_YEARS.includes(data.baselineYear) ? (
+                      <FormHelperText>
+                        <Stack
+                          sx={{ color: 'warning.dark', pt: 1 }}
+                          direction="row"
+                          spacing={1}
+                          justifyContent="center"
+                        >
+                          <Box>
+                            <ExclamationTriangle size={18} />
+                          </Box>
+                          <Typography variant="caption">
+                            COVID-19 may have skewed data for this year.
+                            Consider another baseline year for more typical
+                            results.
+                          </Typography>
+                        </Stack>
+                      </FormHelperText>
+                    ) : (
+                      <FormHelperText>
+                        The baseline year is the reference point for measuring
+                        future emission reductions. You must provide your city's
+                        operational and statistical data for this specific year.
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                </Stack>
+              )}
 
-              <FormControl required>
-                <InputLabel id="baseline-select">Baseline year</InputLabel>
-                <Select
-                  label="Baseline year"
-                  labelId="baseline-select"
-                  id="baseline-select-component"
-                  value={baselineYear}
-                  onChange={(e) => setBaselineYear(Number(e.target.value))}
-                >
-                  {BASELINE_OPTIONS.map((year) => (
-                    <MenuItem key={year} value={year}>
-                      {year}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <FormHelperText>
-                  The baseline year is the reference year against which future
-                  emission reductions are measured.
-                </FormHelperText>
-              </FormControl>
+              {step === 1 && (
+                <Stack spacing={2}>
+                  <Typography variant="subtitle1" paragraph>
+                    {data.planName} ({data.baselineYear})
+                  </Typography>
+
+                  <FormControl required>
+                    <FormLabel id="population-input" sx={{ mb: 0.5 }}>
+                      <Typography component="span" variant="body2">
+                        What's your city's population?
+                      </Typography>
+                    </FormLabel>
+                    <NumberInput
+                      hiddenLabel
+                      aria-labelledby="population-input"
+                      inputProps={{
+                        allowNegative: false,
+                        min: 0,
+                        max: 50000000,
+                      }}
+                      value={data.population}
+                      onValueChange={(values) =>
+                        handleChange('population', values.floatValue ?? '')
+                      }
+                    />
+                  </FormControl>
+
+                  <FormControl required>
+                    <FormLabel id="baseline-select" sx={{ mb: 0.5 }}>
+                      <Typography component="span" variant="body2">
+                        Is your city warm or cold?
+                      </Typography>
+                    </FormLabel>
+                    <Select
+                      hiddenLabel
+                      labelId="climate-select"
+                      id="climate-select-component"
+                      value={data.climate}
+                      onChange={(e) => handleChange('climate', e.target.value)}
+                    >
+                      {CLIMATE_OPTIONS.map(({ value, label }) => (
+                        <MenuItem key={value} value={value}>
+                          {label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl required>
+                    <FormLabel id="baseline-select" sx={{ mb: 0.5 }}>
+                      <Typography component="span" variant="body2">
+                        What's the percentage of renewable energy in your
+                        electricity mix?
+                      </Typography>
+                    </FormLabel>
+                    <Select
+                      hiddenLabel
+                      labelId="electricity-select"
+                      id="electricity-select-component"
+                      value={data.renewableElectricityMix}
+                      onChange={(e) =>
+                        handleChange('renewableElectricityMix', e.target.value)
+                      }
+                    >
+                      {RENEWABLE_ELECTRICITY_OPTIONS.map(({ value, label }) => (
+                        <MenuItem key={value} value={value}>
+                          {label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Stack>
+              )}
 
               {error && (
                 <Alert severity="error">
@@ -243,19 +416,40 @@ export function InstanceControlBar() {
               pb: 3,
             }}
           >
-            <Button variant="text" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              disabled={loading || !planName || !baselineYear}
-              endIcon={
-                loading ? <CircularProgress color="inherit" size={20} /> : null
-              }
-            >
-              {loading ? 'Adding...' : 'Add plan'}
-            </Button>
+            {step === 0 && (
+              <>
+                <Button variant="text" onClick={handleClose}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => setStep(1)}
+                  disabled={!isValid(data, true)}
+                >
+                  Next
+                </Button>
+              </>
+            )}
+
+            {step === 1 && (
+              <>
+                <Button variant="text" onClick={() => setStep(0)}>
+                  Previous
+                </Button>
+                <Button
+                  variant="contained"
+                  type="submit"
+                  disabled={loading || !isValid(data)}
+                  endIcon={
+                    loading ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null
+                  }
+                >
+                  {loading ? 'Adding...' : 'Add plan'}
+                </Button>
+              </>
+            )}
           </DialogActions>
         </form>
       </Dialog>
