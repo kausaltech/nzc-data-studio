@@ -125,6 +125,7 @@ export function AppBar() {
                 onClick={handleOpenAuthMenu}
                 color="inherit"
                 endIcon={<PersonCircle size={22} />}
+                aria-label={isAuthenticated ? 'Open user menu' : 'Sign in'}
               >
                 {isAuthenticated ? (
                   <UserDisplay sessionData={session.data} />

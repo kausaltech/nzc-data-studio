@@ -118,6 +118,8 @@ function CustomEditComponent({
   const apiRef = useGridApiContext();
   const ref = useRef<HTMLInputElement | null>(null);
 
+  const row = apiRef.current.getRow(id);
+
   useLayoutEffect(() => {
     if (hasFocus && ref.current) {
       ref.current.focus();
@@ -151,6 +153,7 @@ function CustomEditComponent({
         fullWidth
         onValueChange={handleNumberValueChange}
         value={typeof value === 'number' ? value : ''}
+        inputProps={{ 'aria-label': `${row.label} ${field}` }}
       />
     );
   }
@@ -161,7 +164,10 @@ function CustomEditComponent({
       onChange={handleValueChange}
       fullWidth
       value={value || ''}
-      inputProps={{ style: { fontSize: '0.9em' } }}
+      inputProps={{
+        style: { fontSize: '0.9em' },
+        'aria-label': `${row.label} ${field}`,
+      }}
     />
   );
 }
