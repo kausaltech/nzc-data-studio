@@ -57,6 +57,19 @@ const RENEWABLE_ELECTRICITY_OPTIONS: Option<RenewableMixOption>[] = [
   { label: 'Low (0-50% renewable)', value: 'low' },
 ];
 
+function getErrorMessage(error: Error) {
+  // Hacky way to check if the error is a duplicate key error. In future, our
+  // backend should return error codes to determine the type of 400 error.
+  if (
+    error.message.startsWith('Instance with identifier') &&
+    error.message.endsWith('already exists')
+  ) {
+    return 'A city plan with this name already exists. Please choose a different name.';
+  }
+
+  return `Error creating plan: ${error.message}`;
+}
+
 function isValid(data: Data, onlyStepOne = false): boolean {
   const validFirstStep = !!(data.planName && data.baselineYear);
 
@@ -239,7 +252,7 @@ export function InstanceControlBar() {
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle>
+        <DialogTitle sx={{ pb: 1 }}>
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -417,7 +430,7 @@ export function InstanceControlBar() {
 
             {error && (
               <Alert severity="error" sx={{ mt: 2 }}>
-                <AlertTitle>Error creating plan: {error.message}</AlertTitle>
+                <AlertTitle>{getErrorMessage(error)}</AlertTitle>
               </Alert>
             )}
           </DialogContent>
