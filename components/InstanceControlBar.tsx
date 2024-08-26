@@ -45,7 +45,7 @@ type RenewableMixOption = 'low' | 'high';
 type Option<T> = { label: string; value: T };
 
 const BASELINE_OPTIONS = [2018, 2019, 2020, 2021, 2022, 2023];
-const PANDEMIC_YEARS = [2019, 2020];
+const PANDEMIC_YEARS = [2020, 2021];
 
 const CLIMATE_OPTIONS: Option<ClimateOption>[] = [
   { label: 'Warm (Above 12°C yearly average)', value: 'warm' },
@@ -95,7 +95,17 @@ function InstanceSelector({
   const setInstance = useFrameworkInstanceStore((state) => state.setInstance);
 
   function handleChange(e: SelectChangeEvent<string>) {
-    setInstance(e.target.value);
+    const instance = instances.find(
+      (instance) => instance.id === e.target.value
+    );
+
+    if (instance) {
+      setInstance(
+        instance.id,
+        instance.organizationName,
+        instance.baselineYear
+      );
+    }
   }
 
   return (
@@ -165,7 +175,13 @@ export function InstanceControlBar() {
         });
 
         if (resp.data?.createFrameworkConfig?.frameworkConfig?.id) {
-          setInstance(resp.data.createFrameworkConfig.frameworkConfig.id);
+          const instance = resp.data.createFrameworkConfig.frameworkConfig;
+
+          setInstance(
+            instance.id,
+            instance.organizationName,
+            instance.baselineYear
+          );
         }
 
         handleClose();
@@ -194,7 +210,15 @@ export function InstanceControlBar() {
           (config) => config.id === selectedInstanceId
         ))
     ) {
-      setInstance(instanceData.framework?.configs[0]?.id ?? null);
+      const instance = instanceData.framework?.configs[0];
+
+      if (instance) {
+        setInstance(
+          instance.id,
+          instance.organizationName,
+          instance.baselineYear
+        );
+      }
     }
   }, [
     instanceData,

@@ -1,8 +1,9 @@
 import {
+  GetMeasureTemplatesQuery,
   MainSectionMeasuresFragment,
   MeasureTemplateFragmentFragment,
 } from '@/types/__generated__/graphql';
-import { createFilterTypename } from './filter';
+import { createFilterByTypename } from './filter';
 
 export type MeasureTemplates = NonNullable<
   MainSectionMeasuresFragment['descendants'][0]['measureTemplates']
@@ -34,7 +35,7 @@ export function mapMeasureTemplatesToRows(
       .reduce<Section[]>((previousSections, section) => {
         const measureTemplates: MeasureTemplateFragmentFragment[] =
           section.measureTemplates?.filter(
-            createFilterTypename<MeasureTemplateFragmentFragment>(
+            createFilterByTypename<MeasureTemplateFragmentFragment>(
               'MeasureTemplate'
             )
           );
@@ -67,4 +68,59 @@ export function measureTemplateHasValue(measureTemplate: MeasureTemplates[0]) {
   return !!measureTemplate.measure?.dataPoints?.find((dataPoint) => {
     return typeof dataPoint.value === 'number';
   });
+}
+
+export function getMeasureValue(
+  measureTemplate: MeasureTemplateFragmentFragment,
+  baselineYear: number | null
+) {
+  const firstDataPoint = measureTemplate.defaultDataPoints[0];
+
+  if (baselineYear === null) {
+    return firstDataPoint.value;
+  }
+
+  if (measureTemplate.measure?.dataPoints.length) {
+    const measure = measureTemplate.measure.dataPoints.find(
+      (dataPoint) => dataPoint.year === baselineYear
+    );
+
+    return measure?.value ?? firstDataPoint.value;
+  }
+
+  return null;
+}
+
+export type MeasureForDownload = {
+  uuid: string;
+  id: string;
+  name: string;
+  notes: string | null;
+  value: number | null;
+};
+
+export function getMeasuresFromMeasureTemplates(
+  measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>,
+  baselineYear: number | null
+) {
+  const allMeasureTemplates = [
+    ...(measureTemplates.dataCollection?.descendants ?? []),
+    ...(measureTemplates.futureAssumptions?.descendants ?? []),
+  ];
+
+  const measures = allMeasureTemplates.reduce<MeasureForDownload[]>(
+    (measures, descendant) => [
+      ...measures,
+      ...descendant.measureTemplates.map((template) => ({
+        uuid: template.uuid,
+        id: template.id,
+        name: template.name,
+        notes: template.measure?.internalNotes ?? null,
+        value: getMeasureValue(template, baselineYear),
+      })),
+    ],
+    []
+  );
+
+  return measures;
 }
