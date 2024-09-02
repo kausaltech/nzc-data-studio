@@ -27,7 +27,7 @@ import useStore from '@/store/use-store';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
 import CompletionScoreCard from '@/components/CompletionScoreCard';
-import { DownloadDataButton } from '@/components/DownloadDataButton';
+import { ImportExportActions } from '@/components/import-export/ImportExportActions';
 
 function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   const { data, error, loading } = useQuery<
@@ -87,8 +87,9 @@ function DataCollectionContent({ instance }: { instance: string }) {
           </Typography>
           {!!data.framework && (
             <Stack direction="row" spacing={2}>
-              <DownloadDataButton measureTemplates={data.framework} />
-              <UploadLegacyDataButton measureTemplates={data.framework} />
+              <ImportExportActions measureTemplates={data.framework} />
+              {/* TODO: Ensure this is only visible for Sean */}
+              {/* <UploadLegacyDataButton measureTemplates={data.framework} /> */}
             </Stack>
           )}
         </Stack>
