@@ -334,7 +334,19 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
               </Typography>
             </Box>
 
-            <FileUpload onChangeFileContent={handleChangeFileContent} />
+            <FileUpload
+              onChangeFileContent={handleChangeFileContent}
+              acceptedFileType="text/csv"
+              fileType="csv"
+              invalidContentMessage="Failed to process the file. It might be corrupt or in an invalid format. Please contact support for assistance."
+              invalidFileMessage="Invalid file selected. Please upload a valid CSV file."
+              description={
+                <>
+                  Upload a <em>.csv</em> file from the data request sheet in
+                  collaboration with NetZeroCities
+                </>
+              }
+            />
           </Box>
 
           <DialogActions>

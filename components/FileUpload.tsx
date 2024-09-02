@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import Papa from 'papaparse';
 import {
   Stack,
@@ -41,11 +41,11 @@ const FOCUSED_HIDDEN_INPUT_SX: SxProps<Theme> = (theme) => ({
 
 const UploadBoxWrapper = emotionStyled.div`
   position: relative;
-  min-height: 250px;
+  min-height: 200px;
 `;
 
 const StyledUploadStack = styled((props: StackProps) => (
-  <Stack component="label" htmlFor="file-upload" spacing={3} {...props} />
+  <Stack component="label" htmlFor="file-upload" spacing={2} {...props} />
 ))(({ theme }) => ({
   position: 'absolute',
   top: 0,
@@ -63,7 +63,20 @@ const StyledUploadStack = styled((props: StackProps) => (
   backgroundColor: theme.palette.brand['50'],
 }));
 
-const isValid = (fileContent: string) => !!Papa.parse(fileContent).data.length;
+const isValid = (fileContent: string, fileType: FileType): boolean => {
+  if (fileType === 'csv') {
+    return !!Papa.parse(fileContent).data.length;
+  } else if (fileType === 'json') {
+    try {
+      JSON.parse(fileContent);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+};
 
 const STATUS = {
   WAITING: 'WAITING',
@@ -73,11 +86,25 @@ const STATUS = {
   DRAGGING_FILE: 'DRAGGING_FILE',
 };
 
+type FileType = 'csv' | 'json';
+
 type Props = {
   onChangeFileContent: (content: string | null) => void;
+  fileType: FileType;
+  description: ReactNode;
+  acceptedFileType: string;
+  invalidFileMessage: string;
+  invalidContentMessage: string;
 };
 
-export const FileUpload = ({ onChangeFileContent }: Props) => {
+export const FileUpload = ({
+  onChangeFileContent,
+  fileType,
+  description,
+  acceptedFileType,
+  invalidFileMessage,
+  invalidContentMessage,
+}: Props) => {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState(STATUS.WAITING);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -95,25 +122,21 @@ export const FileUpload = ({ onChangeFileContent }: Props) => {
     setStatus(STATUS.LOADING);
 
     reader.addEventListener('load', () => {
-      const isCsv = file.type === 'text/csv';
+      const isCorrectType = file.type === acceptedFileType;
       const fileContent = reader.result;
       const isStringResult = typeof fileContent === 'string';
-      const isFileValid = isStringResult && isValid(fileContent);
+      const isFileValid = isStringResult && isValid(fileContent, fileType);
 
-      if (!isCsv || !isStringResult) {
+      if (!isCorrectType || !isStringResult) {
         setStatus(STATUS.ERROR);
-        setErrorMessage(
-          'Invalid file selected. Please upload a valid CSV file.'
-        );
+        setErrorMessage(invalidFileMessage);
         onChangeFileContent(null);
         return;
       }
 
       if (!isFileValid) {
         setStatus(STATUS.ERROR);
-        setErrorMessage(
-          'Failed to process the file. It might be corrupt or in an invalid format. Please contact support for assistance.'
-        );
+        setErrorMessage(invalidContentMessage);
         onChangeFileContent(null);
         return;
       }
@@ -124,7 +147,14 @@ export const FileUpload = ({ onChangeFileContent }: Props) => {
     });
 
     reader.readAsText(file);
-  }, [file, onChangeFileContent]);
+  }, [
+    file,
+    onChangeFileContent,
+    invalidContentMessage,
+    acceptedFileType,
+    fileType,
+    invalidFileMessage,
+  ]);
 
   const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFile(e.target.files?.[0] ?? null);
@@ -142,6 +172,7 @@ export const FileUpload = ({ onChangeFileContent }: Props) => {
           component="input"
           id="file-upload"
           type="file"
+          accept={acceptedFileType}
           onChange={handleChangeFile}
           onDragEnter={handleDragOver}
           onDragLeave={handleDragOut}
@@ -150,7 +181,7 @@ export const FileUpload = ({ onChangeFileContent }: Props) => {
         />
 
         <StyledUploadStack>
-          <Upload size={32} />
+          <Upload size={24} />
 
           {file ? (
             <Typography variant="h4" component="p" textAlign="center">
@@ -173,8 +204,7 @@ export const FileUpload = ({ onChangeFileContent }: Props) => {
           )}
 
           <Typography color="text.secondary" textAlign="center" variant="body2">
-            Upload a <em>.csv</em> file from the data request sheet in
-            collaboration with NetZeroCities
+            {description}
           </Typography>
         </StyledUploadStack>
       </UploadBoxWrapper>
