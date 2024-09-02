@@ -13,6 +13,7 @@ import { ApolloWrapper } from '@/components/providers/ApolloWrapper';
 import './globals.css';
 import { Logo } from '@/components/Logo';
 import { PreferredLocaleProvider } from '@/components/providers/PreferredLocaleProvider';
+import { SnackbarProvider } from '@/components/SnackbarProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -59,23 +60,25 @@ export default async function RootLayout({ children }: Props) {
             <ApolloWrapper>
               <AppRouterCacheProvider>
                 <ThemeProvider>
-                  <AppBar />
-                  <Box component="main" sx={{ my: 4 }}>
-                    {children}
-                  </Box>
-                  <Box
-                    component="footer"
-                    sx={{
-                      backgroundColor: 'background.dark',
-                      color: 'primary.contrastText',
-                      py: 4,
-                      mt: 'auto',
-                    }}
-                  >
-                    <Container>
-                      <Logo variant="light" size="lg" />
-                    </Container>
-                  </Box>
+                  <SnackbarProvider>
+                    <AppBar />
+                    <Box component="main" sx={{ my: 4 }}>
+                      {children}
+                    </Box>
+                    <Box
+                      component="footer"
+                      sx={{
+                        backgroundColor: 'background.dark',
+                        color: 'primary.contrastText',
+                        py: 4,
+                        mt: 'auto',
+                      }}
+                    >
+                      <Container>
+                        <Logo variant="light" size="lg" />
+                      </Container>
+                    </Box>
+                  </SnackbarProvider>
                 </ThemeProvider>
               </AppRouterCacheProvider>
             </ApolloWrapper>
