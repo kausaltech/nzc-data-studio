@@ -164,3 +164,15 @@ export function getUnitName(unit: string): ReactNode {
     </>
   );
 }
+
+/**
+ * Albeit hacky, year measures require slightly different formatting and can be
+ * distinguished as the unit is empty and the measure label contains the word "year"
+ */
+export function isYearMeasure(measureLabel: string, unit: string) {
+  if (unit === '' && measureLabel.toLowerCase().includes('year')) {
+    return true;
+  }
+
+  return false;
+}

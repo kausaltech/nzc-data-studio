@@ -1,6 +1,6 @@
 export const DECIMAL_PRECISION_BY_UNIT = {
   capita: 0,
-  'percent/year': 0,
+  'percent/year': 2,
   'kilometer²': 0,
   'Mpkm/year': 0,
   'passenger/vehicle': 0,
@@ -19,6 +19,7 @@ export const DECIMAL_PRECISION_BY_UNIT = {
   'EUR/kilowatt hour': 2,
   'kt/year': 2,
   pcs: 0,
+  '': 0, // Years have no unit (empty string)
 };
 
 /**
