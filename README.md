@@ -122,6 +122,16 @@ nzc-data-studio/
 ├── store/                 # Shared application state
 ```
 
+### Store
+
+We use [Zustand](<(https://github.com/pmndrs/zustand)>) for state management, with custom stores defined in `store/`. These stores handle various aspects of the application state, such as selected tabs, accordions, and framework instances. Unlike React Context, Zustand state can be accessed outside of components.
+
+#### Persisting to local storage
+
+The `useFrameworkInstanceStore` in `selected-framework-instance.ts` uses Zustand's `persist` middleware to save the selected instance, name, and baseline year to local storage. This allows the application to maintain state across page reloads.
+
+When working with persisted stores, it's important to handle hydration correctly for server-side rendering. Our custom `use-store.ts` helper provides a custom hook that ensures the store is only accessed after the component has mounted on the client side:
+
 ## License
 
 This project is licensed under the GNU AGPL License. See the [LICENSE](LICENSE) file for more information.

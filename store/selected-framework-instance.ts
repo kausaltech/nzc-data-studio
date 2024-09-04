@@ -3,18 +3,31 @@ import { persist } from 'zustand/middleware';
 
 type Store = {
   selectedInstance: string | null;
-  setInstance: (instanceId: string | null) => void;
+  name: string | null;
+  baselineYear: number | null;
+  setInstance: (
+    instanceId: string | null,
+    name?: string,
+    baselineYear?: number
+  ) => void;
 };
 
 export const useFrameworkInstanceStore = create(
   persist<Store>(
     (set) => ({
       selectedInstance: null,
-      setInstance(instanceId) {
-        set({ selectedInstance: instanceId });
+      name: null,
+      baselineYear: null,
+      setInstance(instanceId, name, baselineYear) {
+        set({
+          selectedInstance: instanceId,
+          name: name ?? null,
+          baselineYear: baselineYear ?? null,
+        });
       },
     }),
     {
+      version: 2,
       name: 'framework-instance-storage',
     }
   )

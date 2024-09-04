@@ -314,7 +314,7 @@ export type CreateFrameworkConfigMutation = {
   __typename?: 'CreateFrameworkConfigMutation';
   /** The created framework config instance. */
   frameworkConfig?: Maybe<FrameworkConfig>;
-  ok?: Maybe<Scalars['Boolean']['output']>;
+  ok: Scalars['Boolean']['output'];
 };
 
 export type DateBlock = StreamFieldInterface & {
@@ -593,10 +593,12 @@ export type FrameworkConfig = {
   baselineYear: Scalars['Int']['output'];
   framework: Framework;
   id: Scalars['ID']['output'];
+  instance?: Maybe<InstanceType>;
   measures: Array<Measure>;
   organizationName: Scalars['String']['output'];
   /** URL for downloading a results file */
   resultsDownloadUrl?: Maybe<Scalars['String']['output']>;
+  uuid: Scalars['UUID']['output'];
   /** Public URL for instance dashboard */
   viewUrl?: Maybe<Scalars['String']['output']>;
 };
@@ -913,7 +915,7 @@ export type MeasureInput = {
   dataPoints?: InputMaybe<Array<MeasureDataPointInput>>;
   /** Internal notes for the measure instance */
   internalNotes?: InputMaybe<Scalars['String']['input']>;
-  /** ID of the measure template within a framework */
+  /** ID (or UUID) of the measure template within a framework */
   measureTemplateId: Scalars['ID']['input'];
 };
 
@@ -1032,6 +1034,7 @@ export type MutationsCreateFrameworkConfigArgs = {
   frameworkId: Scalars['ID']['input'];
   instanceIdentifier: Scalars['ID']['input'];
   name: Scalars['String']['input'];
+  uuid?: InputMaybe<Scalars['UUID']['input']>;
 };
 
 
@@ -1949,6 +1952,26 @@ export type ProfileQuery = (
     & { __typename?: 'UserType' }
   ) | null }
   & { __typename?: 'Query' }
+);
+
+export type UpdateMeasuresMutationVariables = Exact<{
+  frameworkConfigId: Scalars['ID']['input'];
+  measures: Array<MeasureInput>;
+}>;
+
+
+export type UpdateMeasuresMutation = (
+  { updateMeasureDataPoints?: (
+    { ok?: boolean | null, deletedDataPointCount: number, updatedDataPoints?: Array<(
+      { id: string, year: number, value: number }
+      & { __typename?: 'MeasureDataPoint' }
+    ) | null> | null, createdDataPoints?: Array<(
+      { id: string, year: number, value: number }
+      & { __typename?: 'MeasureDataPoint' }
+    ) | null> | null }
+    & { __typename?: 'UpdateMeasureDataPoints' }
+  ) | null }
+  & { __typename?: 'Mutations' }
 );
 
 export type CreateFrameworkMutationVariables = Exact<{

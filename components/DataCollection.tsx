@@ -6,6 +6,8 @@ import { DatasheetEditor } from '@/components/DatasheetEditor';
 import { Tab as TTab, useDataCollectionStore } from '@/store/data-collection';
 import { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
 import { mapMeasureTemplatesToRows } from '@/utils/measures';
+import useStore from '@/store/use-store';
+import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -43,6 +45,10 @@ type Props = {
 const DataCollection = ({ measureTemplates }: Props) => {
   const setSelectedTab = useDataCollectionStore((state) => state.setTab);
   const selectedTab = useDataCollectionStore((state) => state.selectedTab);
+  const { data: baselineYear } = useStore(
+    useFrameworkInstanceStore,
+    (state) => state.baselineYear
+  );
 
   const handleChange = (event: React.SyntheticEvent, newSelected: TTab) => {
     setSelectedTab(newSelected);
@@ -64,7 +70,11 @@ const DataCollection = ({ measureTemplates }: Props) => {
           onChange={handleChange}
           aria-label="basic tabs example"
         >
-          <Tab label="Data collection" value="data" {...a11yProps('data')} />
+          <Tab
+            label={`Data collection (${baselineYear})`}
+            value="data"
+            {...a11yProps('data')}
+          />
           <Tab
             label="Future assumptions (2030)"
             value="assumptions"

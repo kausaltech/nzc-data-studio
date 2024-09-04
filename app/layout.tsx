@@ -13,6 +13,7 @@ import { ApolloWrapper } from '@/components/providers/ApolloWrapper';
 import './globals.css';
 import { Logo } from '@/components/Logo';
 import { PreferredLocaleProvider } from '@/components/providers/PreferredLocaleProvider';
+import { SnackbarProvider } from '@/components/SnackbarProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,7 +37,7 @@ export default async function RootLayout({ children }: Props) {
   const headersList = headers();
   /**
    * Extract the preferred language from the 'accept-language' header. Languages are split by
-   * a comma, but may also include a semi-colon to denote the quality factor weighting. 
+   * a comma, but may also include a semi-colon to denote the quality factor weighting.
    * Example: "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7"
    * This code will return "en-US" as it's the first language in the list
    */
@@ -59,23 +60,25 @@ export default async function RootLayout({ children }: Props) {
             <ApolloWrapper>
               <AppRouterCacheProvider>
                 <ThemeProvider>
-                  <AppBar />
-                  <Box component="main" sx={{ my: 4 }}>
-                    {children}
-                  </Box>
-                  <Box
-                    component="footer"
-                    sx={{
-                      backgroundColor: 'background.dark',
-                      color: 'primary.contrastText',
-                      py: 4,
-                      mt: 'auto',
-                    }}
-                  >
-                    <Container>
-                      <Logo variant="light" size="lg" />
-                    </Container>
-                  </Box>
+                  <SnackbarProvider>
+                    <AppBar />
+                    <Box component="main" sx={{ my: 4 }}>
+                      {children}
+                    </Box>
+                    <Box
+                      component="footer"
+                      sx={{
+                        backgroundColor: 'background.dark',
+                        color: 'primary.contrastText',
+                        py: 4,
+                        mt: 'auto',
+                      }}
+                    >
+                      <Container>
+                        <Logo variant="light" size="lg" />
+                      </Container>
+                    </Box>
+                  </SnackbarProvider>
                 </ThemeProvider>
               </AppRouterCacheProvider>
             </ApolloWrapper>

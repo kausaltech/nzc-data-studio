@@ -31,7 +31,7 @@ import NumberInput from './NumberInput';
 import { NumberFormatValues } from 'react-number-format';
 import { DataSectionSummary } from './DataSectionSummary';
 import { useDataCollectionStore } from '@/store/data-collection';
-import { Section } from '@/utils/measures';
+import { getMeasureValue, Section } from '@/utils/measures';
 import {
   MeasureTemplateFragmentFragment,
   UnitType,
@@ -385,25 +385,11 @@ export function CustomFooter({
   );
 }
 
-function getMeasureValue(
-  measureTemplate: MeasureTemplateFragmentFragment,
-  baselineYear: number
-) {
-  if (measureTemplate.measure?.dataPoints.length) {
-    const measure = measureTemplate.measure.dataPoints.find(
-      (dataPoint) => dataPoint.year === baselineYear
-    );
-
-    return measure?.value ?? measureTemplate.measure.dataPoints[0].value;
-  }
-
-  return null;
-}
-
 function getRowsFromSection(
   { childSections = [], measureTemplates = [], ...section }: Section,
   depth = 0,
-  isRoot: boolean = false
+  isRoot: boolean = false,
+  baselineYear: number | null = null
 ): Row[] {
   const sectionRow: SectionRow = {
     type: 'SECTION',
@@ -422,7 +408,7 @@ function getRowsFromSection(
         id: measure.uuid,
         originalId: measure.id,
         label: measure.name,
-        value: getMeasureValue(measure, 2019), // TODO: Get baseline year from API
+        value: getMeasureValue(measure, baselineYear),
         unit: measure.unit,
         fallback: measure.defaultDataPoints[0]?.value ?? null,
         priority: measure.priority,
@@ -432,7 +418,7 @@ function getRowsFromSection(
       })
     ),
     ...childSections.flatMap((section) =>
-      getRowsFromSection(section, depth + 1)
+      getRowsFromSection(section, depth + 1, false, baselineYear)
     ),
   ];
 }
@@ -450,15 +436,19 @@ function AccordionContentWrapper({
   index,
   withIndexes = false,
 }: AccordionContentWrapperProps) {
-  const [updateMeasureDataPoint, { loading }] = useMutation<
-    UpdateMeasureDataPointMutation,
-    UpdateMeasureDataPointMutationVariables
-  >(UPDATE_MEASURE_DATAPOINT);
-
+  const { data: baselineYear } = useStore(
+    useFrameworkInstanceStore,
+    (state) => state.baselineYear
+  );
   const { data: selectedInstanceId } = useStore(
     useFrameworkInstanceStore,
     (state) => state.selectedInstance
   );
+
+  const [updateMeasureDataPoint, { loading }] = useMutation<
+    UpdateMeasureDataPointMutation,
+    UpdateMeasureDataPointMutationVariables
+  >(UPDATE_MEASURE_DATAPOINT);
 
   const singleClickEditProps = useSingleClickEdit();
   const setExpanded = useDataCollectionStore((store) => store.setAccordion);
@@ -468,7 +458,10 @@ function AccordionContentWrapper({
       setExpanded(newExpanded ? panel : null);
     };
 
-  const rows = useMemo(() => getRowsFromSection(section, 0, true), [section]);
+  const rows = useMemo(
+    () => getRowsFromSection(section, 0, true, baselineYear),
+    [section, baselineYear]
+  );
 
   return (
     <Accordion
