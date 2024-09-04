@@ -27,6 +27,7 @@ import {
 } from '@/types/__generated__/graphql';
 import { FileUpload } from '../FileUpload';
 import { FadeAndCollapse } from '../FadeAndCollapse';
+import { useSnackbar } from '../SnackbarProvider';
 
 const UPDATE_MEASURES = gql`
   mutation UpdateMeasures(
@@ -61,6 +62,7 @@ export function ImportPlanDialogContent({ onClose }: Props) {
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [confirmOverwrite, setConfirmOverwrite] = useState(false);
+  const { setNotification } = useSnackbar();
 
   const { data: frameworkConfigId } = useStore(
     useFrameworkInstanceStore,
@@ -114,7 +116,10 @@ export function ImportPlanDialogContent({ onClose }: Props) {
 
       if (result.data?.updateMeasureDataPoints?.ok) {
         await client.refetchQueries({ include: ['GetMeasureTemplates'] });
-        // TODO: Show toast notification
+        setNotification({
+          severity: 'success',
+          message: 'Plan data imported successfully',
+        });
         onClose();
       } else {
         console.error('Error uploading data:', result.errors);
