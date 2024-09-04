@@ -178,6 +178,8 @@ function CustomEditComponent({
       {...commonProps}
       onChange={handleValueChange}
       fullWidth
+      multiline
+      maxRows={6}
       value={value || ''}
       inputProps={{
         style: { fontSize: '0.9em' },
