@@ -34,6 +34,7 @@ import { useDataCollectionStore } from '@/store/data-collection';
 import {
   getDecimalPrecisionByUnit,
   getMeasureValue,
+  getUnitName,
   Section,
 } from '@/utils/measures';
 import {
@@ -304,7 +305,7 @@ const GRID_COL_DEFS: GridColDef[] = [
     valueFormatter: (value: UnitType) => value.long,
     renderCell: (params: GridRenderCellParams<Row>) => (
       <Typography sx={{ my: 1 }} variant={'caption'}>
-        {params.value.long}
+        {getUnitName(params.value.long)}
       </Typography>
     ),
   },

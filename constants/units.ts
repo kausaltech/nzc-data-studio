@@ -20,3 +20,14 @@ export const DECIMAL_PRECISION_BY_UNIT = {
   'kt/year': 2,
   pcs: 0,
 };
+
+/**
+ * Temporarily override some unit labels that have no backend human readable string
+ */
+export const UNIT_LABELS = {
+  thousand_square_meters: 'thousand square meters',
+  'gigawatt_hour/year': 'gigawatt hour/year',
+  'EUR/megawatt_hour': 'EUR/megawatt hour',
+  // Note: This is a backend bug which needs hotfixing, this can be removed when the "Average passengers per bus" unit is fixed.
+  'pkm/vkm': 'passenger/vehicle',
+};
