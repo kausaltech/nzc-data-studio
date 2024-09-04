@@ -4,6 +4,7 @@ import {
   MeasureTemplateFragmentFragment,
 } from '@/types/__generated__/graphql';
 import { createFilterByTypename } from './filter';
+import { DECIMAL_PRECISION_BY_UNIT } from '@/constants/decimal-precision-by-unit';
 
 export type MeasureTemplates = NonNullable<
   MainSectionMeasuresFragment['descendants'][0]['measureTemplates']
@@ -123,4 +124,18 @@ export function getMeasuresFromMeasureTemplates(
   );
 
   return measures;
+}
+
+/**
+ * TODO: This logic should be moved to the backend
+ *
+ * This function uses a predefined mapping (DECIMAL_PRECISION_BY_UNIT) to determine
+ * the appropriate decimal precision for various units. If the unit is not found
+ * in the mapping, it returns undefined.
+ */
+export function getDecimalPrecisionByUnit(unit: string): number | undefined {
+  return (
+    DECIMAL_PRECISION_BY_UNIT[unit as keyof typeof DECIMAL_PRECISION_BY_UNIT] ??
+    undefined
+  );
 }

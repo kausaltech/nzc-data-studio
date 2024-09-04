@@ -31,7 +31,11 @@ import NumberInput from './NumberInput';
 import { NumberFormatValues } from 'react-number-format';
 import { DataSectionSummary } from './DataSectionSummary';
 import { useDataCollectionStore } from '@/store/data-collection';
-import { getMeasureValue, Section } from '@/utils/measures';
+import {
+  getDecimalPrecisionByUnit,
+  getMeasureValue,
+  Section,
+} from '@/utils/measures';
 import {
   MeasureTemplateFragmentFragment,
   UnitType,
@@ -114,11 +118,10 @@ function CustomEditComponent({
   hasFocus,
   sx = [],
   colDef,
+  row,
 }: GridRenderEditCellParams & { sx?: SxProps<Theme> }) {
   const apiRef = useGridApiContext();
   const ref = useRef<HTMLInputElement | null>(null);
-
-  const row = apiRef.current.getRow(id);
 
   useLayoutEffect(() => {
     if (hasFocus && ref.current) {
@@ -153,7 +156,10 @@ function CustomEditComponent({
         fullWidth
         onValueChange={handleNumberValueChange}
         value={typeof value === 'number' ? value : ''}
-        inputProps={{ 'aria-label': `${row.label} ${field}` }}
+        inputProps={{
+          'aria-label': `${row.label} ${field}`,
+          decimalScale: getDecimalPrecisionByUnit(row.unit.long),
+        }}
       />
     );
   }
@@ -309,8 +315,13 @@ const GRID_COL_DEFS: GridColDef[] = [
       'Fallback values are utilized when no city-specific value is provided. Fallbacks are derived from comparable cities.',
     field: 'fallback',
     flex: 1,
-    valueFormatter: (value?: number) =>
-      typeof value === 'number' ? value.toLocaleString() : '',
+    valueFormatter: (value: number, row: MeasureRow) => {
+      const precision = getDecimalPrecisionByUnit(row.unit.long);
+
+      return typeof value === 'number'
+        ? value.toLocaleString(undefined, { maximumFractionDigits: precision })
+        : '';
+    },
   },
   {
     display: 'flex',
