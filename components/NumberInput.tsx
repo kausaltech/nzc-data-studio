@@ -29,7 +29,6 @@ export type NumberInputProps = Omit<
 export const DEFAULT_NUMBER_PROPS: NumericFormatProps = {
   allowNegative: true,
   allowLeadingZeros: false,
-  thousandSeparator: true,
   allowedDecimalSeparators: [',', '.'],
 };
 
@@ -72,12 +71,12 @@ export const NumberFormatInput = forwardRef<
   return (
     <NumericFormat
       {...DEFAULT_NUMBER_PROPS}
-      {...rest}
       getInputRef={ref}
       onValueChange={onValueChange}
       isAllowed={isAllowedAndBelowMax}
       decimalSeparator={getDecimalSeparator(preferredLocale)}
       thousandSeparator={getThousandsSeparator(preferredLocale)}
+      {...rest}
     />
   );
 });

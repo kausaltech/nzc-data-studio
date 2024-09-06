@@ -31,7 +31,13 @@ import NumberInput from './NumberInput';
 import { NumberFormatValues } from 'react-number-format';
 import { DataSectionSummary } from './DataSectionSummary';
 import { useDataCollectionStore } from '@/store/data-collection';
-import { getMeasureValue, Section } from '@/utils/measures';
+import {
+  getDecimalPrecisionByUnit,
+  getMeasureValue,
+  getUnitName,
+  isYearMeasure,
+  Section,
+} from '@/utils/measures';
 import {
   MeasureTemplateFragmentFragment,
   UnitType,
@@ -114,11 +120,10 @@ function CustomEditComponent({
   hasFocus,
   sx = [],
   colDef,
+  row,
 }: GridRenderEditCellParams & { sx?: SxProps<Theme> }) {
   const apiRef = useGridApiContext();
   const ref = useRef<HTMLInputElement | null>(null);
-
-  const row = apiRef.current.getRow(id);
 
   useLayoutEffect(() => {
     if (hasFocus && ref.current) {
@@ -146,6 +151,12 @@ function CustomEditComponent({
     size: 'small',
   };
 
+  const yearInputProps = {
+    thousandSeparator: false,
+    maxLength: 4,
+    allowNegative: false,
+  };
+
   if (colDef.type === 'number') {
     return (
       <NumberInput
@@ -153,7 +164,11 @@ function CustomEditComponent({
         fullWidth
         onValueChange={handleNumberValueChange}
         value={typeof value === 'number' ? value : ''}
-        inputProps={{ 'aria-label': `${row.label} ${field}` }}
+        inputProps={{
+          'aria-label': `${row.label} ${field}`,
+          decimalScale: getDecimalPrecisionByUnit(row.unit.long),
+          ...(isYearMeasure(row.label, row.unit.long) ? yearInputProps : {}),
+        }}
       />
     );
   }
@@ -163,6 +178,8 @@ function CustomEditComponent({
       {...commonProps}
       onChange={handleValueChange}
       fullWidth
+      multiline
+      maxRows={6}
       value={value || ''}
       inputProps={{
         style: { fontSize: '0.9em' },
@@ -298,7 +315,7 @@ const GRID_COL_DEFS: GridColDef[] = [
     valueFormatter: (value: UnitType) => value.long,
     renderCell: (params: GridRenderCellParams<Row>) => (
       <Typography sx={{ my: 1 }} variant={'caption'}>
-        {params.value.long}
+        {getUnitName(params.value.long)}
       </Typography>
     ),
   },
@@ -309,8 +326,17 @@ const GRID_COL_DEFS: GridColDef[] = [
       'Fallback values are utilized when no city-specific value is provided. Fallbacks are derived from comparable cities.',
     field: 'fallback',
     flex: 1,
-    valueFormatter: (value?: number) =>
-      typeof value === 'number' ? value.toLocaleString() : '',
+    valueFormatter: (value: number, row: MeasureRow) => {
+      const precision = getDecimalPrecisionByUnit(row.unit.long);
+
+      if (isYearMeasure(row.label, row.unit.long)) {
+        return value;
+      }
+
+      return typeof value === 'number'
+        ? value.toLocaleString(undefined, { maximumFractionDigits: precision })
+        : '';
+    },
   },
   {
     display: 'flex',
