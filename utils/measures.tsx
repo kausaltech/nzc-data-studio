@@ -4,7 +4,8 @@ import {
   MeasureTemplateFragmentFragment,
 } from '@/types/__generated__/graphql';
 import { createFilterByTypename } from './filter';
-import { DECIMAL_PRECISION_BY_UNIT } from '@/constants/decimal-precision-by-unit';
+import { DECIMAL_PRECISION_BY_UNIT, UNIT_LABELS } from '@/constants/units';
+import { ReactNode } from 'react';
 
 export type MeasureTemplates = NonNullable<
   MainSectionMeasuresFragment['descendants'][0]['measureTemplates']
@@ -138,4 +139,40 @@ export function getDecimalPrecisionByUnit(unit: string): number | undefined {
     DECIMAL_PRECISION_BY_UNIT[unit as keyof typeof DECIMAL_PRECISION_BY_UNIT] ??
     undefined
   );
+}
+
+export function getUnitName(unit: string): ReactNode {
+  const unitLabel = UNIT_LABELS[unit as keyof typeof UNIT_LABELS] ?? unit;
+
+  if (!unitLabel.includes('/')) {
+    return unitLabel;
+  }
+
+  // Ensure units are wrapped at slashes to avoid cell overflow
+  return (
+    <>
+      {unitLabel.split('/').map((part, i, parts) => (
+        <>
+          {part}
+          {i < parts.length - 1 && (
+            <>
+              <wbr />/
+            </>
+          )}
+        </>
+      ))}
+    </>
+  );
+}
+
+/**
+ * Albeit hacky, year measures require slightly different formatting and can be
+ * distinguished as the unit is empty and the measure label contains the word "year"
+ */
+export function isYearMeasure(measureLabel: string, unit: string) {
+  if (unit === '' && measureLabel.toLowerCase().includes('year')) {
+    return true;
+  }
+
+  return false;
 }

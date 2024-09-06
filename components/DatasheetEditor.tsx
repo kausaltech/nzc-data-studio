@@ -34,6 +34,8 @@ import { useDataCollectionStore } from '@/store/data-collection';
 import {
   getDecimalPrecisionByUnit,
   getMeasureValue,
+  getUnitName,
+  isYearMeasure,
   Section,
 } from '@/utils/measures';
 import {
@@ -149,6 +151,12 @@ function CustomEditComponent({
     size: 'small',
   };
 
+  const yearInputProps = {
+    thousandSeparator: false,
+    maxLength: 4,
+    allowNegative: false,
+  };
+
   if (colDef.type === 'number') {
     return (
       <NumberInput
@@ -159,6 +167,7 @@ function CustomEditComponent({
         inputProps={{
           'aria-label': `${row.label} ${field}`,
           decimalScale: getDecimalPrecisionByUnit(row.unit.long),
+          ...(isYearMeasure(row.label, row.unit.long) ? yearInputProps : {}),
         }}
       />
     );
@@ -169,6 +178,8 @@ function CustomEditComponent({
       {...commonProps}
       onChange={handleValueChange}
       fullWidth
+      multiline
+      maxRows={6}
       value={value || ''}
       inputProps={{
         style: { fontSize: '0.9em' },
@@ -304,7 +315,7 @@ const GRID_COL_DEFS: GridColDef[] = [
     valueFormatter: (value: UnitType) => value.long,
     renderCell: (params: GridRenderCellParams<Row>) => (
       <Typography sx={{ my: 1 }} variant={'caption'}>
-        {params.value.long}
+        {getUnitName(params.value.long)}
       </Typography>
     ),
   },
@@ -317,6 +328,10 @@ const GRID_COL_DEFS: GridColDef[] = [
     flex: 1,
     valueFormatter: (value: number, row: MeasureRow) => {
       const precision = getDecimalPrecisionByUnit(row.unit.long);
+
+      if (isYearMeasure(row.label, row.unit.long)) {
+        return value;
+      }
 
       return typeof value === 'number'
         ? value.toLocaleString(undefined, { maximumFractionDigits: precision })
