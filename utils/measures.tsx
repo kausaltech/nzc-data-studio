@@ -78,6 +78,10 @@ export function getMeasureValue(
 ) {
   const firstDataPoint = measureTemplate.defaultDataPoints[0];
 
+  if (!firstDataPoint) {
+    return null;
+  }
+
   if (baselineYear === null) {
     return firstDataPoint.value;
   }
