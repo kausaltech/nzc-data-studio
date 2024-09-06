@@ -115,6 +115,27 @@ function DashboardContent() {
       (config) => config.id === selectedInstanceId
     ) ?? null;
 
+  if (instanceData.framework?.configs.length === 0) {
+    return (
+      <Fade in>
+        <Container>
+          <Stack spacing={4}>
+            <Card>
+              <CardContent>
+                <Typography variant="h2" paragraph>
+                  Welcome to NetZeroPlanner
+                </Typography>
+                <Typography variant="subtitle1">
+                  Get started by creating a new plan
+                </Typography>
+              </CardContent>
+            </Card>
+          </Stack>
+        </Container>
+      </Fade>
+    );
+  }
+
   if (
     !instanceData ||
     instanceError ||
