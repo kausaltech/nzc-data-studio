@@ -12,7 +12,6 @@ import {
   DialogContent,
   DialogTitle,
   Fade,
-  IconButton,
   LinearProgress,
   Skeleton,
   Stack,
@@ -197,13 +196,13 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
 
   return (
     <div>
-      <IconButton
-        color="primary"
+      <Button
+        variant="outlined"
         onClick={handleClickUpload}
-        aria-label="Import city data"
+        endIcon={<Upload size={24} />}
       >
-        <Upload size={24} />
-      </IconButton>
+        Import CSV
+      </Button>
 
       <Dialog
         onTransitionExited={reset}
