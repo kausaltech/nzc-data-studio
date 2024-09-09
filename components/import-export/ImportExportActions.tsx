@@ -1,9 +1,19 @@
 import { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
-import { Dialog, IconButton, Stack, Tab, Tabs, Tooltip } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  IconButton,
+  Stack,
+  Tab,
+  Tabs,
+  Tooltip,
+} from '@mui/material';
 import { SyntheticEvent, useState } from 'react';
 import { Download, Upload } from 'react-bootstrap-icons';
 import { ExportPlanDialogContent } from './ExportPlanDialogContent';
 import { ImportPlanDialogContent } from './ImportPlanDialogContent';
+import { deploymentType, isDev } from '@/constants/environment';
+import { UploadLegacyDataButton } from '../UploadLegacyDataButton';
 
 type Props = {
   measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
@@ -71,6 +81,9 @@ export function ImportExportActions({ measureTemplates }: Props) {
             <Upload size={24} />
           </Tooltip>
         </IconButton>
+        {(isDev || deploymentType === 'testing') && (
+          <UploadLegacyDataButton measureTemplates={measureTemplates} />
+        )}
       </Stack>
 
       <Dialog fullWidth maxWidth="md" onClose={handleClose} open={isModalOpen}>

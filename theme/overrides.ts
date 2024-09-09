@@ -98,6 +98,13 @@ export function getOverrides(theme: Theme): ThemeOptions['components'] {
         },
       },
     },
+    MuiIconButton: {
+      styleOverrides: {
+        colorPrimary: {
+          color: theme.palette.brand[700],
+        },
+      },
+    },
     MuiCard: {
       styleOverrides: {
         root: {
