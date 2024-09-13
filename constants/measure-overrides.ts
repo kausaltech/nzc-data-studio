@@ -15,7 +15,7 @@ export const SECTIONS_SUM_100_PERCENT = [
   '0538d7df-0f9c-452b-b259-a20c4d259180', // Share recycling/incineration/landfill > Organic waste
   '72c396c4-74de-4116-bba6-f384f9c7ea8d', // Share recycling/incineration/landfill > Other waste (e.g. textiles, rubble, wood)
   'a7deacd1-1370-4712-a40d-f8ef93a5b2a4', // Share of car + motorcycle km reduced shifted towards other modes
-  '22366b8b-abde-475d-a402-5d2574e3df29', // Expected procurement schedule for buses
+  // '22366b8b-abde-475d-a402-5d2574e3df29', // Expected procurement schedule for buses
   '2848cc15-1054-44c3-8c26-f033f1feabee', // Assumed share of type of renovation in lever
   'd198ca7f-d329-4cdd-ac53-e41609c38fa2', // Share of new buildings built with high energy efficiency standards
   '054fc1d2-281d-435b-9870-cb4deff8ca7e', // Assumed share of type of efficiency programme for lever
