@@ -1,3 +1,4 @@
+import { Inter } from 'next/font/google';
 import { ThemeOptions } from '@mui/material';
 
 export function pxToRem(value: number) {
@@ -9,6 +10,21 @@ type FontBreakpoints = {
   md: number;
   lg: number;
 };
+
+const inter = Inter({
+  weight: ['400', '500', '600'],
+  subsets: ['latin'],
+  adjustFontFallback: false,
+  fallback: [
+    '-apple-system',
+    'system-ui',
+    'BlinkMacSystemFont',
+    'Segoe UI',
+    'Helvetica Neue',
+    'Arial',
+    'sans-serif',
+  ],
+});
 
 export function responsiveFontSizes({ sm, md, lg }: FontBreakpoints) {
   return {
@@ -23,56 +39,63 @@ export function responsiveFontSizes({ sm, md, lg }: FontBreakpoints) {
 }
 
 export const typography: ThemeOptions['typography'] = {
-  fontFamily:
-    'Inter, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',
+  fontFamily: inter.style.fontFamily,
   fontWeightRegular: 400,
   fontWeightMedium: 500,
-  fontWeightBold: 700,
+  fontWeightBold: 600,
   h1: {
-    fontWeight: 800,
+    letterSpacing: '-0.6px',
+    fontWeight: 600,
     lineHeight: 80 / 64,
     ...responsiveFontSizes({ sm: 32, md: 40, lg: 48 }),
   },
   h2: {
-    fontWeight: 800,
+    letterSpacing: '-0.5px',
+    fontWeight: 600,
     lineHeight: 64 / 48,
     ...responsiveFontSizes({ sm: 29, md: 34, lg: 40 }),
   },
   h3: {
-    fontWeight: 700,
+    letterSpacing: '-0.4px',
+    fontWeight: 600,
     lineHeight: 1.5,
     ...responsiveFontSizes({ sm: 26, md: 30, lg: 33 }),
   },
   h4: {
-    fontWeight: 700,
+    letterSpacing: '-0.3px',
+    fontWeight: 600,
     lineHeight: 1.5,
     ...responsiveFontSizes({ sm: 23, md: 25, lg: 28 }),
   },
   h5: {
-    fontWeight: 700,
+    letterSpacing: '-0.25px',
+    fontWeight: 600,
     lineHeight: 1.5,
     ...responsiveFontSizes({ sm: 20, md: 22, lg: 23 }),
   },
   h6: {
-    fontWeight: 700,
+    letterSpacing: '-0.25px',
+    fontWeight: 600,
     lineHeight: 28 / 18,
     ...responsiveFontSizes({ sm: 18, md: 18, lg: 19 }),
   },
   subtitle1: {
-    fontWeight: 600,
+    fontWeight: 500,
     lineHeight: 1.5,
-    fontSize: pxToRem(16),
+    fontSize: pxToRem(20),
   },
   subtitle2: {
-    fontWeight: 600,
+    fontWeight: 500,
     lineHeight: 22 / 14,
-    fontSize: pxToRem(14),
+    fontSize: pxToRem(16),
   },
   body1: {
+    letterSpacing: '-0.1px',
     lineHeight: 1.5,
     fontSize: pxToRem(16),
   },
   body2: {
+    letterSpacing: '-0.1px',
     lineHeight: 22 / 14,
     fontSize: pxToRem(14),
   },

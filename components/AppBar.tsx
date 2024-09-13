@@ -124,7 +124,7 @@ export function AppBar() {
                 aria-haspopup="true"
                 onClick={handleOpenAuthMenu}
                 color="inherit"
-                endIcon={<PersonCircle size={22} />}
+                endIcon={<PersonCircle size={18} />}
                 aria-label={isAuthenticated ? 'Open user menu' : 'Sign in'}
               >
                 {isAuthenticated ? (

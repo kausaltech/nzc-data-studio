@@ -1,47 +1,33 @@
-import {
-  Map,
-  GraphUp,
-  People,
-  PersonCheck,
-  PencilSquare,
-  FileEarmarkText,
-  Search,
-} from 'react-bootstrap-icons';
+import { PencilSquare, FileEarmarkText, Search } from 'react-bootstrap-icons';
 
 export const introContent = {
   title: 'Welcome to NetZeroPlanner',
   subtitle: 'In partnership with NetZeroCities and Kausal',
-  introduction:
-    'Welcome to NetZeroPlanner, your partner in creating sustainable and resilient communities. Our platform empowers cities worldwide to take decisive action towards achieving net-zero emissions and building a greener future for generations to come.',
-  callToAction:
-    "Ready to lead your city towards a sustainable future? Sign up now and join the global movement towards net-zero emissions. Let's work together to make a lasting impact on our planet!",
 };
 
-export const benefitsTitle = 'Benefits for your city';
 export const benefits = [
   {
-    icon: Map,
-    title: 'Clear Roadmap',
-    text: "Develop a comprehensive roadmap with actionable steps to achieve net-zero emissions tailored to your city's unique needs.",
+    icon: '/images/illustrations/undraw_order_a_car_-3-tww.svg',
+    title: 'Tailored city data',
+    text: "Input your city's unique characteristics and strategic decarbonization plans.",
   },
   {
-    icon: GraphUp,
-    title: 'Data-Driven Insights',
-    text: 'Leverage powerful data analytics and modeling tools to make informed decisions and track progress effectively.',
+    icon: '/images/illustrations/undraw_navigator_a479.svg',
+    title: 'Decarbonization roadmap',
+    text: "NetZeroPlanner generates a customized roadmap for your city's journey to net-zero by 2030.",
   },
   {
-    icon: People,
-    title: 'Community Engagement',
-    text: 'Engage stakeholders and foster collaboration among citizens, businesses, and government agencies to drive sustainable initiatives.',
+    icon: '/images/illustrations/undraw_term_sheet_re_ju7s.svg',
+    title: 'Impact and assessment',
+    text: 'Evaluate costs, benefits, and returns across carbon sub-sectors and stakeholders, optimizing carbon reductions and comparing Euros invested.',
   },
   {
-    icon: PersonCheck,
-    title: 'Expert Support',
-    text: 'Access our team of experts who are dedicated to supporting your city every step of the way, from planning to implementation.',
+    icon: '/images/illustrations/undraw_join_re_w1lh.svg',
+    title: 'Performance tracking',
+    text: 'Leverage annual performance reports to measure progress, ensuring your Climate Action Plans remain on track.',
   },
 ];
 
-export const servicesTitle = 'How it works';
 export const services = [
   {
     icon: PencilSquare,
