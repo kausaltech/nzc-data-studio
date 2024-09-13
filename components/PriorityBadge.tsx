@@ -1,6 +1,5 @@
 import { FrameworksMeasureTemplatePriorityChoices as Priority } from '@/types/__generated__/graphql';
 import { Stack, Tooltip, Typography } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import {
   Icon3CircleFill as LowPriorityIcon,
   Icon2CircleFill as MedPriorityIcon,
@@ -15,15 +14,14 @@ interface PriorityIconProps extends IconProps {
 }
 
 export const PriorityIcon = ({ priorityType, ...rest }: PriorityIconProps) => {
-  const theme = useTheme();
-
+  // TODO: Move these colours to the theme
   switch (priorityType) {
     case Priority.Low:
-      return <LowPriorityIcon color={theme.palette.success.main} {...rest} />;
+      return <LowPriorityIcon color={'#48cae4'} {...rest} />;
     case Priority.Medium:
-      return <MedPriorityIcon color={theme.palette.warning.main} {...rest} />;
+      return <MedPriorityIcon color={'#00b4d8'} {...rest} />;
     case Priority.High:
-      return <HighPriorityIcon color={theme.palette.error.main} {...rest} />;
+      return <HighPriorityIcon color={'#0077b6'} {...rest} />;
     default:
       null;
   }

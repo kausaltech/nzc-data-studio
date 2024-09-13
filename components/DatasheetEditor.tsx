@@ -25,6 +25,9 @@ import {
   AccordionSummary as MuiAccordionSummary,
   Grid,
   AccordionProps,
+  Stack,
+  Tooltip,
+  Fade,
 } from '@mui/material';
 
 import NumberInput from './NumberInput';
@@ -47,10 +50,11 @@ import {
 import { PriorityBadge } from './PriorityBadge';
 import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
 import { useMutation } from '@apollo/client';
-import { ChevronDown } from 'react-bootstrap-icons';
+import { ChevronDown, ExclamationTriangle } from 'react-bootstrap-icons';
 import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import useStore from '@/store/use-store';
+import { SECTIONS_SUM_100_PERCENT } from '@/constants/measure-overrides';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -86,6 +90,16 @@ const rowSubtitleSx: SxProps<Theme> = (theme) => ({
   },
 });
 
+const rowSummarySx: SxProps<Theme> = (theme) => ({
+  backgroundColor: theme.palette.grey[100],
+
+  '.MuiDataGrid-cell': {
+    border: '0px solid transparent',
+    borderTop: (theme) => `1px solid ${theme.palette.grey[300]}`,
+    borderBottom: (theme) => `1px solid ${theme.palette.grey[300]}`,
+  },
+});
+
 // Override styles colors of title sections
 const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
   '& .row-title': {
@@ -103,6 +117,15 @@ const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
         ...rowSubtitleSx(theme),
         '&:hover': rowSubtitleSx(theme),
       },
+    },
+  },
+
+  '& .row-summary': {
+    ...rowSummarySx(theme),
+    '&:hover': rowSummarySx(theme),
+    '&.Mui-selected': {
+      ...rowSummarySx(theme),
+      '&:hover': rowSummarySx(theme),
     },
   },
 });
@@ -256,12 +279,87 @@ function useSingleClickEdit() {
   };
 }
 
+function formatTotal(total: number | null) {
+  return typeof total === 'number' ? `${total}%` : null;
+}
+
+type TotalPercentageProps = {
+  total: number | null;
+};
+
+/**
+ * For sections whose measures should sum to 100%, show the total percentage.
+ * If no measure values have been provided, i.e. the total is null, hide the total.
+ * If the total does not equal 100%, show a warning.
+ */
+function TotalPercentage({ total }: TotalPercentageProps) {
+  if (typeof total !== 'number') {
+    return null;
+  }
+
+  const isValid = total === 100;
+
+  const percentageLabel = (
+    <Typography
+      component="span"
+      sx={{
+        fontStyle: 'italic',
+        color: isValid ? 'text.secondary' : 'inherit',
+      }}
+      variant="body2"
+    >
+      {formatTotal(total)}
+    </Typography>
+  );
+
+  if (!isValid) {
+    return (
+      <Tooltip
+        placement="top"
+        arrow
+        title={
+          <Typography variant="body2">
+            The total of percentages in this section should equal 100%
+          </Typography>
+        }
+      >
+        <Fade in>
+          <Stack
+            color="warning.dark"
+            bgcolor="warning.light"
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            borderRadius={1}
+            px={1}
+            py={0.25}
+            sx={{ cursor: 'default' }}
+          >
+            <ExclamationTriangle size={18} />
+            {percentageLabel}
+          </Stack>
+        </Fade>
+      </Tooltip>
+    );
+  }
+
+  return <Fade in>{percentageLabel}</Fade>;
+}
+
 const EDITABLE_COL: Partial<GridColDef> = {
   editable: true,
-  renderCell: (params) => (
-    <CustomEditComponent {...params} sx={{ mx: 0, my: 1 }} />
-  ),
-  renderEditCell: (params: GridRenderEditCellParams) => (
+  renderCell: (params: GridRenderCellParams<Row>) => {
+    if (params.row.type === 'SUM_PERCENT') {
+      if (params.field === 'notes') {
+        return null;
+      }
+
+      return <TotalPercentage total={params.row.total} />;
+    }
+
+    return <CustomEditComponent {...params} sx={{ mx: 0, my: 1 }} />;
+  },
+  renderEditCell: (params: GridRenderCellParams<Row>) => (
     <CustomEditComponent {...params} />
   ),
 };
@@ -274,17 +372,22 @@ const GRID_COL_DEFS: GridColDef[] = [
     flex: 2,
     renderCell: (params: GridRenderCellParams<Row>) => {
       const isSection = params.row.type === 'SECTION';
+      const isSectionSummary = params.row.type === 'SUM_PERCENT';
+      const isSmallText = isSection || isSectionSummary;
+      const label = params.row.type === 'SUM_PERCENT' ? 'Total' : params.value;
 
       return (
         <Typography
           sx={{
             my: 1,
             ml: params.row.depth,
-            fontWeight: isSection ? 'fontWeightMedium' : undefined,
+            fontWeight: isSmallText ? 'fontWeightMedium' : undefined,
+            fontStyle: isSectionSummary ? 'italic' : undefined,
+            color: isSectionSummary ? 'text.secondary' : undefined,
           }}
-          variant={isSection ? 'caption' : 'body2'}
+          variant={isSmallText ? 'caption' : 'body2'}
         >
-          {params.value}
+          {label}
         </Typography>
       );
     },
@@ -301,9 +404,9 @@ const GRID_COL_DEFS: GridColDef[] = [
     display: 'flex',
     headerName: 'Value',
     field: 'value',
-    editable: true,
     type: 'number',
     headerAlign: 'left',
+    align: 'left',
     flex: 1,
     ...EDITABLE_COL,
   },
@@ -312,12 +415,19 @@ const GRID_COL_DEFS: GridColDef[] = [
     headerName: 'Unit',
     field: 'unit',
     flex: 1,
-    valueFormatter: (value: UnitType) => value.long,
-    renderCell: (params: GridRenderCellParams<Row>) => (
-      <Typography sx={{ my: 1 }} variant={'caption'}>
-        {getUnitName(params.value.long)}
-      </Typography>
-    ),
+    valueFormatter: (value: UnitType, row: MeasureRow | SumPercentRow) =>
+      row.type === 'MEASURE' ? value.long : undefined,
+    renderCell: (params: GridRenderCellParams<Row>) => {
+      if (params.row.type === 'SUM_PERCENT') {
+        return null;
+      }
+
+      return (
+        <Typography sx={{ my: 1 }} variant={'caption'}>
+          {getUnitName(params.value.long)}
+        </Typography>
+      );
+    },
   },
   {
     display: 'flex',
@@ -326,7 +436,18 @@ const GRID_COL_DEFS: GridColDef[] = [
       'Fallback values are utilized when no city-specific value is provided. Fallbacks are derived from comparable cities.',
     field: 'fallback',
     flex: 1,
-    valueFormatter: (value: number, row: MeasureRow) => {
+    renderCell: (params: GridRenderCellParams<Row>) => {
+      if (params.row.type === 'SUM_PERCENT') {
+        return <TotalPercentage total={100} />;
+      }
+
+      return params.formattedValue;
+    },
+    valueFormatter: (value: number, row: MeasureRow | SumPercentRow) => {
+      if (row.type === 'SUM_PERCENT') {
+        return undefined;
+      }
+
       const precision = getDecimalPrecisionByUnit(row.unit.long);
 
       if (isYearMeasure(row.label, row.unit.long)) {
@@ -375,13 +496,21 @@ export type MeasureRow = {
 
 type SectionRow = {
   type: 'SECTION';
+  sumTo100: boolean;
   isTitle: boolean;
   id: string;
   label: string;
   depth: number;
 };
 
-type Row = MeasureRow | SectionRow;
+type SumPercentRow = {
+  type: 'SUM_PERCENT';
+  total: number | null;
+  id: string;
+  depth: number;
+};
+
+type Row = MeasureRow | SectionRow | SumPercentRow;
 
 const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -419,6 +548,7 @@ function getRowsFromSection(
 ): Row[] {
   const sectionRow: SectionRow = {
     type: 'SECTION',
+    sumTo100: SECTIONS_SUM_100_PERCENT.includes(section.id),
     isTitle: true,
     label: section.name,
     id: section.id,
@@ -443,6 +573,24 @@ function getRowsFromSection(
         originalMeasureTemplate: measure,
       })
     ),
+    ...(sectionRow.sumTo100
+      ? [
+          {
+            type: 'SUM_PERCENT',
+            depth: depth + 1,
+            total: measureTemplates.reduce((total: number | null, measure) => {
+              const value = getMeasureValue(measure, baselineYear);
+
+              if (typeof value === 'number' || typeof total === 'number') {
+                return (total ?? 0) + (value ?? 0);
+              }
+
+              return null;
+            }, null),
+            id: `${section.id}_sum`,
+          } as SumPercentRow,
+        ]
+      : []),
     ...childSections.flatMap((section) =>
       getRowsFromSection(section, depth + 1, false, baselineYear)
     ),
@@ -518,13 +666,21 @@ function AccordionContentWrapper({
             slots={{ footer: CustomFooter }}
             slotProps={{ footer: { count: rows.length } }}
             sx={DATA_GRID_SX}
-            getRowClassName={(params) =>
-              params.row.type === 'SECTION'
-                ? `row-title ${
-                    params.row.depth > 1 ? 'row-title--subtitle' : ''
-                  }`
-                : ''
+            isCellEditable={(params) =>
+              !!(params.colDef.editable && params.row.type !== 'SUM_PERCENT')
             }
+            getRowClassName={(params) => {
+              if (params.row.type === 'SECTION') {
+                const { depth } = params.row;
+                return `row-title ${depth > 1 ? 'row-title--subtitle' : ''}`;
+              }
+
+              if (params.row.type === 'SUM_PERCENT') {
+                return 'row-summary';
+              }
+
+              return '';
+            }}
             getRowHeight={() => 'auto'}
             rows={rows}
             columns={GRID_COL_DEFS}
@@ -534,8 +690,8 @@ function AccordionContentWrapper({
             disableVirtualization
             processRowUpdate={async (updatedRow: Row, originalRow: Row) => {
               if (
-                updatedRow.type === 'SECTION' ||
-                originalRow.type === 'SECTION'
+                updatedRow.type !== 'MEASURE' ||
+                originalRow.type !== 'MEASURE'
               ) {
                 return originalRow;
               }
