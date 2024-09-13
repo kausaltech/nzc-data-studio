@@ -88,9 +88,39 @@ export default function Playground() {
   return (
     <Container sx={{ py: 8 }}>
       <Stack spacing={8}>
-        <div>
+        <Stack spacing={2}>
           <Typography variant="h1">Hello there 👋</Typography>
-        </div>
+          <Typography variant="h2">
+            The quick brown fox jumps over the lazy dog (h2)
+          </Typography>
+          <Typography variant="h3">
+            The quick brown fox jumps over the lazy dog (h3)
+          </Typography>
+          <Typography variant="h4">
+            The quick brown fox jumps over the lazy dog (h4)
+          </Typography>
+          <Typography variant="h5">
+            The quick brown fox jumps over the lazy dog (h5)
+          </Typography>
+          <Typography variant="h6">
+            The quick brown fox jumps over the lazy dog (h6)
+          </Typography>
+          <Typography variant="subtitle1">
+            The quick brown fox jumps over the lazy dog (subtitle1)
+          </Typography>
+          <Typography variant="subtitle2">
+            The quick brown fox jumps over the lazy dog (subtitle2)
+          </Typography>
+          <Typography variant="caption">
+            The quick brown fox jumps over the lazy dog (caption)
+          </Typography>
+          <Typography variant="body1">
+            The quick brown fox jumps over the lazy dog (body1)
+          </Typography>
+          <Typography variant="body2">
+            The quick brown fox jumps over the lazy dog (body2)
+          </Typography>
+        </Stack>
 
         <div>
           <Typography variant="h3" paragraph>

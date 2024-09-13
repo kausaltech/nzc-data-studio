@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { headers } from 'next/headers';
 import type { Metadata } from 'next';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
-import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/theme';
 import { AppBar } from '@/components/AppBar';
 import { Box, Container } from '@mui/material';
@@ -14,8 +13,6 @@ import './globals.css';
 import { Logo } from '@/components/Logo';
 import { PreferredLocaleProvider } from '@/components/providers/PreferredLocaleProvider';
 import { SnackbarProvider } from '@/components/SnackbarProvider';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'NetZeroPlanner',
@@ -48,7 +45,6 @@ export default async function RootLayout({ children }: Props) {
     <html lang="en">
       <Box
         component="body"
-        className={inter.className}
         sx={{
           minHeight: '100%',
           display: 'flex',
