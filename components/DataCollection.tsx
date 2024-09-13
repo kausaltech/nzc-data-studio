@@ -83,7 +83,7 @@ const DataCollection = ({ measureTemplates }: Props) => {
         </Tabs>
       </Box>
       <CustomTabPanel selected={selectedTab} index={'data'}>
-        <Typography variant="subtitle2" paragraph gutterBottom>
+        <Typography paragraph gutterBottom>
           Collect essential data about your city&apos;s current state across key
           sectors. This phase focuses on gathering raw data to establish a
           baseline for your city&apos;s climate initiatives.
@@ -94,7 +94,7 @@ const DataCollection = ({ measureTemplates }: Props) => {
         )}
       </CustomTabPanel>
       <CustomTabPanel selected={selectedTab} index={'assumptions'}>
-        <Typography variant="subtitle2" paragraph gutterBottom>
+        <Typography paragraph gutterBottom>
           These assumptions should reflect an ambitious yet feasible scenario
           aligned with the city&apos;s Climate Action Plan, indicating the
           extent to which the city aims to achieve decarbonisation goals.

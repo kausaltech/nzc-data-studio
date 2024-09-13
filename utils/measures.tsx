@@ -5,7 +5,7 @@ import {
 } from '@/types/__generated__/graphql';
 import { createFilterByTypename } from './filter';
 import { DECIMAL_PRECISION_BY_UNIT, UNIT_LABELS } from '@/constants/units';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 export type MeasureTemplates = NonNullable<
   MainSectionMeasuresFragment['descendants'][0]['measureTemplates']
@@ -154,7 +154,7 @@ export function getUnitName(unit: string): ReactNode {
 
   // Ensure units are wrapped at slashes to avoid cell overflow
   return (
-    <>
+    <React.Fragment key={unit}>
       {unitLabel.split('/').map((part, i, parts) => (
         <>
           {part}
@@ -165,7 +165,7 @@ export function getUnitName(unit: string): ReactNode {
           )}
         </>
       ))}
-    </>
+    </React.Fragment>
   );
 }
 

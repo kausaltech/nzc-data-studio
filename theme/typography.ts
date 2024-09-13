@@ -12,7 +12,7 @@ type FontBreakpoints = {
 };
 
 const inter = Inter({
-  weight: ['400', '500', '600'],
+  weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
   adjustFontFallback: false,
   fallback: [
@@ -45,13 +45,13 @@ export const typography: ThemeOptions['typography'] = {
   fontWeightBold: 600,
   h1: {
     letterSpacing: '-0.6px',
-    fontWeight: 600,
+    fontWeight: 700,
     lineHeight: 80 / 64,
     ...responsiveFontSizes({ sm: 32, md: 40, lg: 48 }),
   },
   h2: {
     letterSpacing: '-0.5px',
-    fontWeight: 600,
+    fontWeight: 700,
     lineHeight: 64 / 48,
     ...responsiveFontSizes({ sm: 29, md: 34, lg: 40 }),
   },
@@ -85,7 +85,7 @@ export const typography: ThemeOptions['typography'] = {
     fontSize: pxToRem(20),
   },
   subtitle2: {
-    fontWeight: 500,
+    fontWeight: 600,
     lineHeight: 22 / 14,
     fontSize: pxToRem(16),
   },

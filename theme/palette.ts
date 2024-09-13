@@ -38,14 +38,14 @@ export const grey: Partial<Color> = {
 export const brand: Partial<Color> = {
   50: '#E3F2F1',
   100: '#C7E6E3',
-  200: '#8FC2C1;',
-  300: '#7CAEB1;',
-  400: '#699AA2;',
-  500: '#558692;',
-  600: '#437A87;',
-  700: '#316D7B;',
-  800: '#1F6070;',
-  900: '#0D5364;',
+  200: '#8FC2C1',
+  300: '#7CAEB1',
+  400: '#699AA2',
+  500: '#558692',
+  600: '#437A87',
+  700: '#316D7B',
+  800: '#1F6070',
+  900: '#0D5364',
 };
 
 export const primary: SimplePaletteColorOptions = {
@@ -77,9 +77,9 @@ export const success: SimplePaletteColorOptions = {
 };
 
 export const warning: SimplePaletteColorOptions = {
-  light: '#FFD666',
+  light: '#FFEAB0',
   main: '#FFAB00',
-  dark: '#B76E00',
+  dark: '#7F6338',
   contrastText: grey[800],
 };
 

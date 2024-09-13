@@ -134,11 +134,9 @@ export const CompletionScoreCard = ({ measureTemplates }: Props) => {
         borderRadius: 0.5,
       }}
     >
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-        <Typography variant="subtitle1">
-          Data completion score: {completionPercentage.toFixed(0)}%
-        </Typography>
-      </Stack>
+      <Typography variant="subtitle2" gutterBottom>
+        Data completion score: {completionPercentage.toFixed(0)}%
+      </Typography>
       <Typography variant="body1" paragraph>
         Your score rates how complete city data is, weighing important local
         values for accurate predictions. Enter city data to improve your score
