@@ -3,23 +3,26 @@ import React from 'react';
 import { Container, Stack } from '@mui/material';
 import WelcomeSection from '../../components/WelcomeSection';
 import IntroSection from '../../components/IntroSection';
-import {
-  benefitsTitle,
-  benefits,
-  servicesTitle,
-  services,
-} from '@/constants/intro-content';
+import { benefits } from '@/constants/intro-content';
 
 const Welcome: React.FC = () => {
   return (
     <Container maxWidth={false}>
       <Stack
-        spacing={4}
-        sx={{ width: '100%', maxWidth: 'lg', margin: 'auto', padding: 0 }}
+        spacing={6}
+        sx={{
+          width: '100%',
+          maxWidth: 'lg',
+          margin: 'auto',
+          padding: 0,
+          mt: [0, 0, 2],
+        }}
       >
         <WelcomeSection />
-        <IntroSection title={benefitsTitle} items={benefits} />
-        <IntroSection title={servicesTitle} items={services} />
+        <IntroSection
+          title="How NetZeroPlanner guides your city's decarbonization journey"
+          items={benefits}
+        />
       </Stack>
     </Container>
   );

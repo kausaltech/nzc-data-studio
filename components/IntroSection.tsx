@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { Card, Grid, Typography, Box } from '@mui/material';
+import Image from 'next/image';
 
 interface InfoItem {
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  icon: string;
   title: string;
   text: string;
 }
@@ -22,35 +23,11 @@ const InfoSection: React.FC<InfoSectionProps> = ({ title, items }) => {
         <Grid container spacing={4} sx={{ justifyContent: 'flex-start' }}>
           {items.map((item, index) => (
             <Grid item xs={12} sm={6} md={3} key={index}>
-              <Card
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  padding: 2,
-                  transition: 'transform 0.3s ease',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                  },
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 60,
-                    height: 60,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 2,
-                  }}
-                >
-                  <item.icon width={40} height={40} />
+              <Card sx={{ p: 2, py: 4 }}>
+                <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
+                  <Image src={item.icon} alt="" width={180} height={180} />
                 </Box>
-                <Typography
-                  variant="body2"
-                  align="center"
-                  sx={{ fontWeight: 'bold' }}
-                >
+                <Typography variant="subtitle2" gutterBottom align="center">
                   {item.title}
                 </Typography>
                 <Typography variant="body2" align="center">
