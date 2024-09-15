@@ -102,7 +102,6 @@ Variables prefixed with `KAUSAL_PUBLIC_` are made available client side. When us
 - `AUTH_CLIENT_ID`: Client ID for authentication
 - `AUTH_CLIENT_SECRET`: Client secret for authentication
 - `KAUSAL_PUBLIC_AUTH_ISSUER`: URL of the authentication issuer
-- `NEXTAUTH_URL`: URL of the application (used by NextAuth.js)
 
 ### Analyzing the Next Bundle
 
