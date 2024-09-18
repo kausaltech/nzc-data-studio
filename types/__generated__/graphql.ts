@@ -317,6 +317,13 @@ export type CreateFrameworkConfigMutation = {
   ok: Scalars['Boolean']['output'];
 };
 
+export type CreateNzcFrameworkConfigMutation = {
+  __typename?: 'CreateNZCFrameworkConfigMutation';
+  /** The created framework config instance. */
+  frameworkConfig?: Maybe<FrameworkConfig>;
+  ok: Scalars['Boolean']['output'];
+};
+
 export type DateBlock = StreamFieldInterface & {
   __typename?: 'DateBlock';
   blockType: Scalars['String']['output'];
@@ -490,7 +497,7 @@ export type ForecastMetricTypeHistoricalValuesArgs = {
 };
 
 /**
- * Represents a framework for Paths models
+ * Represents a framework for Paths models.
  *
  * A framework is a combination of a common computation model,
  * a set of measures (with their default, fallback values),
@@ -501,7 +508,8 @@ export type ForecastMetricTypeHistoricalValuesArgs = {
  * and description. It serves as the top-level container for related components
  * such as dimensions, sections, and measure templates.
  *
- * Attributes:
+ * Attributes
+ * ----------
  *     name (CharField): The name of the framework, limited to 200 characters.
  *     description (TextField): An optional description of the framework.
  */
@@ -520,7 +528,7 @@ export type Framework = {
 
 
 /**
- * Represents a framework for Paths models
+ * Represents a framework for Paths models.
  *
  * A framework is a combination of a common computation model,
  * a set of measures (with their default, fallback values),
@@ -531,7 +539,8 @@ export type Framework = {
  * and description. It serves as the top-level container for related components
  * such as dimensions, sections, and measure templates.
  *
- * Attributes:
+ * Attributes
+ * ----------
  *     name (CharField): The name of the framework, limited to 200 characters.
  *     description (TextField): An optional description of the framework.
  */
@@ -541,7 +550,7 @@ export type FrameworkConfigArgs = {
 
 
 /**
- * Represents a framework for Paths models
+ * Represents a framework for Paths models.
  *
  * A framework is a combination of a common computation model,
  * a set of measures (with their default, fallback values),
@@ -552,7 +561,8 @@ export type FrameworkConfigArgs = {
  * and description. It serves as the top-level container for related components
  * such as dimensions, sections, and measure templates.
  *
- * Attributes:
+ * Attributes
+ * ----------
  *     name (CharField): The name of the framework, limited to 200 characters.
  *     description (TextField): An optional description of the framework.
  */
@@ -562,7 +572,7 @@ export type FrameworkMeasureTemplateArgs = {
 
 
 /**
- * Represents a framework for Paths models
+ * Represents a framework for Paths models.
  *
  * A framework is a combination of a common computation model,
  * a set of measures (with their default, fallback values),
@@ -573,7 +583,8 @@ export type FrameworkMeasureTemplateArgs = {
  * and description. It serves as the top-level container for related components
  * such as dimensions, sections, and measure templates.
  *
- * Attributes:
+ * Attributes
+ * ----------
  *     name (CharField): The name of the framework, limited to 200 characters.
  *     description (TextField): An optional description of the framework.
  */
@@ -595,12 +606,25 @@ export type FrameworkConfig = {
   id: Scalars['ID']['output'];
   instance?: Maybe<InstanceType>;
   measures: Array<Measure>;
-  organizationName: Scalars['String']['output'];
+  organizationName?: Maybe<Scalars['String']['output']>;
   /** URL for downloading a results file */
   resultsDownloadUrl?: Maybe<Scalars['String']['output']>;
   uuid: Scalars['UUID']['output'];
   /** Public URL for instance dashboard */
   viewUrl?: Maybe<Scalars['String']['output']>;
+};
+
+export type FrameworkConfigInput = {
+  baselineYear: Scalars['Int']['input'];
+  frameworkId: Scalars['ID']['input'];
+  /** Identifier for the model instance. Needs to be unique. */
+  instanceIdentifier: Scalars['ID']['input'];
+  /** Name for the framework configuration instance. Typically the name of the organization. */
+  name: Scalars['String']['input'];
+  /** Name of the organization. If not set, it will be determined through the user's credentials, if possible. */
+  organizationName?: InputMaybe<Scalars['String']['input']>;
+  /** UUID for the new framework config. If not set, will be generated automatically. */
+  uuid?: InputMaybe<Scalars['UUID']['input']>;
 };
 
 /** An enumeration. */
@@ -873,6 +897,11 @@ export type ListBlock = StreamFieldInterface & {
   rawValue: Scalars['String']['output'];
 };
 
+export enum LowHigh {
+  High = 'HIGH',
+  Low = 'LOW'
+}
+
 /**
  * Represents the concrete measure for an organization-specific Instance.
  *
@@ -899,8 +928,9 @@ export type Measure = {
  */
 export type MeasureDataPoint = {
   __typename?: 'MeasureDataPoint';
+  defaultValue?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
-  value: Scalars['Float']['output'];
+  value?: Maybe<Scalars['Float']['output']>;
   year: Scalars['Int']['output'];
 };
 
@@ -926,7 +956,8 @@ export type MeasureInput = {
  * which is used to hold the metadata for the organization-specific
  * measure instances.
  *
- * Attributes:
+ * Attributes
+ * ----------
  *     section (ForeignKey): A reference to the Section this measure template belongs to.
  */
 export type MeasureTemplate = {
@@ -952,7 +983,8 @@ export type MeasureTemplate = {
  * which is used to hold the metadata for the organization-specific
  * measure instances.
  *
- * Attributes:
+ * Attributes
+ * ----------
  *     section (ForeignKey): A reference to the Section this measure template belongs to.
  */
 export type MeasureTemplateMeasureArgs = {
@@ -1013,6 +1045,7 @@ export type Mutations = {
   __typename?: 'Mutations';
   activateScenario?: Maybe<ActivateScenarioMutation>;
   createFrameworkConfig?: Maybe<CreateFrameworkConfigMutation>;
+  createNzcFrameworkConfig?: Maybe<CreateNzcFrameworkConfigMutation>;
   deleteFrameworkConfig?: Maybe<DeleteFrameworkConfigMutation>;
   registerUser?: Maybe<RegisterUser>;
   resetParameter?: Maybe<ResetParameterMutation>;
@@ -1034,7 +1067,14 @@ export type MutationsCreateFrameworkConfigArgs = {
   frameworkId: Scalars['ID']['input'];
   instanceIdentifier: Scalars['ID']['input'];
   name: Scalars['String']['input'];
+  organizationName?: InputMaybe<Scalars['String']['input']>;
   uuid?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+
+export type MutationsCreateNzcFrameworkConfigArgs = {
+  configInput: FrameworkConfigInput;
+  nzcData: NzcCityEssentialData;
 };
 
 
@@ -1086,6 +1126,15 @@ export type MutationsUpdateMeasureDataPointArgs = {
 export type MutationsUpdateMeasureDataPointsArgs = {
   frameworkConfigId: Scalars['ID']['input'];
   measures: Array<MeasureInput>;
+};
+
+export type NzcCityEssentialData = {
+  /** Population of the city */
+  population: Scalars['Int']['input'];
+  /** Share of renewables in energy production (low or high) */
+  renewableMix: LowHigh;
+  /** Average yearly temperature (low or high) */
+  temperature: LowHigh;
 };
 
 export type Node = NodeInterface & {
@@ -1931,10 +1980,21 @@ export type UpdateMeasureDataPoints = {
   updatedDataPoints?: Maybe<Array<Maybe<MeasureDataPoint>>>;
 };
 
+export type UserFrameworkRole = {
+  __typename?: 'UserFrameworkRole';
+  frameworkId: Scalars['ID']['output'];
+  orgId?: Maybe<Scalars['String']['output']>;
+  orgSlug?: Maybe<Scalars['String']['output']>;
+  roleId?: Maybe<Scalars['String']['output']>;
+};
+
 export type UserType = {
   __typename?: 'UserType';
   email: Scalars['String']['output'];
+  firstName: Scalars['String']['output'];
+  frameworkRoles?: Maybe<Array<UserFrameworkRole>>;
   id: Scalars['ID']['output'];
+  lastName: Scalars['String']['output'];
 };
 
 export type YearlyValue = {
@@ -1942,17 +2002,6 @@ export type YearlyValue = {
   value: Scalars['Float']['output'];
   year: Scalars['Int']['output'];
 };
-
-export type ProfileQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ProfileQuery = (
-  { me?: (
-    { id: string, email: string }
-    & { __typename?: 'UserType' }
-  ) | null }
-  & { __typename?: 'Query' }
-);
 
 export type UpdateMeasuresMutationVariables = Exact<{
   frameworkConfigId: Scalars['ID']['input'];
@@ -1963,10 +2012,10 @@ export type UpdateMeasuresMutationVariables = Exact<{
 export type UpdateMeasuresMutation = (
   { updateMeasureDataPoints?: (
     { ok?: boolean | null, deletedDataPointCount: number, updatedDataPoints?: Array<(
-      { id: string, year: number, value: number }
+      { id: string, year: number, value?: number | null }
       & { __typename?: 'MeasureDataPoint' }
     ) | null> | null, createdDataPoints?: Array<(
-      { id: string, year: number, value: number }
+      { id: string, year: number, value?: number | null }
       & { __typename?: 'MeasureDataPoint' }
     ) | null> | null }
     & { __typename?: 'UpdateMeasureDataPoints' }
@@ -1974,27 +2023,44 @@ export type UpdateMeasuresMutation = (
   & { __typename?: 'Mutations' }
 );
 
-export type CreateFrameworkMutationVariables = Exact<{
+export type ProfileQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ProfileQuery = (
+  { me?: (
+    { id: string, email: string, firstName: string, lastName: string, frameworkRoles?: Array<(
+      { roleId?: string | null, orgSlug?: string | null, orgId?: string | null }
+      & { __typename?: 'UserFrameworkRole' }
+    )> | null }
+    & { __typename?: 'UserType' }
+  ) | null }
+  & { __typename?: 'Query' }
+);
+
+export type CreateNzcFrameworkMutationVariables = Exact<{
   frameworkId: Scalars['ID']['input'];
   baselineYear: Scalars['Int']['input'];
+  population: Scalars['Int']['input'];
   name: Scalars['String']['input'];
   slug: Scalars['ID']['input'];
+  temperature: LowHigh;
+  renewableMix: LowHigh;
 }>;
 
 
-export type CreateFrameworkMutation = (
-  { createFrameworkConfig?: (
-    { frameworkConfig?: (
-      { id: string, organizationName: string, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null, framework: (
+export type CreateNzcFrameworkMutation = (
+  { createNzcFrameworkConfig?: (
+    { ok: boolean, frameworkConfig?: (
+      { id: string, organizationName?: string | null, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null, framework: (
         { id: string, configs: Array<(
-          { id: string, viewUrl?: string | null, resultsDownloadUrl?: string | null, organizationName: string, baselineYear: number }
+          { id: string, viewUrl?: string | null, resultsDownloadUrl?: string | null, organizationName?: string | null, baselineYear: number }
           & { __typename?: 'FrameworkConfig' }
         )> }
         & { __typename?: 'Framework' }
       ) }
       & { __typename?: 'FrameworkConfig' }
     ) | null }
-    & { __typename?: 'CreateFrameworkConfigMutation' }
+    & { __typename?: 'CreateNZCFrameworkConfigMutation' }
   ) | null }
   & { __typename?: 'Mutations' }
 );
@@ -2020,7 +2086,7 @@ export type GetFrameworkConfigQueryVariables = Exact<{
 export type GetFrameworkConfigQuery = (
   { framework?: (
     { id: string, config?: (
-      { id: string, organizationName: string, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null }
+      { id: string, organizationName?: string | null, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null }
       & { __typename?: 'FrameworkConfig' }
     ) | null }
     & { __typename?: 'Framework' }
@@ -2034,7 +2100,7 @@ export type GetFrameworkConfigsQueryVariables = Exact<{ [key: string]: never; }>
 export type GetFrameworkConfigsQuery = (
   { framework?: (
     { id: string, configs: Array<(
-      { id: string, organizationName: string, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null }
+      { id: string, organizationName?: string | null, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null }
       & { __typename?: 'FrameworkConfig' }
     )> }
     & { __typename?: 'Framework' }
@@ -2053,7 +2119,7 @@ export type GetMeasureTemplateQuery = (
     { id: string, measureTemplate?: (
       { id: string, uuid: any, name: string, measure?: (
         { id: string, internalNotes: string, dataPoints: Array<(
-          { id: string, value: number, year: number }
+          { id: string, value?: number | null, year: number }
           & { __typename?: 'MeasureDataPoint' }
         )> }
         & { __typename?: 'Measure' }
@@ -2086,7 +2152,7 @@ export type GetMeasureTemplatesQuery = (
             & { __typename?: 'MeasureTemplateDefaultDataPoint' }
           )>, measure?: (
             { id: string, internalNotes: string, dataPoints: Array<(
-              { id: string, value: number, year: number }
+              { id: string, value?: number | null, year: number }
               & { __typename: 'MeasureDataPoint' }
             )> }
             & { __typename: 'Measure' }
@@ -2110,7 +2176,7 @@ export type GetMeasureTemplatesQuery = (
             & { __typename?: 'MeasureTemplateDefaultDataPoint' }
           )>, measure?: (
             { id: string, internalNotes: string, dataPoints: Array<(
-              { id: string, value: number, year: number }
+              { id: string, value?: number | null, year: number }
               & { __typename: 'MeasureDataPoint' }
             )> }
             & { __typename: 'Measure' }
@@ -2143,7 +2209,7 @@ export type MainSectionMeasuresFragment = (
         & { __typename?: 'MeasureTemplateDefaultDataPoint' }
       )>, measure?: (
         { id: string, internalNotes: string, dataPoints: Array<(
-          { id: string, value: number, year: number }
+          { id: string, value?: number | null, year: number }
           & { __typename: 'MeasureDataPoint' }
         )> }
         & { __typename: 'Measure' }
@@ -2168,7 +2234,7 @@ export type SectionFragmentFragment = (
       & { __typename?: 'MeasureTemplateDefaultDataPoint' }
     )>, measure?: (
       { id: string, internalNotes: string, dataPoints: Array<(
-        { id: string, value: number, year: number }
+        { id: string, value?: number | null, year: number }
         & { __typename: 'MeasureDataPoint' }
       )> }
       & { __typename: 'Measure' }
@@ -2187,7 +2253,7 @@ export type MeasureTemplateFragmentFragment = (
     & { __typename?: 'MeasureTemplateDefaultDataPoint' }
   )>, measure?: (
     { id: string, internalNotes: string, dataPoints: Array<(
-      { id: string, value: number, year: number }
+      { id: string, value?: number | null, year: number }
       & { __typename: 'MeasureDataPoint' }
     )> }
     & { __typename: 'Measure' }
@@ -2196,7 +2262,7 @@ export type MeasureTemplateFragmentFragment = (
 );
 
 export type DataPointFragmentFragment = (
-  { id: string, value: number, year: number }
+  { id: string, value?: number | null, year: number }
   & { __typename: 'MeasureDataPoint' }
 );
 
@@ -2211,7 +2277,7 @@ export type UpdateMeasureDataPointMutationVariables = Exact<{
 export type UpdateMeasureDataPointMutation = (
   { updateMeasureDataPoint?: (
     { measureDataPoint?: (
-      { id: string, value: number, year: number }
+      { id: string, value?: number | null, year: number }
       & { __typename: 'MeasureDataPoint' }
     ) | null }
     & { __typename?: 'UpdateMeasureDataPoint' }

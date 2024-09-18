@@ -1,6 +1,7 @@
 'use client';
 
 import kebabCase from 'lodash/kebabCase';
+import startCase from 'lodash/startCase';
 import { useSuspenseQuery } from '@apollo/client';
 import {
   Alert,
@@ -21,6 +22,7 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Skeleton,
   Stack,
   TextField,
   Typography,
@@ -34,11 +36,13 @@ import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import useStore from '@/store/use-store';
 import {
   GetFrameworkConfigsQuery,
-  CreateFrameworkMutation,
-  CreateFrameworkMutationVariables,
+  CreateNzcFrameworkMutation,
+  CreateNzcFrameworkMutationVariables,
+  LowHigh,
 } from '@/types/__generated__/graphql';
-import { CREATE_FRAMEWORK_CONFIG } from '@/queries/framework/create-framework-config';
+import { CREATE_NZC_FRAMEWORK_CONFIG } from '@/queries/framework/create-framework-config';
 import NumberInput from './NumberInput';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 type ClimateOption = 'warm' | 'cold';
 type RenewableMixOption = 'low' | 'high';
@@ -102,7 +106,7 @@ function InstanceSelector({
     if (instance) {
       setInstance(
         instance.id,
-        instance.organizationName,
+        instance.organizationName ?? undefined,
         instance.baselineYear
       );
     }
@@ -146,6 +150,22 @@ const INITIAL_DATA: Data = {
   renewableElectricityMix: null,
 };
 
+function CityName() {
+  const { data, loading } = useUserProfile();
+
+  if (loading) {
+    return <Skeleton width={100} height={40} />;
+  }
+
+  const orgSlug = data?.me?.frameworkRoles?.[0].orgSlug;
+
+  if (!orgSlug) {
+    return null;
+  }
+
+  return <Typography color="text.secondary">{startCase(orgSlug)}</Typography>;
+}
+
 export function InstanceControlBar() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [step, setStep] = useState(0);
@@ -155,9 +175,9 @@ export function InstanceControlBar() {
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
 
   const [createFrameworkConfig, { loading, error }] = useMutation<
-    CreateFrameworkMutation,
-    CreateFrameworkMutationVariables
-  >(CREATE_FRAMEWORK_CONFIG);
+    CreateNzcFrameworkMutation,
+    CreateNzcFrameworkMutationVariables
+  >(CREATE_NZC_FRAMEWORK_CONFIG);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -171,15 +191,21 @@ export function InstanceControlBar() {
             name: data.planName,
             baselineYear: Number(data.baselineYear),
             slug: kebabCase(data.planName),
+            population: Number(data.population),
+            renewableMix:
+              data.renewableElectricityMix === 'high'
+                ? LowHigh.High
+                : LowHigh.Low,
+            temperature: data.climate === 'warm' ? LowHigh.High : LowHigh.Low,
           },
         });
 
-        if (resp.data?.createFrameworkConfig?.frameworkConfig?.id) {
-          const instance = resp.data.createFrameworkConfig.frameworkConfig;
+        if (resp.data?.createNzcFrameworkConfig?.frameworkConfig?.id) {
+          const instance = resp.data.createNzcFrameworkConfig.frameworkConfig;
 
           setInstance(
             instance.id,
-            instance.organizationName,
+            instance.organizationName ?? undefined,
             instance.baselineYear
           );
         }
@@ -215,7 +241,7 @@ export function InstanceControlBar() {
       if (instance) {
         setInstance(
           instance.id,
-          instance.organizationName,
+          instance.organizationName ?? undefined,
           instance.baselineYear
         );
       }
@@ -249,13 +275,23 @@ export function InstanceControlBar() {
     <>
       <Box
         sx={{
+          display: 'flex',
+          alignItems: 'center',
           bgcolor: (theme) => theme.palette.brand[50],
           height: 64,
-          pt: 2,
+          pt: 1,
           pb: 1,
         }}
       >
-        <Container>
+        <Container
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <CityName />
+
           <Stack direction="row" justifyContent="flex-end" spacing={2}>
             {hasMultipleInstances && selectedInstanceId && (
               <InstanceSelector
@@ -415,7 +451,7 @@ export function InstanceControlBar() {
                     hiddenLabel
                     labelId="climate-select"
                     id="climate-select-component"
-                    value={data.climate}
+                    value={data.climate ?? ''}
                     onChange={(e) => handleChange('climate', e.target.value)}
                   >
                     {CLIMATE_OPTIONS.map(({ value, label }) => (
@@ -437,7 +473,7 @@ export function InstanceControlBar() {
                     hiddenLabel
                     labelId="electricity-select"
                     id="electricity-select-component"
-                    value={data.renewableElectricityMix}
+                    value={data.renewableElectricityMix ?? ''}
                     onChange={(e) =>
                       handleChange('renewableElectricityMix', e.target.value)
                     }

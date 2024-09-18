@@ -20,8 +20,7 @@ import SupportModal from './SupportModal';
 import { getUserDisplay } from '@/utils/session';
 import { Logo } from './Logo';
 import { Session } from 'next-auth';
-import { gql, useQuery } from '@apollo/client';
-import { ProfileQuery } from '@/types/__generated__/graphql';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
@@ -30,16 +29,7 @@ const APP_BAR_STYLES: SxProps<Theme> = {
 };
 
 function UserDisplay({ sessionData }: { sessionData: Session }) {
-  const { data: profile, loading } = useQuery<ProfileQuery>(
-    gql`
-      query Profile {
-        me {
-          id
-          email
-        }
-      }
-    `
-  );
+  const { data: profile, loading } = useUserProfile();
 
   const sessionUser = getUserDisplay(sessionData);
 
