@@ -2119,7 +2119,7 @@ export type GetMeasureTemplateQuery = (
     { id: string, measureTemplate?: (
       { id: string, uuid: any, name: string, measure?: (
         { id: string, internalNotes: string, dataPoints: Array<(
-          { id: string, value?: number | null, year: number }
+          { id: string, value?: number | null, year: number, defaultValue?: number | null }
           & { __typename?: 'MeasureDataPoint' }
         )> }
         & { __typename?: 'Measure' }

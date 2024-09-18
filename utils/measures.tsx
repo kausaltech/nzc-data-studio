@@ -76,9 +76,9 @@ export function getMeasureValue(
   measureTemplate: MeasureTemplateFragmentFragment,
   baselineYear: number | null
 ) {
-  const firstDataPoint = measureTemplate.defaultDataPoints[0];
+  const firstDataPoint = measureTemplate.measure?.dataPoints[0];
 
-  if (!firstDataPoint) {
+  if (!firstDataPoint?.value) {
     return null;
   }
 
@@ -94,6 +94,14 @@ export function getMeasureValue(
     return measure?.value ?? firstDataPoint.value;
   }
 
+  return null;
+}
+
+export function getMeasureFallback(
+  measureTemplate: MeasureTemplateFragmentFragment,
+  baselineYear: number | null
+) {
+  // TODO: Return default value
   return null;
 }
 

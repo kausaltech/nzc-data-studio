@@ -36,6 +36,7 @@ import { DataSectionSummary } from './DataSectionSummary';
 import { useDataCollectionStore } from '@/store/data-collection';
 import {
   getDecimalPrecisionByUnit,
+  getMeasureFallback,
   getMeasureValue,
   getUnitName,
   isYearMeasure,
@@ -566,6 +567,7 @@ function getRowsFromSection(
         label: measure.name,
         value: getMeasureValue(measure, baselineYear),
         unit: measure.unit,
+        // fallback: getMeasureFallback(measure, baselineYear),
         fallback: measure.defaultDataPoints[0]?.value ?? null,
         priority: measure.priority,
         notes: measure.measure?.internalNotes ?? null,

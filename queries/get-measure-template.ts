@@ -15,6 +15,7 @@ export const GET_MEASURE_TEMPLATE = gql`
             id
             value
             year
+            defaultValue
           }
         }
       }
