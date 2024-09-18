@@ -1,3 +1,5 @@
+import { Link } from '@mui/material';
+
 export const FAQS = [
   {
     title:
@@ -51,8 +53,19 @@ export const FAQS = [
   {
     title:
       'Where can I find detailed information on the methodology used in the model for each of the main sectors?',
-    description:
-      'Detailed information can be found on the NetZeroCities portal at: https://netzerocities.app/group-capabilitybuildingprogrammebuildingastrongeconomiccase .',
+    description: (
+      <>
+        Detailed information can be found on the NetZeroCities portal at:{' '}
+        <Link
+          rel="noopener noreferrer"
+          target="_blank"
+          href="https://netzerocities.app/group-capabilitybuildingprogrammebuildingastrongeconomiccase"
+        >
+          https://netzerocities.app/group-capabilitybuildingprogrammebuildingastrongeconomiccase
+        </Link>
+        .
+      </>
+    ),
   },
 
   {
@@ -71,8 +84,21 @@ export const FAQS = [
   {
     title:
       'How does the model handle co-benefits and where can I find additional information on the research that backs up the model methodology?',
-    description:
-      'The model monetizes the co-benefits related to Health and includes those benefits in the cost / benefit analysis.  Additional information on co-benefits can be found on the NetZeroCities portal at: https://netzerocities.app/group-capabilitybuildingprogrammebuildingastrongeconomiccase .',
+    description: (
+      <>
+        The model monetizes the co-benefits related to Health and includes those
+        benefits in the cost / benefit analysis. Additional information on
+        co-benefits can be found on the NetZeroCities portal at:
+        <Link
+          rel="noopener noreferrer"
+          target="_blank"
+          href="https://netzerocities.app/group-capabilitybuildingprogrammebuildingastrongeconomiccase"
+        >
+          https://netzerocities.app/group-capabilitybuildingprogrammebuildingastrongeconomiccase
+        </Link>
+        .
+      </>
+    ),
   },
 
   {
