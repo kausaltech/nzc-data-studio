@@ -57,5 +57,29 @@
     "jest-environment-jsdom": "^29.7.0",
     "ts-node": "^10.9.2",
     "typescript": "^5"
+  },
+  "importSorter": {
+    "maxLineLength": 100,
+    "emptyLinesAfterAllImports": 1,
+    "wrappingStyle": {
+      "maxBindingNamesPerLine": 100,
+      "maxDefaultAndBindingNamesPerLine": 100,
+      "maxExportNamesPerLine": 0,
+      "maxNamesPerWrappedLine": 1,
+      "ignoreComments": true
+    },
+    "nodeProtocol": "always",
+    "groupRules": [
+      "^node:",
+      [
+        "^react(-dom)?$",
+        "^next/"
+      ],
+      {},
+      [
+        "^@/",
+        "^[.]"
+      ]
+    ]
   }
 }
