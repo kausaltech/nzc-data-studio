@@ -1,18 +1,29 @@
 import { gql } from '@apollo/client';
 
-export const CREATE_FRAMEWORK_CONFIG = gql`
-  mutation CreateFramework(
+export const CREATE_NZC_FRAMEWORK_CONFIG = gql`
+  mutation CreateNZCFramework(
     $frameworkId: ID!
     $baselineYear: Int!
+    $population: Int!
     $name: String!
     $slug: ID!
+    $temperature: LowHigh!
+    $renewableMix: LowHigh!
   ) {
-    createFrameworkConfig(
-      frameworkId: $frameworkId
-      baselineYear: $baselineYear
-      name: $name
-      instanceIdentifier: $slug
+    createNzcFrameworkConfig(
+      configInput: {
+        frameworkId: $frameworkId
+        baselineYear: $baselineYear
+        name: $name
+        instanceIdentifier: $slug
+      }
+      nzcData: {
+        population: $population
+        temperature: $temperature
+        renewableMix: $renewableMix
+      }
     ) {
+      ok
       frameworkConfig {
         id
         organizationName
