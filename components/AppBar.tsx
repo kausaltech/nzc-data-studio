@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
+
 import {
+  AppBar as MuiAppBar,
   Button,
   Menu,
   MenuItem,
-  AppBar as MuiAppBar,
   Skeleton,
   Stack,
   SxProps,
@@ -12,15 +14,14 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import { Session } from 'next-auth';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { useState } from 'react';
 import { PersonCircle, QuestionCircle } from 'react-bootstrap-icons';
-import SupportModal from './SupportModal';
 
+import { useUserProfile } from '@/hooks/use-user-profile';
 import { getUserDisplay } from '@/utils/session';
 import { Logo } from './Logo';
-import { Session } from 'next-auth';
-import { useUserProfile } from '@/hooks/use-user-profile';
+import SupportModal from './SupportModal';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
