@@ -14,6 +14,7 @@ import {
   Link,
 } from '@mui/material';
 import { ChevronDown, X } from 'react-bootstrap-icons';
+import { FAQS as OtherFAQS } from '@/constants/faqs';
 
 interface SupportModalProps {
   open: boolean;
@@ -41,11 +42,7 @@ const FAQS = [
     description:
       'Priority levels indicate the importance of providing data for different measures in NetZeroPlanner. High priority measures are crucial for tracking and achieving climate goals, requiring essential data inputs. Moderate priority measures are important but not critical, enhancing the overall understanding of progress. Low priority measures are less critical and providing data for them is helpful but not essential for the primary evaluation of climate action progress.',
   },
-  {
-    title: "How can I view and export my city's progress?",
-    description:
-      'Priority levels indicate the importance of providing data for different measures in NetZeroPlanner. High priority measures are crucial for tracking and achieving climate goals, requiring essential data inputs. Moderate priority measures are important but not critical, enhancing the overall understanding of progress. Low priority measures are less critical and providing data for them is helpful but not essential for the primary evaluation of climate action progress.',
-  },
+  ...OtherFAQS,
 ];
 
 const SupportModal = ({ open, onClose }: SupportModalProps) => {
@@ -85,7 +82,7 @@ const SupportModal = ({ open, onClose }: SupportModalProps) => {
                   sx={{ pl: 0 }}
                   expandIcon={<ChevronDown size={20} />}
                 >
-                  <Typography color="primary.main" variant="subtitle1">
+                  <Typography color="primary.main" variant="subtitle2">
                     {faq.title}
                   </Typography>
                 </AccordionSummary>
