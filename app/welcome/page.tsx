@@ -20,7 +20,7 @@ const Welcome: React.FC = () => {
       >
         <WelcomeSection />
         <IntroSection
-          title="How NetZeroPlanner guides your city's decarbonization journey"
+          title="How NetZeroPlanner guides your city's decarbonisation journey"
           items={benefits}
         />
       </Stack>
