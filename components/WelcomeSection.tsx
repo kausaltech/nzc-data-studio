@@ -53,7 +53,7 @@ const WelcomeSection: React.FC = () => {
             <Typography variant="body1" color="text.secondary" paragraph>
               NetZeroPlanner is a powerful online tool that enables cities to
               assess the impact of their Climate Action Plans, refine them, and
-              ensure they meet decarbonization goals.
+              ensure they meet decarbonisation goals.
             </Typography>
 
             <Typography variant="body1" color="text.secondary" paragraph>
