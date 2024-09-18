@@ -106,7 +106,7 @@ function InstanceSelector({
     if (instance) {
       setInstance(
         instance.id,
-        instance.organizationName,
+        instance.organizationName ?? undefined,
         instance.baselineYear
       );
     }
