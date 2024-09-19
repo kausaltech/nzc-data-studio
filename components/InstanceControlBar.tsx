@@ -157,7 +157,7 @@ function CityName() {
     return <Skeleton width={100} height={40} />;
   }
 
-  const orgSlug = data?.me?.frameworkRoles?.[0].orgSlug;
+  const orgSlug = data?.me?.frameworkRoles?.[0]?.orgSlug;
 
   if (!orgSlug) {
     return null;
