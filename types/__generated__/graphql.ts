@@ -2152,7 +2152,7 @@ export type GetMeasureTemplatesQuery = (
             & { __typename?: 'MeasureTemplateDefaultDataPoint' }
           )>, measure?: (
             { id: string, internalNotes: string, dataPoints: Array<(
-              { id: string, value?: number | null, year: number }
+              { id: string, value?: number | null, year: number, defaultValue?: number | null }
               & { __typename: 'MeasureDataPoint' }
             )> }
             & { __typename: 'Measure' }
@@ -2176,7 +2176,7 @@ export type GetMeasureTemplatesQuery = (
             & { __typename?: 'MeasureTemplateDefaultDataPoint' }
           )>, measure?: (
             { id: string, internalNotes: string, dataPoints: Array<(
-              { id: string, value?: number | null, year: number }
+              { id: string, value?: number | null, year: number, defaultValue?: number | null }
               & { __typename: 'MeasureDataPoint' }
             )> }
             & { __typename: 'Measure' }
@@ -2209,7 +2209,7 @@ export type MainSectionMeasuresFragment = (
         & { __typename?: 'MeasureTemplateDefaultDataPoint' }
       )>, measure?: (
         { id: string, internalNotes: string, dataPoints: Array<(
-          { id: string, value?: number | null, year: number }
+          { id: string, value?: number | null, year: number, defaultValue?: number | null }
           & { __typename: 'MeasureDataPoint' }
         )> }
         & { __typename: 'Measure' }
@@ -2234,7 +2234,7 @@ export type SectionFragmentFragment = (
       & { __typename?: 'MeasureTemplateDefaultDataPoint' }
     )>, measure?: (
       { id: string, internalNotes: string, dataPoints: Array<(
-        { id: string, value?: number | null, year: number }
+        { id: string, value?: number | null, year: number, defaultValue?: number | null }
         & { __typename: 'MeasureDataPoint' }
       )> }
       & { __typename: 'Measure' }
@@ -2253,7 +2253,7 @@ export type MeasureTemplateFragmentFragment = (
     & { __typename?: 'MeasureTemplateDefaultDataPoint' }
   )>, measure?: (
     { id: string, internalNotes: string, dataPoints: Array<(
-      { id: string, value?: number | null, year: number }
+      { id: string, value?: number | null, year: number, defaultValue?: number | null }
       & { __typename: 'MeasureDataPoint' }
     )> }
     & { __typename: 'Measure' }
@@ -2262,7 +2262,7 @@ export type MeasureTemplateFragmentFragment = (
 );
 
 export type DataPointFragmentFragment = (
-  { id: string, value?: number | null, year: number }
+  { id: string, value?: number | null, year: number, defaultValue?: number | null }
   & { __typename: 'MeasureDataPoint' }
 );
 
@@ -2277,7 +2277,7 @@ export type UpdateMeasureDataPointMutationVariables = Exact<{
 export type UpdateMeasureDataPointMutation = (
   { updateMeasureDataPoint?: (
     { measureDataPoint?: (
-      { id: string, value?: number | null, year: number }
+      { id: string, value?: number | null, year: number, defaultValue?: number | null }
       & { __typename: 'MeasureDataPoint' }
     ) | null }
     & { __typename?: 'UpdateMeasureDataPoint' }

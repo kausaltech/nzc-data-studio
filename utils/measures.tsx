@@ -101,7 +101,24 @@ export function getMeasureFallback(
   measureTemplate: MeasureTemplateFragmentFragment,
   baselineYear: number | null
 ) {
-  // TODO: Return default value
+  const firstDataPoint = measureTemplate.measure?.dataPoints[0];
+
+  if (!firstDataPoint?.defaultValue) {
+    return null;
+  }
+
+  if (baselineYear === null) {
+    return firstDataPoint.defaultValue;
+  }
+
+  if (measureTemplate.measure?.dataPoints.length) {
+    const measure = measureTemplate.measure.dataPoints.find(
+      (dataPoint) => dataPoint.year === baselineYear
+    );
+
+    return measure?.defaultValue ?? firstDataPoint.defaultValue ?? undefined;
+  }
+
   return null;
 }
 

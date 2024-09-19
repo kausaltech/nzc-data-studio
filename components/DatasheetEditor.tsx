@@ -445,7 +445,7 @@ const GRID_COL_DEFS: GridColDef[] = [
       return params.formattedValue;
     },
     valueFormatter: (value: number, row: MeasureRow | SumPercentRow) => {
-      if (row.type === 'SUM_PERCENT') {
+      if (row.type === 'SUM_PERCENT' || value == null) {
         return undefined;
       }
 
@@ -488,7 +488,7 @@ export type MeasureRow = {
   value: number | null;
   unit: UnitType;
   originalId: string;
-  fallback: number;
+  fallback: number | null;
   priority: string;
   notes: string | null;
   depth: number;
@@ -567,8 +567,7 @@ function getRowsFromSection(
         label: measure.name,
         value: getMeasureValue(measure, baselineYear),
         unit: measure.unit,
-        // fallback: getMeasureFallback(measure, baselineYear),
-        fallback: measure.defaultDataPoints[0]?.value ?? null,
+        fallback: getMeasureFallback(measure, baselineYear),
         priority: measure.priority,
         notes: measure.measure?.internalNotes ?? null,
         depth: depth + 1,

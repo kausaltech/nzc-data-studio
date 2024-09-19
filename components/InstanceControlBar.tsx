@@ -292,7 +292,12 @@ export function InstanceControlBar() {
         >
           <CityName />
 
-          <Stack direction="row" justifyContent="flex-end" spacing={2}>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            ml="auto"
+            spacing={2}
+          >
             {hasMultipleInstances && selectedInstanceId && (
               <InstanceSelector
                 selectedInstanceId={selectedInstanceId}

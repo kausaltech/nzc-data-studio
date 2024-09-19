@@ -8,6 +8,7 @@ export const measureDataPointFragment = gql`
     id
     value
     year
+    defaultValue
   }
 `;
 
