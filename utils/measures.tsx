@@ -78,7 +78,7 @@ export function getMeasureValue(
 ) {
   const firstDataPoint = measureTemplate.measure?.dataPoints[0];
 
-  if (!firstDataPoint?.value) {
+  if (firstDataPoint?.value == null) {
     return null;
   }
 
