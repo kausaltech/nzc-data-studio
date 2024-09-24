@@ -470,8 +470,8 @@ export function InstanceControlBar() {
                 <FormControl required>
                   <FormLabel id="baseline-select" sx={{ mb: 0.5 }}>
                     <Typography component="span" variant="body2">
-                      What's the percentage of renewable energy in your
-                      electricity mix?
+                      What's the percentage of renewable plus nuclear energy in
+                      your electricity mix?
                     </Typography>
                   </FormLabel>
                   <Select
