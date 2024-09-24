@@ -1,17 +1,17 @@
 'use client';
 
 import { ApolloLink, HttpLink, Operation } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+import { onError } from '@apollo/client/link/error';
 import {
-  ApolloNextAppProvider,
   ApolloClient,
+  ApolloNextAppProvider,
   InMemoryCache,
   SSRMultipartLink,
 } from '@apollo/experimental-nextjs-app-support';
-import { setContext } from '@apollo/client/link/context';
-import { onError } from '@apollo/client/link/error';
+import { useSession } from 'next-auth/react';
 
 import { apiUrl, isDev, isServer } from '@/constants/environment';
-import { useSession } from 'next-auth/react';
 
 // TODO: Add when Sentry is merged
 // import { captureException } from '@sentry/nextjs';
@@ -119,7 +119,7 @@ function makeClient(sessionToken?: string) {
 export function ApolloWrapper({ children }: React.PropsWithChildren) {
   const session = useSession();
   const token =
-    session.status === 'authenticated' ? session.data.idToken : undefined;
+    session.status === 'authenticated' ? session.data.accessToken : undefined;
 
   return (
     <ApolloNextAppProvider makeClient={() => makeClient(token)}>

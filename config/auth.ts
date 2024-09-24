@@ -1,5 +1,6 @@
-import NextAuth from 'next-auth';
 import type { OIDCConfig } from '@auth/core/providers';
+import NextAuth from 'next-auth';
+
 import { authIssuer } from '@/constants/environment';
 
 type Profile = {
@@ -10,22 +11,28 @@ type Profile = {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt(resp) {
+      console.debug('jwt callback');
+      console.debug(resp);
+      const { token, account } = resp;
       if (account) {
         // First-time login, save the `access_token`, its expiry and the `refresh_token`
         return {
           ...token,
           idToken: account.id_token,
-          access_token: account.access_token,
-          expires_at: account.expires_at,
-          refresh_token: account.refresh_token,
+          accessToken: account.access_token,
+          expiresAt: account.expires_at,
+          refreshToken: account.refresh_token,
         };
-      } else if (token.expires_at && Date.now() < token.expires_at * 1000) {
-        // Subsequent logins, but the `access_token` is still valid
+      } else if (token.expiresAt && Date.now() < token.expiresAt * 1000) {
+        // Subsequent session refresh, but the `access_token` is still valid
         return token;
       } else {
-        // Subsequent logins, but the `access_token` has expired, try to refresh it
-        if (!token.refresh_token) throw new TypeError('Missing refresh_token');
+        // Subsequent session refersh, but the `access_token` has expired, try to get a new one
+
+        // TODO: Remove reference to refresh_token later; it is there to convert older sessions.
+        const refreshToken = token.refreshToken ?? (token.refresh_token as string | undefined);
+        if (!refreshToken) throw new TypeError('Missing refresh_token');
 
         try {
           const response = await fetch(`${authIssuer}/o/token/`, {
@@ -38,12 +45,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               client_id: process.env.AUTH_CLIENT_ID!,
               client_secret: process.env.AUTH_CLIENT_SECRET!,
               grant_type: 'refresh_token',
-              refresh_token: token.refresh_token,
+              refresh_token: refreshToken,
             }),
           });
-
           const tokensOrError = await response.json();
-
+          console.debug('refresh response:');
+          console.debug(tokensOrError);
           if (!response.ok) throw tokensOrError;
 
           const newTokens = tokensOrError as {
@@ -52,27 +59,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             refresh_token?: string;
           };
 
-          token.access_token = newTokens.access_token;
-          token.expires_at = Math.floor(
+          token.accessToken = newTokens.access_token;
+          token.expiresAt = Math.floor(
             Date.now() / 1000 + newTokens.expires_in
           );
           // Some providers only issue refresh tokens once, so preserve if we did not get a new one
           if (newTokens.refresh_token)
-            token.refresh_token = newTokens.refresh_token;
+            token.refreshToken = newTokens.refresh_token;
 
           return token;
         } catch (error) {
           console.error('Error refreshing access_token', error);
           // If we fail to refresh the token, return an error so we can handle it on the page
           token.error = 'RefreshTokenError';
+          token.refreshToken = undefined;
           return token;
         }
       }
     },
     session({ session, token }) {
+      if (!token) return session;
+
+      const { idToken, accessToken } = token;
       // Include the OAuth id_token in the session
-      if (typeof token?.idToken === 'string') {
-        session.idToken = token.idToken;
+      if (idToken) {
+        session.idToken = idToken;
+      }
+      if (accessToken) {
+        session.accessToken = accessToken;
       }
 
       session.error = token.error;

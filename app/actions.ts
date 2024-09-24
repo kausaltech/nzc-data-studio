@@ -5,8 +5,8 @@ import { authIssuer } from '@/constants/environment';
 
 export async function handleBackendSignOut(currentUri: string) {
   const session = await auth();
-  const idToken = session?.idToken;
-  if (!idToken) return null;
+  if (!session) return null;
+  const { idToken } = session;
   await signOut({ redirect: false });
   const redirectUri = `${authIssuer}/o/logout/?post_logout_redirect_uri=${encodeURI(
     currentUri
