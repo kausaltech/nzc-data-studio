@@ -28,7 +28,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!token.refresh_token) throw new TypeError('Missing refresh_token');
 
         try {
-          const response = await fetch(`${authIssuer}/o/token`, {
+          const response = await fetch(`${authIssuer}/o/token/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
