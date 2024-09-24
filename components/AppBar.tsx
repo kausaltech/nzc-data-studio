@@ -15,13 +15,15 @@ import {
   Typography,
 } from '@mui/material';
 import { Session } from 'next-auth';
-import { signIn, signOut, useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { PersonCircle, QuestionCircle } from 'react-bootstrap-icons';
 
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { getUserDisplay } from '@/utils/session';
 import { Logo } from './Logo';
 import SupportModal from './SupportModal';
+import { handleBackendSignOut } from '@/app/actions';
+import { useRouter } from 'next/navigation';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
@@ -57,9 +59,7 @@ export function AppBar() {
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const session = useSession();
-
-  // TODO: use this when the backend supports a logout route to sign out of the admin ui
-  // const signOut = useHandleSignOut();
+  const router = useRouter();
 
   const isAuthenticated = session.status === 'authenticated';
 
@@ -68,19 +68,17 @@ export function AppBar() {
 
   const handleCloseAuthMenu = () => setMenuAnchorEl(null);
 
-  const handleSignUp = () => {
-    alert('Coming soon!');
-    handleCloseAuthMenu();
-  };
-
   const handleLogIn = () => {
     handleCloseAuthMenu();
     signIn('paths-oidc-provider', { callbackUrl: '/' });
   };
 
-  const handleSignOut = () => {
-    handleCloseAuthMenu();
-    signOut();
+  const handleSignOut = async () => {
+    const ret = await handleBackendSignOut(window.location.href);
+
+    if (ret) {
+      router.push(ret);
+    }
   };
 
   const handleOpenSupportModal = () => {
@@ -142,14 +140,9 @@ export function AppBar() {
               onClose={handleCloseAuthMenu}
             >
               {!isAuthenticated ? (
-                [
-                  // <MenuItem key="sign-up" onClick={handleSignUp}>
-                  //   Sign up
-                  // </MenuItem>,
-                  <MenuItem key="log-in" onClick={handleLogIn}>
-                    Sign in
-                  </MenuItem>,
-                ]
+                <MenuItem key="log-in" onClick={handleLogIn}>
+                  Sign in
+                </MenuItem>
               ) : (
                 <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
               )}
