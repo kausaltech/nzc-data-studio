@@ -12,7 +12,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
-        account.expires_at = Date.now() / 1000 + 60;
         // First-time login, save the `access_token`, its expiry and the `refresh_token`
         return {
           ...token,
