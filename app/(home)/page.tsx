@@ -13,9 +13,8 @@ import {
 import { RedirectType, redirect } from 'next/navigation';
 import { BoxArrowUpRight, Download } from 'react-bootstrap-icons';
 import DataCollection from '@/components/DataCollection';
-import { UploadLegacyDataButton } from '@/components/UploadLegacyDataButton';
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useQuery, useSuspenseQuery } from '@apollo/client';
 import {
   GetFrameworkConfigsQuery,
@@ -88,8 +87,6 @@ function DataCollectionContent({ instance }: { instance: string }) {
           {!!data.framework && (
             <Stack direction="row" spacing={2}>
               <ImportExportActions measureTemplates={data.framework} />
-              {/* TODO: Ensure this is only visible for Sean */}
-              {/* <UploadLegacyDataButton measureTemplates={data.framework} /> */}
             </Stack>
           )}
         </Stack>
@@ -222,7 +219,7 @@ function DashboardContent() {
 }
 
 export default function Dashboard() {
-  const { status } = useSession();
+  const { status, data } = useSession();
 
   if (status === 'loading') {
     return <Loading />;
@@ -230,6 +227,11 @@ export default function Dashboard() {
 
   if (status === 'unauthenticated') {
     return redirect('/welcome', RedirectType.replace);
+  }
+
+  if (data?.error === 'RefreshTokenError') {
+    // Force sign in to obtain a new set of access and refresh tokens
+    signIn('paths-oidc-provider', { callbackUrl: '/' });
   }
 
   return <DashboardContent />;

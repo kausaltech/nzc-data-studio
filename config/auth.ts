@@ -10,26 +10,74 @@ type Profile = {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
-    jwt({ token, account, profile }) {
-      // Persist the OAuth id_token
-      if (account?.id_token) {
-        token.idToken = account.id_token;
-        if (typeof profile?.exp == 'number') {
-          token.expires = new Date(profile.exp * 1000).toISOString();
+    async jwt({ token, account }) {
+      if (account) {
+        account.expires_at = Date.now() / 1000 + 60;
+        // First-time login, save the `access_token`, its expiry and the `refresh_token`
+        return {
+          ...token,
+          idToken: account.id_token,
+          access_token: account.access_token,
+          expires_at: account.expires_at,
+          refresh_token: account.refresh_token,
+        };
+      } else if (token.expires_at && Date.now() < token.expires_at * 1000) {
+        // Subsequent logins, but the `access_token` is still valid
+        return token;
+      } else {
+        // Subsequent logins, but the `access_token` has expired, try to refresh it
+        if (!token.refresh_token) throw new TypeError('Missing refresh_token');
+
+        try {
+          const response = await fetch(`${authIssuer}/o/token`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              Accept: 'application/json',
+            },
+            body: new URLSearchParams({
+              client_id: process.env.AUTH_CLIENT_ID!,
+              client_secret: process.env.AUTH_CLIENT_SECRET!,
+              grant_type: 'refresh_token',
+              refresh_token: token.refresh_token,
+            }),
+          });
+
+          const tokensOrError = await response.json();
+
+          if (!response.ok) throw tokensOrError;
+
+          const newTokens = tokensOrError as {
+            access_token: string;
+            expires_in: number;
+            refresh_token?: string;
+          };
+
+          token.access_token = newTokens.access_token;
+          token.expires_at = Math.floor(
+            Date.now() / 1000 + newTokens.expires_in
+          );
+          // Some providers only issue refresh tokens once, so preserve if we did not get a new one
+          if (newTokens.refresh_token)
+            token.refresh_token = newTokens.refresh_token;
+
+          return token;
+        } catch (error) {
+          console.error('Error refreshing access_token', error);
+          // If we fail to refresh the token, return an error so we can handle it on the page
+          token.error = 'RefreshTokenError';
+          return token;
         }
       }
-
-      return token;
     },
-    session({ session, ...params }) {
+    session({ session, token }) {
       // Include the OAuth id_token in the session
-      if ('token' in params && typeof params.token.idToken === 'string') {
-        session.idToken = params.token.idToken;
-
-        // if (params.token.expires != null) {
-        //   session.expires = new Date(params.token.expires).toDateString();
-        // }
+      if (typeof token?.idToken === 'string') {
+        session.idToken = token.idToken;
       }
+
+      session.error = token.error;
+
       return session;
     },
   },

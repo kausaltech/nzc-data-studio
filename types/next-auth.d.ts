@@ -6,13 +6,17 @@ declare module 'next-auth/jwt' {
   interface JWT {
     /** OpenID ID Token */
     idToken?: string;
-    expires?: string;
+    access_token?: string;
+    expires_at?: number;
+    refresh_token?: string;
+    error?: 'RefreshTokenError';
   }
 }
 
 declare module 'next-auth' {
   interface Session {
     idToken: string;
+    error?: 'RefreshTokenError';
     user: {
       name: string;
     } & DefaultSession['user'];
