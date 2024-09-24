@@ -286,6 +286,7 @@ function formatTotal(total: number | null) {
 
 type TotalPercentageProps = {
   total: number | null;
+  overrideIsValid?: boolean;
 };
 
 /**
@@ -293,12 +294,15 @@ type TotalPercentageProps = {
  * If no measure values have been provided, i.e. the total is null, hide the total.
  * If the total does not equal 100%, show a warning.
  */
-function TotalPercentage({ total }: TotalPercentageProps) {
+function TotalPercentage({
+  total,
+  overrideIsValid = false,
+}: TotalPercentageProps) {
   if (typeof total !== 'number') {
     return null;
   }
 
-  const isValid = total === 100;
+  const isValid = total === 100 || overrideIsValid;
 
   const percentageLabel = (
     <Typography
@@ -439,7 +443,16 @@ const GRID_COL_DEFS: GridColDef[] = [
     flex: 1,
     renderCell: (params: GridRenderCellParams<Row>) => {
       if (params.row.type === 'SUM_PERCENT') {
-        return <TotalPercentage total={100} />;
+        return (
+          <TotalPercentage
+            overrideIsValid
+            total={
+              typeof params.row.fallbackTotal === 'number'
+                ? Math.round(params.row.fallbackTotal)
+                : null
+            }
+          />
+        );
       }
 
       return params.formattedValue;
@@ -507,6 +520,7 @@ type SectionRow = {
 type SumPercentRow = {
   type: 'SUM_PERCENT';
   total: number | null;
+  fallbackTotal: number | null;
   id: string;
   depth: number;
 };
@@ -588,6 +602,19 @@ function getRowsFromSection(
 
               return null;
             }, null),
+            // TODO: This could be combined with the above total reduce function
+            fallbackTotal: measureTemplates.reduce(
+              (total: number | null, measure) => {
+                const value = getMeasureFallback(measure, baselineYear);
+
+                if (typeof value === 'number' || typeof total === 'number') {
+                  return (total ?? 0) + (value ?? 0);
+                }
+
+                return null;
+              },
+              null
+            ),
             id: `${section.id}_sum`,
           } as SumPercentRow,
         ]
