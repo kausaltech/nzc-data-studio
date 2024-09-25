@@ -6,9 +6,9 @@ declare module 'next-auth/jwt' {
   interface JWT {
     /** OpenID ID Token */
     idToken?: string;
-    access_token?: string;
-    expires_at?: number;
-    refresh_token?: string;
+    accessToken?: string;
+    expiresAt?: number;
+    refreshToken?: string;
     error?: 'RefreshTokenError';
   }
 }
@@ -16,6 +16,7 @@ declare module 'next-auth/jwt' {
 declare module 'next-auth' {
   interface Session {
     idToken: string;
+    accessToken: string;
     error?: 'RefreshTokenError';
     user: {
       name: string;

@@ -19,17 +19,13 @@ const nextConfig = {
     // If a fixed Build ID was not provided, fall back to the default implementation.
     return null;
   },
+  experimental: {
+    instrumentationHook: true,
+  }
 };
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
-
-console.log(`
-  Starting nzc-data-studio
-    → NODE_ENV: ${process.env.NODE_ENV}
-    → KAUSAL_PUBLIC_DEPLOYMENT_TYPE: ${process.env.KAUSAL_PUBLIC_DEPLOYMENT_TYPE}
-    → KAUSAL_PUBLIC_API_URL: ${process.env.KAUSAL_PUBLIC_API_URL}
-`);
 
 export default withBundleAnalyzer(nextConfig);
