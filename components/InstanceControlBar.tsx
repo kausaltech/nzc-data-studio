@@ -57,8 +57,8 @@ const CLIMATE_OPTIONS: Option<ClimateOption>[] = [
 ];
 
 const RENEWABLE_ELECTRICITY_OPTIONS: Option<RenewableMixOption>[] = [
-  { label: 'High (50-100% renewable)', value: 'high' },
-  { label: 'Low (0-50% renewable)', value: 'low' },
+  { label: 'High (50-100% renewable & nuclear)', value: 'high' },
+  { label: 'Low (0-50% renewable & nuclear)', value: 'low' },
 ];
 
 function getErrorMessage(error: Error) {
