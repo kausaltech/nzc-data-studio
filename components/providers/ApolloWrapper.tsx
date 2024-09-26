@@ -9,12 +9,10 @@ import {
   InMemoryCache,
   SSRMultipartLink,
 } from '@apollo/experimental-nextjs-app-support';
+import * as Sentry from '@sentry/nextjs';
 import { useSession } from 'next-auth/react';
 
 import { apiUrl, isDev, isServer } from '@/constants/environment';
-
-// TODO: Add when Sentry is merged
-// import { captureException } from '@sentry/nextjs';
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -50,15 +48,14 @@ function logError(
     );
   }
 
-  // TODO: Add when Sentry is merged
-  // captureException(message, {
-  //   extra: {
-  //     query: operation.query,
-  //     operationName: operation.operationName,
-  //     variables: JSON.stringify(operation.variables, null, 2),
-  //     ...sentryExtras,
-  //   },
-  // });
+  Sentry.captureException(message, {
+    extra: {
+      query: operation.query,
+      operationName: operation.operationName,
+      variables: JSON.stringify(operation.variables, null, 2),
+      ...sentryExtras,
+    },
+  });
 }
 
 const errorLink = onError(({ networkError, graphQLErrors, operation }) => {
