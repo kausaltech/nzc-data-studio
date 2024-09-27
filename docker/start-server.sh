@@ -8,9 +8,10 @@ fi
 
 if [ -z "$NEXT_PUBLIC_SENTRY_DSN" ]; then
   export NEXT_PUBLIC_SENTRY_DSN="$SENTRY_DSN"
+  export KAUSAL_PUBLIC_SENTRY_DSN="$SENTRY_DSN"
 fi
 
-function replace_asset_prefix() {
+replace_asset_prefix() {
   if [ -z "$NEXTJS_ASSET_PREFIX_PLACEHOLDER" ] ; then
     return
   fi
@@ -34,10 +35,10 @@ function replace_asset_prefix() {
 
 replace_asset_prefix
 
-export PORT=${NEXTJS_PORT}
+export PORT="${NEXTJS_PORT}"
 export HOSTNAME=0.0.0.0
 
-if [ "$NEXTJS_STANDALONE_BUILD" == "1" ] ; then
+if [ "$NEXTJS_STANDALONE_BUILD" = "1" ] ; then
   NEXT_CMD="node server.js"
 else
   NEXT_CMD="npm run start"
@@ -47,9 +48,9 @@ CADDY_CMD="/usr/sbin/caddy run -c /etc/caddy/Caddyfile"
 
 if [ -z "$1" ] ; then
   exec multirun "$NEXT_CMD" "$CADDY_CMD"
-elif [ "$1" == "caddy" ]; then
+elif [ "$1" = "caddy" ]; then
   exec $CADDY_CMD
-elif [ "$1" == "nextjs" ]; then
+elif [ "$1" = "nextjs" ]; then
   exec $NEXT_CMD
 else
   echo "Invalid command: $1"

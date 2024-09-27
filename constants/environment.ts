@@ -14,6 +14,7 @@ export const publicEnvVars = getPublicEnvVariables();
 
 export const apiUrl = publicEnvVars.KAUSAL_PUBLIC_API_URL || `${publicEnvVars.KAUSAL_PUBLIC_BACKEND_URL}/v1`;
 export const authIssuer = publicEnvVars.KAUSAL_PUBLIC_AUTH_ISSUER || `${publicEnvVars.KAUSAL_PUBLIC_BACKEND_URL}`;
+export const sentryDsn = publicEnvVars.KAUSAL_PUBLIC_SENTRY_DSN;
 
 export const deploymentType: DeploymentType =
-  publicEnvVars.KAUSAL_PUBLIC_DEPLOYMENT_TYPE as DeploymentType;
+  (publicEnvVars.KAUSAL_PUBLIC_DEPLOYMENT_TYPE || 'development') as DeploymentType;

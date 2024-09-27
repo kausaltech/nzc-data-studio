@@ -1,5 +1,8 @@
 'use client';
 
+import { redirect, RedirectType } from 'next/navigation';
+
+import { useQuery, useSuspenseQuery } from '@apollo/client';
 import {
   Button,
   Card,
@@ -10,23 +13,23 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { RedirectType, redirect } from 'next/navigation';
-import { BoxArrowUpRight, Download } from 'react-bootstrap-icons';
-import DataCollection from '@/components/DataCollection';
-import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
+import * as Sentry from '@sentry/nextjs';
 import { signIn, useSession } from 'next-auth/react';
-import { useQuery, useSuspenseQuery } from '@apollo/client';
-import {
+import { BoxArrowUpRight, Download } from 'react-bootstrap-icons';
+
+import CompletionScoreCard from '@/components/CompletionScoreCard';
+import DataCollection from '@/components/DataCollection';
+import { ImportExportActions } from '@/components/import-export/ImportExportActions';
+import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
+import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
+import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
+import useStore from '@/store/use-store';
+import type {
   GetFrameworkConfigsQuery,
   GetMeasureTemplatesQuery,
   GetMeasureTemplatesQueryVariables,
 } from '@/types/__generated__/graphql';
 import Loading, { LoadingCard } from '../loading';
-import useStore from '@/store/use-store';
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
-import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
-import CompletionScoreCard from '@/components/CompletionScoreCard';
-import { ImportExportActions } from '@/components/import-export/ImportExportActions';
 
 function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   const { data, error, loading } = useQuery<
@@ -43,6 +46,9 @@ function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   if (!data?.framework || error) {
     // TODO: Return error component
     console.log('Error', error);
+    if (error) {
+      Sentry.captureException(error);
+    }
     return <h1>Something went wrong</h1>;
   }
 
@@ -70,6 +76,9 @@ function DataCollectionContent({ instance }: { instance: string }) {
   if (!data || error) {
     // TODO: Return error page
     console.log('Error', error);
+    if (error) {
+      Sentry.captureException(error);
+    }
     return <h1>Something went wrong</h1>;
   }
 
@@ -140,6 +149,7 @@ function DashboardContent() {
   ) {
     // TODO: Return error page
     console.log(`Error - Selected instance: ${selectedInstanceId}`);
+    if (instanceError) Sentry.captureException(instanceError);
     return <h1>Something went wrong: Instance not found</h1>;
   }
 
