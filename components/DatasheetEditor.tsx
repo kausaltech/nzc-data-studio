@@ -170,14 +170,20 @@ function CustomEditComponent({
   const handleValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
 
-    apiRef.current.setEditCellValue({ id, field, value: newValue });
-  };
-
-  function handleNumberValueChange(value: NumberFormatValues) {
     apiRef.current.setEditCellValue({
       id,
       field,
+      value: newValue,
+      debounceMs: 400,
+    });
+  };
+
+  async function handleNumberValueChange(value: NumberFormatValues) {
+    await apiRef.current.setEditCellValue({
+      id,
+      field,
       value: value.floatValue ?? '',
+      debounceMs: 400,
     });
   }
 
