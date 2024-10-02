@@ -56,6 +56,7 @@ import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import useStore from '@/store/use-store';
 import { SECTIONS_SUM_100_PERCENT } from '@/constants/measure-overrides';
+import { useSnackbar } from './SnackbarProvider';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -127,6 +128,17 @@ const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
     '&.Mui-selected': {
       ...rowSummarySx(theme),
       '&:hover': rowSummarySx(theme),
+    },
+  },
+
+  '& .cell-error': {
+    '.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: theme.palette.error.main,
+      borderWidth: 2,
+    },
+    '.MuiOutlinedInput-notchedOutline': {
+      borderColor: theme.palette.error.main,
+      borderWidth: 2,
     },
   },
 });
@@ -638,6 +650,8 @@ function AccordionContentWrapper({
   index,
   withIndexes = false,
 }: AccordionContentWrapperProps) {
+  const [rowsFailedToSave, setRowsFailedToSave] = useState<string[]>([]); // UUIDs of rows that failed to save
+  const { setNotification } = useSnackbar();
   const { data: baselineYear } = useStore(
     useFrameworkInstanceStore,
     (state) => state.baselineYear
@@ -663,6 +677,77 @@ function AccordionContentWrapper({
   const rows = useMemo(
     () => getRowsFromSection(section, 0, true, baselineYear),
     [section, baselineYear]
+  );
+
+  const processRowUpdate = useCallback(
+    async (updatedRow: Row, originalRow: Row): Promise<Row> => {
+      if (updatedRow.type !== 'MEASURE' || originalRow.type !== 'MEASURE') {
+        return originalRow;
+      }
+
+      const haveNotesChanged = updatedRow.notes !== originalRow.notes;
+
+      if (updatedRow.value === originalRow.value && !haveNotesChanged) {
+        return originalRow;
+      }
+
+      if (!selectedInstanceId) {
+        throw new Error('No plan selected');
+      }
+
+      try {
+        await updateMeasureDataPoint({
+          variables: {
+            frameworkInstanceId: selectedInstanceId,
+            measureTemplateId: updatedRow.originalId,
+            value: updatedRow.value,
+            internalNotes: updatedRow.notes,
+          },
+          refetchQueries() {
+            /**
+             * Refetch the measure template to ensure the cache is up to date:
+             * - If a measure data point is deleted
+             * - If a measure data point is added
+             * - If a note is changed (notes are not returned in the mutation)
+             */
+            return [
+              {
+                query: GET_MEASURE_TEMPLATE,
+                variables: {
+                  id: updatedRow.originalId,
+                  frameworkConfigId: selectedInstanceId,
+                },
+              },
+            ];
+          },
+        });
+
+        if (rowsFailedToSave.includes(updatedRow.id)) {
+          setRowsFailedToSave((rows) => [
+            ...rows.filter((row) => row !== updatedRow.id),
+          ]);
+        }
+      } catch (error) {
+        setRowsFailedToSave((rows) => [...new Set([...rows, updatedRow.id])]);
+
+        // Rethrow the error to be caught by onProcessRowUpdateError and prevent exiting edit mode
+        throw error;
+      }
+
+      return updatedRow;
+    },
+    [rowsFailedToSave, selectedInstanceId, updateMeasureDataPoint]
+  );
+
+  const handleProcessRowUpdateError = useCallback(
+    (error: Error) => {
+      setNotification({
+        message: 'Failed to save, please try again',
+        extraDetails: error.message,
+        severity: 'error',
+      });
+    },
+    [setNotification]
   );
 
   return (
@@ -709,6 +794,12 @@ function AccordionContentWrapper({
 
               return '';
             }}
+            getCellClassName={(params) =>
+              params.field === 'value' &&
+              rowsFailedToSave.includes(params.row.id)
+                ? 'cell-error'
+                : ''
+            }
             getRowHeight={() => 'auto'}
             rows={rows}
             columns={GRID_COL_DEFS}
@@ -716,57 +807,8 @@ function AccordionContentWrapper({
             disableColumnFilter
             disableColumnMenu
             disableVirtualization
-            processRowUpdate={async (updatedRow: Row, originalRow: Row) => {
-              if (
-                updatedRow.type !== 'MEASURE' ||
-                originalRow.type !== 'MEASURE'
-              ) {
-                return originalRow;
-              }
-
-              const haveNotesChanged = updatedRow.notes !== originalRow.notes;
-
-              if (updatedRow.value === originalRow.value && !haveNotesChanged) {
-                return originalRow;
-              }
-
-              try {
-                if (!selectedInstanceId) {
-                  throw new Error('No plan selected');
-                }
-
-                await updateMeasureDataPoint({
-                  variables: {
-                    frameworkInstanceId: selectedInstanceId,
-                    measureTemplateId: updatedRow.originalId,
-                    value: updatedRow.value,
-                    internalNotes: updatedRow.notes,
-                  },
-                  refetchQueries() {
-                    /**
-                     * Refetch the measure template to ensure the cache is up to date:
-                     * - If a measure data point is deleted
-                     * - If a measure data point is added
-                     * - If a note is changed (notes are not returned in the mutation)
-                     */
-                    return [
-                      {
-                        query: GET_MEASURE_TEMPLATE,
-                        variables: {
-                          id: updatedRow.originalId,
-                          frameworkConfigId: selectedInstanceId,
-                        },
-                      },
-                    ];
-                  },
-                });
-              } catch (error) {
-                console.log('Mutation error', JSON.stringify(error, null, 2));
-                // TODO: Handle error
-              }
-
-              return updatedRow;
-            }}
+            processRowUpdate={processRowUpdate}
+            onProcessRowUpdateError={handleProcessRowUpdateError}
           />
         </Box>
       </AccordionDetails>
