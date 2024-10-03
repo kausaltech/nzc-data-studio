@@ -2,7 +2,7 @@
  * Helper to support store local storage persistence
  * by waiting for client rendering before accessing the store
  */
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const useStore = <T, F>(
   store: (callback: (state: T) => unknown) => unknown,

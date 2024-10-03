@@ -1,5 +1,7 @@
 'use client';
 
+import { MutableRefObject, useCallback, useMemo, useRef } from 'react';
+
 import { ApolloLink, HttpLink, Operation } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
@@ -13,6 +15,7 @@ import * as Sentry from '@sentry/nextjs';
 import { useSession } from 'next-auth/react';
 
 import { apiUrl, isDev, isServer } from '@/constants/environment';
+import logger from '@/utils/logger';
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -42,9 +45,8 @@ function logError(
   sentryExtras: { [key: string]: unknown }
 ) {
   if (isDev) {
-    console.error(
+    logger.error(error,
       `An error occurred while querying ${operation.operationName}: ${message}`,
-      error
     );
   }
 
@@ -75,32 +77,30 @@ const errorLink = onError(({ networkError, graphQLErrors, operation }) => {
   }
 });
 
-const authMiddleware = setContext(
-  (_, { sessionToken, headers: initialHeaders = {} }) => {
+type AccessTokenRef = MutableRefObject<string | null>;
+
+const makeAuthMiddleware = (tokenRef: AccessTokenRef) => {
+  return setContext((_, { headers: initialHeaders = {} }) => {
     return {
       headers: {
         ...initialHeaders,
-        ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}),
+        ...(tokenRef.current ? { Authorization: `Bearer ${tokenRef.current}` } : {}),
       },
     };
-  }
-);
+  });
+};
 
-function makeClient(sessionToken?: string) {
+function makeClient(sessionTokenRef: MutableRefObject<string | null>) {
   const httpLink = new HttpLink({
     uri: `${apiUrl}/graphql/`,
     fetchOptions: { cache: 'no-store' },
   });
 
   return new ApolloClient({
-    defaultContext: {
-      sessionToken,
-    },
-
     cache,
     link: ApolloLink.from([
       errorLink,
-      authMiddleware,
+      makeAuthMiddleware(sessionTokenRef),
       ...(isServer
         ? [
             new SSRMultipartLink({
@@ -115,12 +115,15 @@ function makeClient(sessionToken?: string) {
 
 export function ApolloWrapper({ children }: React.PropsWithChildren) {
   const session = useSession();
-  const token =
-    session.status === 'authenticated' ? session.data.accessToken : undefined;
+  const accessToken = session.status === 'authenticated' ? session.data.accessToken : null;
+  const tokenRef: AccessTokenRef = useRef(accessToken);
 
-  return (
-    <ApolloNextAppProvider makeClient={() => makeClient(token)}>
+  const client = useCallback(() => makeClient(tokenRef), [tokenRef]);
+  tokenRef.current = accessToken;
+
+  return useMemo(() => (
+    <ApolloNextAppProvider makeClient={client}>
       {children}
     </ApolloNextAppProvider>
-  );
+  ), [client, children]);
 }

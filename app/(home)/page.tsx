@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
 import { redirect, RedirectType } from 'next/navigation';
 
 import { useQuery, useSuspenseQuery } from '@apollo/client';
@@ -14,7 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import * as Sentry from '@sentry/nextjs';
-import { signIn, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { BoxArrowUpRight, Download } from 'react-bootstrap-icons';
 
 import CompletionScoreCard from '@/components/CompletionScoreCard';
@@ -116,12 +117,13 @@ function DashboardContent() {
   const { data: instanceData, error: instanceError } =
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
 
+  const frameworkConfigs = instanceData.framework?.configs;
   const selectedInstance =
-    instanceData.framework?.configs.find(
+    frameworkConfigs ? (frameworkConfigs.find(
       (config) => config.id === selectedInstanceId
-    ) ?? null;
+    ) ?? null) : null;
 
-  if (instanceData.framework?.configs.length === 0) {
+  if (frameworkConfigs?.length === 0) {
     return (
       <Fade in>
         <Container>
@@ -142,11 +144,11 @@ function DashboardContent() {
     );
   }
 
-  if (
-    !instanceData ||
-    instanceError ||
-    (isInstanceStoreInitialized && !selectedInstance)
-  ) {
+  if (!isInstanceStoreInitialized || !selectedInstanceId) {
+    return <Loading />;
+  }
+
+  if (!instanceData || instanceError) {
     // TODO: Return error page
     console.log(`Error - Selected instance: ${selectedInstanceId}`);
     if (instanceError) Sentry.captureException(instanceError);
@@ -229,9 +231,24 @@ function DashboardContent() {
 }
 
 export default function Dashboard() {
-  const { status, data } = useSession();
+  const { status } = useSession();
+  const [isAuthenticated, setIsAuthenticated] = useState(status === 'authenticated');
 
-  if (status === 'loading') {
+  useEffect(() => {
+    if (status === 'authenticated') {
+      setIsAuthenticated(true);
+    } else if (status === 'unauthenticated') {
+      setIsAuthenticated(false);
+    }
+  }, [status]);
+
+  const dashboard = useMemo(() => {
+    if (isAuthenticated) {
+      return <DashboardContent />;
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated && status === 'loading') {
     return <Loading />;
   }
 
@@ -239,10 +256,5 @@ export default function Dashboard() {
     return redirect('/welcome', RedirectType.replace);
   }
 
-  if (data?.error === 'RefreshTokenError') {
-    // Force sign in to obtain a new set of access and refresh tokens
-    signIn('paths-oidc-provider', { callbackUrl: '/' });
-  }
-
-  return <DashboardContent />;
+  return dashboard;
 }

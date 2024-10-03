@@ -1,18 +1,22 @@
+import './globals.css';
+
 import { ReactNode } from 'react';
 import { headers } from 'next/headers';
-import type { Metadata } from 'next';
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
-import { ThemeProvider } from '@/theme';
-import { AppBar } from '@/components/AppBar';
+
 import { Box, Container } from '@mui/material';
-import { AuthProvider } from '@/components/providers/AuthProvider';
-import { auth } from '@/config/auth';
-import { envMetadata } from '@/utils/environment';
-import { ApolloWrapper } from '@/components/providers/ApolloWrapper';
-import './globals.css';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+import * as Sentry from '@sentry/nextjs';
+import type { Metadata } from 'next';
+
+import { AppBar } from '@/components/AppBar';
 import { Logo } from '@/components/Logo';
+import { ApolloWrapper } from '@/components/providers/ApolloWrapper';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import { PreferredLocaleProvider } from '@/components/providers/PreferredLocaleProvider';
 import { SnackbarProvider } from '@/components/SnackbarProvider';
+import { auth } from '@/config/auth';
+import { ThemeProvider } from '@/theme';
+import { envMetadata } from '@/utils/environment';
 
 export const metadata: Metadata = {
   title: 'NetZeroPlanner',
@@ -31,6 +35,16 @@ type Props = {
 
 export default async function RootLayout({ children }: Props) {
   const session = await auth();
+  if (session) {
+    const { email, id, name } = session.user;
+    Sentry.setUser({
+      email: email ?? undefined,
+      id: id ?? undefined,
+      name: name,
+    });
+  } else {
+    Sentry.setUser(null);
+  }
   const headersList = headers();
   /**
    * Extract the preferred language from the 'accept-language' header. Languages are split by

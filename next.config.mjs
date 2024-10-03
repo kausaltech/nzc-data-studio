@@ -22,6 +22,7 @@ const nextConfig = {
   },
   experimental: {
     instrumentationHook: true,
+    serverComponentsExternalPackages: ['pino', 'pino-pretty'],
   }
 };
 

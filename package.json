@@ -5,6 +5,7 @@
   "packageManager": "npm@10.5.2",
   "scripts": {
     "dev": "next dev",
+    "debug": "NODE_OPTIONS=--inspect next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -30,6 +31,8 @@
     "next": "14.2.3",
     "next-auth": "^5.0.0-beta.19",
     "papaparse": "^5.4.1",
+    "pino": "^9.4.0",
+    "pino-pretty": "^11.2.2",
     "react": "^18.2.0",
     "react-bootstrap-icons": "^1.11.4",
     "react-dom": "^18.2.0",
