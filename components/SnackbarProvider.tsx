@@ -13,10 +13,11 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { Alert, AlertProps, Snackbar } from '@mui/material';
+import { Alert, AlertProps, AlertTitle, Snackbar } from '@mui/material';
 
 type Notification = {
   message: string;
+  extraDetails?: string;
   severity: AlertProps['severity'];
 };
 
@@ -40,12 +41,7 @@ export function SnackbarProvider({ children }: Props) {
   const [notification, setNotification] = useState<Notification | null>(null);
 
   return (
-    <SnackbarContext.Provider
-      value={{
-        notification,
-        setNotification: (notification) => setNotification(notification),
-      }}
-    >
+    <SnackbarContext.Provider value={{ notification, setNotification }}>
       <SnackbarWrapper />
       {children}
     </SnackbarContext.Provider>
@@ -84,7 +80,14 @@ export function SnackbarWrapper() {
         variant="filled"
         sx={{ width: '100%' }}
       >
-        {notification?.message}
+        {notification?.extraDetails ? (
+          <>
+            <AlertTitle>{notification.message}</AlertTitle>
+            {notification.extraDetails}
+          </>
+        ) : (
+          notification?.message
+        )}
       </Alert>
     </Snackbar>
   );
