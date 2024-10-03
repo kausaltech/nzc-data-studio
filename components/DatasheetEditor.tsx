@@ -483,7 +483,7 @@ const GRID_COL_DEFS: GridColDef[] = [
       const precision = getDecimalPrecisionByUnit(row.unit.long);
 
       if (isYearMeasure(row.label, row.unit.long)) {
-        return value;
+        return Math.round(value);
       }
 
       return typeof value === 'number'
