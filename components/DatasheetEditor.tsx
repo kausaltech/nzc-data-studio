@@ -104,6 +104,20 @@ const rowSummarySx: SxProps<Theme> = (theme) => ({
 
 // Override styles colors of title sections
 const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
+  '& .MuiDataGrid-columnHeaderTitle': {
+    fontSize: theme.typography.caption.fontSize,
+    whiteSpace: 'normal',
+    lineHeight: 'normal',
+    py: 1,
+  },
+  '& .MuiDataGrid-columnHeader': {
+    // Forced to use important since overriding inline styles
+    height: 'unset !important',
+  },
+  '& .MuiDataGrid-columnHeaders': {
+    // Forced to use important since overriding inline styles
+    maxHeight: '168px !important',
+  },
   '& .row-title': {
     ...rowTitleSx(theme),
     '&:hover': rowTitleSx(theme),
@@ -454,9 +468,9 @@ const GRID_COL_DEFS: GridColDef[] = [
   },
   {
     display: 'flex',
-    headerName: 'Fallback value',
+    headerName: 'Comparable City Value',
     description:
-      'Fallback values are utilized when no city-specific value is provided. Fallbacks are derived from comparable cities.',
+      'Comparable City Values are utilized when no city-specific value is provided. Fallbacks are derived from comparable cities.',
     field: 'fallback',
     flex: 1,
     renderCell: (params: GridRenderCellParams<Row>) => {
@@ -503,7 +517,7 @@ const GRID_COL_DEFS: GridColDef[] = [
   },
   {
     display: 'flex',
-    headerName: 'Internal notes',
+    headerName: 'Internal Notes',
     field: 'notes',
     type: 'string',
     flex: 2,
