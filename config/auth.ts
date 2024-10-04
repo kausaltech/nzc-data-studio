@@ -23,6 +23,7 @@ declare module 'next-auth/jwt' {
   interface JWT {
     /** OpenID ID Token */
     accessToken?: string;
+    idToken?: string;
     expiresAt?: number;
     refreshToken?: string;
     accessTokenLastCheckedAt: number;
@@ -44,10 +45,11 @@ declare module 'next-auth' {
   interface Session {
     accessToken: string;
     accessTokenExpiresAt: number;
+    idToken?: string;
     needsRefresh?: boolean;
     performRefresh?: boolean;
     error: 'RefreshTokenError' | 'InvalidAccessToken' | 'AccessTokenNeedsRefresh' | null;
-    user: User,
+    user: User;
   }
 }
 
@@ -172,6 +174,7 @@ const authConfig: NextAuthConfig = {
       // Sign-in flow; save the `access_token`, its expiry and the `refresh_token`
       const updatedToken: JWT = {
         ...token,
+        idToken: account.id_token,
         accessToken: account.access_token,
         expiresAt: account.expires_at,
         refreshToken: account.refresh_token,
@@ -190,11 +193,13 @@ const authConfig: NextAuthConfig = {
       authLogger.info({user: session?.user, runtime: process.env.NEXT_RUNTIME}, 'Session callback');
 
       if (!token) return session;
+
       if (token.error) {
         session.error = token.error;
         return session;
       }
-      const { accessToken, } = token;
+      
+      const { accessToken, idToken } = token;
       if (!accessToken) return session;
 
       if (accessTokenNeedsRefresh(token)) {
@@ -210,6 +215,7 @@ const authConfig: NextAuthConfig = {
 
       session.accessToken = accessToken;
       session.accessTokenExpiresAt = token.expiresAt!;
+      session.idToken = idToken;
       session.needsRefresh = false;
       session.error = null;
       if (token.user.id) {
