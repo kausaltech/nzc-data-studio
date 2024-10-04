@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "prettier:fix": "prettier --write .",
     "test": "jest",
     "test:watch": "jest --watch",
     "graphql-codegen": "graphql-codegen --config config/codegen.ts"
@@ -59,6 +60,7 @@
     "eslint-config-prettier": "^9.1.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5"
   },
@@ -77,7 +79,8 @@
       "^node:",
       [
         "^react(-dom)?$",
-        "^next/"
+        "^next/",
+        "^@mui/"
       ],
       {},
       [

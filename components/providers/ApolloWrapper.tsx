@@ -45,8 +45,9 @@ function logError(
   sentryExtras: { [key: string]: unknown }
 ) {
   if (isDev) {
-    logger.error(error,
-      `An error occurred while querying ${operation.operationName}: ${message}`,
+    logger.error(
+      error,
+      `An error occurred while querying ${operation.operationName}: ${message}`
     );
   }
 
@@ -84,7 +85,9 @@ const makeAuthMiddleware = (tokenRef: AccessTokenRef) => {
     return {
       headers: {
         ...initialHeaders,
-        ...(tokenRef.current ? { Authorization: `Bearer ${tokenRef.current}` } : {}),
+        ...(tokenRef.current
+          ? { Authorization: `Bearer ${tokenRef.current}` }
+          : {}),
       },
     };
   });
@@ -115,15 +118,19 @@ function makeClient(sessionTokenRef: MutableRefObject<string | null>) {
 
 export function ApolloWrapper({ children }: React.PropsWithChildren) {
   const session = useSession();
-  const accessToken = session.status === 'authenticated' ? session.data.accessToken : null;
+  const accessToken =
+    session.status === 'authenticated' ? session.data.accessToken : null;
   const tokenRef: AccessTokenRef = useRef(accessToken);
 
   const client = useCallback(() => makeClient(tokenRef), [tokenRef]);
   tokenRef.current = accessToken;
 
-  return useMemo(() => (
-    <ApolloNextAppProvider makeClient={client}>
-      {children}
-    </ApolloNextAppProvider>
-  ), [client, children]);
+  return useMemo(
+    () => (
+      <ApolloNextAppProvider makeClient={client}>
+        {children}
+      </ApolloNextAppProvider>
+    ),
+    [client, children]
+  );
 }

@@ -3,25 +3,37 @@
 import { MutableRefObject, ReactNode, useEffect, useRef } from 'react';
 
 import { Session } from 'next-auth';
-import { __NEXTAUTH, SessionProvider, signIn, UpdateSession, useSession } from 'next-auth/react';
+import {
+  __NEXTAUTH,
+  SessionProvider,
+  signIn,
+  UpdateSession,
+  useSession,
+} from 'next-auth/react';
 
 import Loading from '@/app/loading';
 import { AUTH_PROVIDER_NAME } from '@/config/auth';
 import logger from '@/utils/logger';
 
-async function refreshAccessToken(update: UpdateSession, isRefreshing: MutableRefObject<boolean>) {
-  logger.info("Refreshing the token by updating the session");
-  const newSession = await update({performRefresh: true});
-  logger.info(newSession, "Refresh done");
+async function refreshAccessToken(
+  update: UpdateSession,
+  isRefreshing: MutableRefObject<boolean>
+) {
+  logger.info('Refreshing the token by updating the session');
+  const newSession = await update({ performRefresh: true });
+  logger.info(newSession, 'Refresh done');
   isRefreshing.current = false;
 }
 
-function TokenRefresher({ children } : { children: ReactNode }) {
+function TokenRefresher({ children }: { children: ReactNode }) {
   const { data: session, status, update } = useSession();
 
-  const sessionStr = session ? `error: ${session.error ?? '[no error]'}, accessToken: ${session.accessToken?.substring(0, 5)}...` : '[no session]'
+  const sessionStr = session
+    ? `error: ${session.error ?? '[no error]'}, accessToken: ${session.accessToken?.substring(0, 5)}...`
+    : '[no session]';
 
-  let needsRefresh = false, needsSignIn = false;
+  let needsRefresh = false,
+    needsSignIn = false;
 
   if (status === 'authenticated' && session) {
     if (session.error === 'RefreshTokenError') {
@@ -33,14 +45,16 @@ function TokenRefresher({ children } : { children: ReactNode }) {
 
   const refreshing = useRef(false);
 
-  logger.info(`[TokenRefresher] status=${status}; needsRefresh=${needsRefresh}; refreshing=${refreshing.current}; performRefresh=${session?.performRefresh} ${sessionStr}`);
+  logger.info(
+    `[TokenRefresher] status=${status}; needsRefresh=${needsRefresh}; refreshing=${refreshing.current}; performRefresh=${session?.performRefresh} ${sessionStr}`
+  );
 
   useEffect(() => {
     if (!needsRefresh || refreshing.current || session?.performRefresh) return;
     refreshing.current = true;
     logger.info('Invoking refresh');
     refreshAccessToken(update, refreshing);
-  }, [needsRefresh, refreshing, session?.performRefresh, update])
+  }, [needsRefresh, refreshing, session?.performRefresh, update]);
 
   useEffect(() => {
     if (!session?.accessTokenExpiresAt || refreshing.current) return;
@@ -51,10 +65,12 @@ function TokenRefresher({ children } : { children: ReactNode }) {
     // tabs trying to refresh at once.
     // The session update event will be broadcast through a BroadcastChannel
     // to other tabs.
-    const timeLeft = Math.max(session.accessTokenExpiresAt - now - 600, 60) + Math.random() * 60;
+    const timeLeft =
+      Math.max(session.accessTokenExpiresAt - now - 600, 60) +
+      Math.random() * 60;
     logger.info(`Refreshing token after ${timeLeft}s`);
     const refetchTimer = setTimeout(() => {
-      logger.info("Refresh timer fired");
+      logger.info('Refresh timer fired');
       refreshing.current = true;
       refreshAccessToken(update, refreshing);
     }, timeLeft * 1000);
@@ -78,12 +94,14 @@ type Props = {
 };
 
 export function AuthProvider({ session, children }: Props) {
-  logger.child({user: session?.user}).info("AuthProvider init");
+  logger.child({ user: session?.user }).info('AuthProvider init');
   return (
-    <SessionProvider session={session} refetchInterval={7200} refetchWhenOffline={false}>
-      <TokenRefresher>
-        {children}
-      </TokenRefresher>
+    <SessionProvider
+      session={session}
+      refetchInterval={7200}
+      refetchWhenOffline={false}
+    >
+      <TokenRefresher>{children}</TokenRefresher>
     </SessionProvider>
   );
 }

@@ -118,10 +118,10 @@ function DashboardContent() {
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
 
   const frameworkConfigs = instanceData.framework?.configs;
-  const selectedInstance =
-    frameworkConfigs ? (frameworkConfigs.find(
-      (config) => config.id === selectedInstanceId
-    ) ?? null) : null;
+  const selectedInstance = frameworkConfigs
+    ? (frameworkConfigs.find((config) => config.id === selectedInstanceId) ??
+      null)
+    : null;
 
   if (frameworkConfigs?.length === 0) {
     return (
@@ -232,7 +232,9 @@ function DashboardContent() {
 
 export default function Dashboard() {
   const { status } = useSession();
-  const [isAuthenticated, setIsAuthenticated] = useState(status === 'authenticated');
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    status === 'authenticated'
+  );
 
   useEffect(() => {
     if (status === 'authenticated') {
