@@ -1,8 +1,8 @@
 'use client';
 
-import kebabCase from 'lodash/kebabCase';
-import startCase from 'lodash/startCase';
-import { useSuspenseQuery } from '@apollo/client';
+import { useEffect, useState } from 'react';
+
+import { useMutation, useSuspenseQuery } from '@apollo/client';
 import {
   Alert,
   AlertTitle,
@@ -27,22 +27,22 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { useMutation } from '@apollo/client';
+import kebabCase from 'lodash/kebabCase';
+import startCase from 'lodash/startCase';
 import { ExclamationTriangle, FileEarmarkPlus, X } from 'react-bootstrap-icons';
 
+import { useUserProfile } from '@/hooks/use-user-profile';
+import { CREATE_NZC_FRAMEWORK_CONFIG } from '@/queries/framework/create-framework-config';
 import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import useStore from '@/store/use-store';
 import {
-  GetFrameworkConfigsQuery,
   CreateNzcFrameworkMutation,
   CreateNzcFrameworkMutationVariables,
+  GetFrameworkConfigsQuery,
   LowHigh,
 } from '@/types/__generated__/graphql';
-import { CREATE_NZC_FRAMEWORK_CONFIG } from '@/queries/framework/create-framework-config';
 import NumberInput from './NumberInput';
-import { useUserProfile } from '@/hooks/use-user-profile';
 
 type ClimateOption = 'warm' | 'cold';
 type RenewableMixOption = 'low' | 'high';

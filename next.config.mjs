@@ -22,7 +22,8 @@ const nextConfig = {
   },
   experimental: {
     instrumentationHook: true,
-  }
+    serverComponentsExternalPackages: ['pino', 'pino-pretty'],
+  },
 };
 
 const sentryDebug = !isProd || process.env.SENTRY_DEBUG === '1';
@@ -52,7 +53,6 @@ function initSentryWebpack(config) {
   // ensure that your source maps include changes from all other Webpack plugins
   return withSentryConfig(config, sentryOptions);
 }
-
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',

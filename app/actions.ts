@@ -8,9 +8,13 @@ export async function handleBackendSignOut(currentUri: string) {
   if (!session) return null;
   const { idToken } = session;
   await signOut({ redirect: false });
-  const redirectUri = `${authIssuer}/o/logout/?post_logout_redirect_uri=${encodeURI(
-    currentUri
-  )}&id_token_hint=${idToken}`;
-
+  if (!idToken) {
+    return null;
+  }
+  const params = new URLSearchParams({
+    post_logout_redirect_uri: encodeURI(currentUri),
+    id_token_hint: idToken,
+  });
+  const redirectUri = `${authIssuer}/o/logout/?${params.toString()}`;
   return redirectUri;
 }

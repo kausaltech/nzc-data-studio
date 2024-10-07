@@ -1,6 +1,24 @@
 'use client';
 
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+
+import { useMutation } from '@apollo/client';
+import {
+  Accordion as MuiAccordion,
+  AccordionDetails as MuiAccordionDetails,
+  AccordionProps,
+  AccordionSummary as MuiAccordionSummary,
+  Box,
+  Fade,
+  Grid,
+  Stack,
+  SxProps,
+  TextField,
+  TextFieldProps,
+  Theme,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
   DataGrid,
@@ -13,27 +31,21 @@ import {
   GridSlotsComponentsProps,
   useGridApiContext,
 } from '@mui/x-data-grid';
-import {
-  Typography,
-  TextField,
-  SxProps,
-  Theme,
-  Box,
-  TextFieldProps,
-  Accordion as MuiAccordion,
-  AccordionDetails as MuiAccordionDetails,
-  AccordionSummary as MuiAccordionSummary,
-  Grid,
-  AccordionProps,
-  Stack,
-  Tooltip,
-  Fade,
-} from '@mui/material';
-
-import NumberInput from './NumberInput';
+import { ChevronDown, ExclamationTriangle } from 'react-bootstrap-icons';
 import { NumberFormatValues } from 'react-number-format';
-import { DataSectionSummary } from './DataSectionSummary';
+
+import { SECTIONS_SUM_100_PERCENT } from '@/constants/measure-overrides';
+import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
+import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
 import { useDataCollectionStore } from '@/store/data-collection';
+import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
+import useStore from '@/store/use-store';
+import {
+  MeasureTemplateFragmentFragment,
+  UnitType,
+  UpdateMeasureDataPointMutation,
+  UpdateMeasureDataPointMutationVariables,
+} from '@/types/__generated__/graphql';
 import {
   getDecimalPrecisionByUnit,
   getMeasureFallback,
@@ -42,20 +54,9 @@ import {
   isYearMeasure,
   Section,
 } from '@/utils/measures';
-import {
-  MeasureTemplateFragmentFragment,
-  UnitType,
-  UpdateMeasureDataPointMutation,
-  UpdateMeasureDataPointMutationVariables,
-} from '@/types/__generated__/graphql';
+import { DataSectionSummary } from './DataSectionSummary';
+import NumberInput from './NumberInput';
 import { PriorityBadge } from './PriorityBadge';
-import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
-import { useMutation } from '@apollo/client';
-import { ChevronDown, ExclamationTriangle } from 'react-bootstrap-icons';
-import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
-import useStore from '@/store/use-store';
-import { SECTIONS_SUM_100_PERCENT } from '@/constants/measure-overrides';
 import { useSnackbar } from './SnackbarProvider';
 
 const Accordion = styled((props: AccordionProps) => (
@@ -458,9 +459,8 @@ const GRID_COL_DEFS: GridColDef[] = [
       if (params.row.type === 'SUM_PERCENT') {
         return null;
       }
-
       return (
-        <Typography sx={{ my: 1 }} variant={'caption'}>
+        <Typography key={'unit'} sx={{ my: 1 }} variant={'caption'}>
           {getUnitName(params.value.long)}
         </Typography>
       );
@@ -821,6 +821,7 @@ function AccordionContentWrapper({
                 : ''
             }
             getRowHeight={() => 'auto'}
+            getRowId={(row) => row.id}
             rows={rows}
             columns={GRID_COL_DEFS}
             disableColumnSorting
