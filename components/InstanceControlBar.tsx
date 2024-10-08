@@ -31,7 +31,7 @@ import kebabCase from 'lodash/kebabCase';
 import startCase from 'lodash/startCase';
 import { ExclamationTriangle, FileEarmarkPlus, X } from 'react-bootstrap-icons';
 
-import { useUserProfile } from '@/hooks/use-user-profile';
+import { usePermissions, useUserProfile } from '@/hooks/use-user-profile';
 import { CREATE_NZC_FRAMEWORK_CONFIG } from '@/queries/framework/create-framework-config';
 import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
@@ -171,6 +171,7 @@ export function InstanceControlBar() {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<Data>(INITIAL_DATA);
 
+  const permissions = usePermissions();
   const { data: instanceData, error: instanceError } =
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
 
@@ -304,9 +305,14 @@ export function InstanceControlBar() {
                 instances={instanceConfigs}
               />
             )}
-            <Button onClick={() => setIsAddModalOpen(true)} variant="outlined">
-              Create new plan
-            </Button>
+            {permissions.canEdit && (
+              <Button
+                onClick={() => setIsAddModalOpen(true)}
+                variant="outlined"
+              >
+                Create new plan
+              </Button>
+            )}
           </Stack>
         </Container>
       </Box>
