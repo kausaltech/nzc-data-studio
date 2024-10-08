@@ -31,6 +31,7 @@ import type {
   GetMeasureTemplatesQueryVariables,
 } from '@/types/__generated__/graphql';
 import Loading, { LoadingCard } from '../loading';
+import { usePermissions } from '@/hooks/use-user-profile';
 
 function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   const { data, error, loading } = useQuery<
@@ -70,6 +71,8 @@ function DataCollectionContent({ instance }: { instance: string }) {
     variables: { frameworkConfigId: instance },
   });
 
+  const permissions = usePermissions();
+
   if (loading) {
     return <LoadingCard />;
   }
@@ -94,7 +97,7 @@ function DataCollectionContent({ instance }: { instance: string }) {
           <Typography gutterBottom variant="h3" component="h2">
             Data collection center
           </Typography>
-          {!!data.framework && (
+          {!!data.framework && permissions.canEdit && (
             <Stack direction="row" spacing={2}>
               <ImportExportActions measureTemplates={data.framework} />
             </Stack>

@@ -202,6 +202,7 @@ const authConfig: NextAuthConfig = {
     },
     async session(params: { session: Session; token: JWT }) {
       const { session, token } = params;
+
       authLogger.info(
         { user: session?.user, runtime: process.env.NEXT_RUNTIME },
         'Session callback'
