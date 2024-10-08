@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import kebabCase from 'lodash/kebabCase';
 
+import { usePermissions } from '@/hooks/use-user-profile';
 import { CREATE_NZC_FRAMEWORK_CONFIG } from '@/queries/framework/create-framework-config';
 import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
@@ -100,6 +101,7 @@ function getNavStyles(isActive: boolean): SxProps<Theme> {
 export function InstanceControlBar() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  const permissions = usePermissions();
   const { data: instanceData, error: instanceError } =
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
 
@@ -242,9 +244,14 @@ export function InstanceControlBar() {
                 instances={instanceConfigs}
               />
             )}
-            <Button onClick={() => setIsAddModalOpen(true)} variant="outlined">
-              Create new plan
-            </Button>
+            {permissions.canEdit && (
+              <Button
+                onClick={() => setIsAddModalOpen(true)}
+                variant="outlined"
+              >
+                Create new plan
+              </Button>
+            )}
           </Stack>
         </Container>
       </Box>

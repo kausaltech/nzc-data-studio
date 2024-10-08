@@ -20,3 +20,12 @@ export function useUserProfile() {
 
   return queryResult;
 }
+
+export function usePermissions() {
+  const profileQuery = useUserProfile();
+
+  return {
+    isLoading: profileQuery.loading,
+    canEdit: false, // TODO: Implement permission check
+  };
+}
