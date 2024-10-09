@@ -31,6 +31,8 @@ import type {
   GetMeasureTemplatesQueryVariables,
 } from '@/types/__generated__/graphql';
 import Loading, { LoadingCard } from '../loading';
+import IntroSection from '@/components/IntroSection';
+import { benefits } from '@/constants/intro-content';
 
 function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   const { data, error, loading } = useQuery<
@@ -127,17 +129,23 @@ function DashboardContent() {
     return (
       <Fade in>
         <Container>
-          <Stack spacing={4}>
+          <Stack spacing={6}>
             <Card>
               <CardContent>
                 <Typography variant="h2" paragraph>
                   Welcome to NetZeroPlanner
                 </Typography>
-                <Typography variant="subtitle1">
-                  Get started by creating a new plan
+                <Typography variant="subtitle1" sx={{ maxWidth: '80%' }}>
+                  It looks like there aren't any plans for your city yet. Get
+                  started by creating a new plan to begin your decarbonisation
+                  journey.
                 </Typography>
               </CardContent>
             </Card>
+            <IntroSection
+              title="How NetZeroPlanner guides your city's decarbonisation journey"
+              items={benefits}
+            />
           </Stack>
         </Container>
       </Fade>
