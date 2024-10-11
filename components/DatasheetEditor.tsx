@@ -182,16 +182,16 @@ function CustomEditComponent({
     }
   }, [hasFocus]);
 
-  const handleValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  async function handleValueChange(event: React.ChangeEvent<HTMLInputElement>) {
     const newValue = event.target.value;
 
-    apiRef.current.setEditCellValue({
+    await apiRef.current.setEditCellValue({
       id,
       field,
       value: newValue,
       debounceMs: 400,
     });
-  };
+  }
 
   async function handleNumberValueChange(value: NumberFormatValues) {
     await apiRef.current.setEditCellValue({
@@ -237,7 +237,7 @@ function CustomEditComponent({
       fullWidth
       multiline
       maxRows={6}
-      value={value || ''}
+      defaultValue={value || ''}
       inputProps={{
         style: { fontSize: '0.9em' },
         'aria-label': `${row.label} ${field}`,
