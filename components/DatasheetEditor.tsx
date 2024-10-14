@@ -58,6 +58,7 @@ import { DataSectionSummary } from './DataSectionSummary';
 import NumberInput from './NumberInput';
 import { PriorityBadge } from './PriorityBadge';
 import { useSnackbar } from './SnackbarProvider';
+import { usePermissions } from '@/hooks/use-user-profile';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -173,14 +174,15 @@ function CustomEditComponent({
   colDef,
   row,
 }: GridRenderEditCellParams & { sx?: SxProps<Theme> }) {
+  const permissions = usePermissions();
   const apiRef = useGridApiContext();
   const ref = useRef<HTMLInputElement | null>(null);
 
   useLayoutEffect(() => {
-    if (hasFocus && ref.current) {
+    if (hasFocus && permissions.canEdit && ref.current) {
       ref.current.focus();
     }
-  }, [hasFocus]);
+  }, [hasFocus, permissions.canEdit]);
 
   async function handleValueChange(event: React.ChangeEvent<HTMLInputElement>) {
     const newValue = event.target.value;
@@ -214,12 +216,15 @@ function CustomEditComponent({
     allowNegative: false,
   };
 
-  if (colDef.type === 'number') {
-    return (
+  const inputComponent =
+    colDef.type === 'number' ? (
       <NumberInput
         {...commonProps}
         fullWidth
-        onValueChange={handleNumberValueChange}
+        disabled={!permissions.canEdit}
+        onValueChange={
+          permissions.canEdit ? handleNumberValueChange : undefined
+        }
         value={typeof value === 'number' ? value : ''}
         inputProps={{
           'aria-label': `${row.label} ${field}`,
@@ -227,23 +232,35 @@ function CustomEditComponent({
           ...(isYearMeasure(row.label, row.unit.long) ? yearInputProps : {}),
         }}
       />
+    ) : (
+      <TextField
+        {...commonProps}
+        disabled={!permissions.canEdit}
+        onChange={permissions.canEdit ? handleValueChange : undefined}
+        fullWidth
+        multiline
+        maxRows={6}
+        defaultValue={value || ''}
+        inputProps={{
+          style: { fontSize: '0.9em' },
+          'aria-label': `${row.label} ${field}`,
+        }}
+      />
+    );
+
+  if (!permissions.canEdit) {
+    return (
+      <Tooltip
+        arrow
+        placement="top"
+        title="Request edit access in the NetZeroCities Portal to make changes."
+      >
+        <div>{inputComponent}</div>
+      </Tooltip>
     );
   }
 
-  return (
-    <TextField
-      {...commonProps}
-      onChange={handleValueChange}
-      fullWidth
-      multiline
-      maxRows={6}
-      defaultValue={value || ''}
-      inputProps={{
-        style: { fontSize: '0.9em' },
-        'aria-label': `${row.label} ${field}`,
-      }}
-    />
-  );
+  return inputComponent;
 }
 
 /**
@@ -688,6 +705,7 @@ function AccordionContentWrapper({
 
   const singleClickEditProps = useSingleClickEdit();
   const setExpanded = useDataCollectionStore((store) => store.setAccordion);
+  const permissions = usePermissions();
 
   const handleChange =
     (panel: number) => (event: React.SyntheticEvent, newExpanded: boolean) => {
@@ -794,13 +812,17 @@ function AccordionContentWrapper({
       <AccordionDetails>
         <Box sx={{ height: 400 }}>
           <DataGrid
-            {...singleClickEditProps}
+            {...(permissions.canEdit ? singleClickEditProps : {})}
             loading={loading}
             slots={{ footer: CustomFooter }}
             slotProps={{ footer: { count: rows.length } }}
             sx={DATA_GRID_SX}
             isCellEditable={(params) =>
-              !!(params.colDef.editable && params.row.type !== 'SUM_PERCENT')
+              !!(
+                permissions.canEdit &&
+                params.colDef.editable &&
+                params.row.type !== 'SUM_PERCENT'
+              )
             }
             getRowClassName={(params) => {
               if (params.row.type === 'SECTION') {
