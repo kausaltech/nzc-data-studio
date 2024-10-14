@@ -8,12 +8,12 @@ interface InfoItem {
   text: string;
 }
 
-interface InfoSectionProps {
+interface IntroSectionProps {
   title: string;
   items: InfoItem[];
 }
 
-const InfoSection: React.FC<InfoSectionProps> = ({ title, items }) => {
+const IntroSection: React.FC<IntroSectionProps> = ({ title, items }) => {
   return (
     <div>
       <Typography variant="h5" align="left" paragraph>
@@ -42,4 +42,4 @@ const InfoSection: React.FC<InfoSectionProps> = ({ title, items }) => {
   );
 };
 
-export default InfoSection;
+export default IntroSection;
