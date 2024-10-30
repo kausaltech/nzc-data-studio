@@ -1,19 +1,12 @@
 import { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
-import {
-  Button,
-  Dialog,
-  IconButton,
-  Stack,
-  Tab,
-  Tabs,
-  Tooltip,
-} from '@mui/material';
+import { Dialog, IconButton, Stack, Tab, Tabs, Tooltip } from '@mui/material';
 import { SyntheticEvent, useState } from 'react';
 import { Download, Upload } from 'react-bootstrap-icons';
 import { ExportPlanDialogContent } from './ExportPlanDialogContent';
 import { ImportPlanDialogContent } from './ImportPlanDialogContent';
 import { deploymentType, isDev } from '@/constants/environment';
 import { UploadLegacyDataButton } from '../UploadLegacyDataButton';
+import { useUserProfile } from '@/hooks/use-user-profile';
 
 type Props = {
   measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
@@ -49,6 +42,18 @@ function tabA11yProps(tabId: string) {
 export function ImportExportActions({ measureTemplates }: Props) {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'export' | 'import'>('export');
+  const { data: profile, loading: profileLoading } = useUserProfile();
+
+  /**
+   * This is a temporary solution to show the import CSV feature
+   * to certain users in production. This should be removed once
+   * backend user permissions are finalised.
+   *
+   * TODO: Remove this once the backend user permissions are finalised.
+   */
+  const isImportUser =
+    !profileLoading &&
+    profile?.me?.email?.endsWith('@redpointsustainability.com');
 
   function handleClose() {
     setModalOpen(false);
@@ -81,7 +86,7 @@ export function ImportExportActions({ measureTemplates }: Props) {
             <Upload size={24} />
           </Tooltip>
         </IconButton>
-        {(isDev || deploymentType === 'testing') && (
+        {(isDev || deploymentType === 'testing' || isImportUser) && (
           <UploadLegacyDataButton measureTemplates={measureTemplates} />
         )}
       </Stack>
