@@ -15,7 +15,7 @@ export type NumberInputProps = Omit<
   TextFieldProps,
   'type' | 'value' | 'onChange' | 'inputProps' | 'InputProps' | 'variant'
 > & {
-  value: number | undefined | ''; // An empty string can be used to clear the input
+  value?: number | undefined | ''; // An empty string can be used to clear the input
   inputProps?: {
     /** Maximum value, higher numbers will be prevented upon typing */
     max?: number;
