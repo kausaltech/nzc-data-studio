@@ -447,7 +447,7 @@ export function InstanceControlBar() {
                 </FormControl>
 
                 <FormControl required>
-                  <FormLabel id="baseline-select" sx={{ mb: 0.5 }}>
+                  <FormLabel id="climate-select" sx={{ mb: 0.5 }}>
                     <Typography component="span" variant="body2">
                       Is your city warm or cold?
                     </Typography>
@@ -468,7 +468,7 @@ export function InstanceControlBar() {
                 </FormControl>
 
                 <FormControl required>
-                  <FormLabel id="baseline-select" sx={{ mb: 0.5 }}>
+                  <FormLabel id="electricity-select" sx={{ mb: 0.5 }}>
                     <Typography component="span" variant="body2">
                       What's the percentage of renewable plus nuclear energy in
                       your electricity mix?

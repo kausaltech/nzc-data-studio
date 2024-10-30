@@ -220,7 +220,7 @@ function CustomEditComponent({
         {...commonProps}
         fullWidth
         onValueChange={handleNumberValueChange}
-        value={typeof value === 'number' ? value : ''}
+        defaultValue={typeof value === 'number' ? value : ''}
         inputProps={{
           'aria-label': `${row.label} ${field}`,
           decimalScale: getDecimalPrecisionByUnit(row.unit.long),
