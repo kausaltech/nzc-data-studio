@@ -55,7 +55,7 @@ import {
   Section,
 } from '@/utils/measures';
 import { DataSectionSummary } from './DataSectionSummary';
-import NumberInput from './NumberInput';
+import NumberInput, { NumberInputProps } from './NumberInput';
 import { PriorityBadge } from './PriorityBadge';
 import { useSnackbar } from './SnackbarProvider';
 
@@ -175,6 +175,8 @@ function CustomEditComponent({
 }: GridRenderEditCellParams & { sx?: SxProps<Theme> }) {
   const apiRef = useGridApiContext();
   const ref = useRef<HTMLInputElement | null>(null);
+  const initialValue = useRef(value);
+  const [key, setKey] = useState(0);
 
   useLayoutEffect(() => {
     if (hasFocus && ref.current) {
@@ -214,13 +216,27 @@ function CustomEditComponent({
     allowNegative: false,
   };
 
+  /**
+   * We use uncontrolled inputs, so increment the key to reset
+   * the input field value when the user presses escape.
+   */
+  const handleEscape: NumberInputProps['onKeyDown'] = (event) => {
+    if (event.key === 'Escape') {
+      setKey((prevKey) => prevKey + 1);
+    }
+  };
+
   if (colDef.type === 'number') {
     return (
       <NumberInput
         {...commonProps}
+        key={key}
         fullWidth
+        onKeyDown={handleEscape}
         onValueChange={handleNumberValueChange}
-        defaultValue={typeof value === 'number' ? value : ''}
+        defaultValue={
+          typeof initialValue.current === 'number' ? initialValue.current : ''
+        }
         inputProps={{
           'aria-label': `${row.label} ${field}`,
           decimalScale: getDecimalPrecisionByUnit(row.unit.long),
@@ -233,11 +249,13 @@ function CustomEditComponent({
   return (
     <TextField
       {...commonProps}
+      key={key}
+      onKeyDown={handleEscape}
       onChange={handleValueChange}
       fullWidth
       multiline
       maxRows={6}
-      defaultValue={value || ''}
+      defaultValue={initialValue.current || ''}
       inputProps={{
         style: { fontSize: '0.9em' },
         'aria-label': `${row.label} ${field}`,
