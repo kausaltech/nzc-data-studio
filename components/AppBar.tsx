@@ -106,22 +106,30 @@ export function AppBar() {
               >
                 Support
               </Button>
-              <Button
-                size="small"
-                variant="text"
-                aria-controls="appbar-auth-menu"
-                aria-haspopup="true"
-                onClick={handleOpenAuthMenu}
-                color="inherit"
-                endIcon={<PersonCircle size={18} />}
-                aria-label={isAuthenticated ? 'Open user menu' : 'Sign in'}
-              >
-                {isAuthenticated ? (
+              {isAuthenticated ? (
+                <Button
+                  size="small"
+                  variant="text"
+                  aria-controls="appbar-auth-menu"
+                  aria-haspopup="true"
+                  onClick={handleOpenAuthMenu}
+                  color="inherit"
+                  endIcon={<PersonCircle size={18} />}
+                  aria-label={isAuthenticated ? 'Open user menu' : 'Sign in'}
+                >
                   <UserDisplay sessionData={session.data} />
-                ) : (
-                  'Sign in'
-                )}
-              </Button>
+                </Button>
+              ) : (
+                <Button
+                  size="small"
+                  variant="text"
+                  onClick={handleLogIn}
+                  color="inherit"
+                  endIcon={<PersonCircle size={18} />}
+                >
+                  Sign in
+                </Button>
+              )}
             </Stack>
 
             <Menu
@@ -139,13 +147,7 @@ export function AppBar() {
               open={!!menuAnchorEl}
               onClose={handleCloseAuthMenu}
             >
-              {!isAuthenticated ? (
-                <MenuItem key="log-in" onClick={handleLogIn}>
-                  Sign in
-                </MenuItem>
-              ) : (
-                <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
-              )}
+              <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
             </Menu>
           </div>
         </Toolbar>
