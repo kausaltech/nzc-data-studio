@@ -24,7 +24,7 @@
     "@mui/material-nextjs": "^5.15.11",
     "@mui/x-data-grid": "^7.6.2",
     "@next/bundle-analyzer": "^14.2.3",
-    "@sentry/nextjs": "^8.31.0",
+    "@sentry/nextjs": "^8.36.0",
     "@types/lodash": "^4.17.5",
     "@types/papaparse": "^5.3.14",
     "docker-secret": "^2.0.6",

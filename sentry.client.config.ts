@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/nextjs';
 
-import { apiUrl, deploymentType, sentryDsn } from '@/constants/environment';
+import { apiUrl, deploymentType, isDev, sentryDsn } from '@/constants/environment';
 
 Sentry.init({
   dsn: sentryDsn,
@@ -13,6 +13,7 @@ Sentry.init({
     Sentry.browserTracingIntegration(),
   ],
   debug: false,
+  spotlight: isDev,
   sendDefaultPii: true,
   tracesSampleRate: 1.0,
   profilesSampleRate: 1.0,

@@ -1,12 +1,7 @@
 import * as Sentry from '@sentry/nextjs';
 import type { Integration } from '@sentry/types';
 
-import {
-  apiUrl,
-  authIssuer,
-  deploymentType,
-  sentryDsn,
-} from './constants/environment';
+import { apiUrl, authIssuer, deploymentType, isDev, sentryDsn } from './constants/environment';
 
 async function initSentry() {
   const integrations: Integration[] = [];
@@ -21,6 +16,7 @@ async function initSentry() {
     ignoreErrors: ['NEXT_NOT_FOUND'],
     integrations,
     sendDefaultPii: true,
+    spotlight: isDev,
     beforeSend: (event: Sentry.ErrorEvent, hint: Sentry.EventHint) => {
       const error: { statusCode?: number } = hint.originalException as any;
       if (error && error.statusCode && error.statusCode === 404) {
