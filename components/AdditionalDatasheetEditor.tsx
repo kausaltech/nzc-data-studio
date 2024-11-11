@@ -83,7 +83,11 @@ export function AdditionalDatasheetEditor() {
   const [measureSection, setMeasureSection] = useState<MeasureSection>({});
   const [expanded, setExpanded] = useState<number | null>(0);
 
-  const { data, loading, error } = useQuery(GET_MEASURE_TEMPLATES, {
+  const {
+    data,
+    loading: queryLoading,
+    error,
+  } = useQuery(GET_MEASURE_TEMPLATES, {
     variables: { frameworkConfigId: selectedInstanceId },
   });
 
@@ -110,7 +114,9 @@ export function AdditionalDatasheetEditor() {
     []
   );
 
-  const [updateMeasureDataPoint] = useMutation(UPDATE_MEASURE_DATAPOINT);
+  const [updateMeasureDataPoint, { loading: mutationLoading }] = useMutation(
+    UPDATE_MEASURE_DATAPOINT
+  );
 
   useEffect(() => {
     if (data && data.framework) {
@@ -254,7 +260,9 @@ export function AdditionalDatasheetEditor() {
     [baselineYear, additionalYears]
   );
 
-  if (loading) {
+  const isLoading = queryLoading || mutationLoading;
+
+  if (isLoading) {
     return <Skeleton variant="rectangular" width="100%" height={400} />;
   }
 
@@ -284,6 +292,7 @@ export function AdditionalDatasheetEditor() {
               rows={measures}
               columns={COLUMNS}
               sx={DATA_GRID_SX}
+              loading={isLoading}
               getRowHeight={() => 'auto'}
               disableColumnFilter
               disableColumnMenu
