@@ -1,4 +1,3 @@
-// AdditionalDataPage.jsx
 'use client';
 
 import { Container, Typography, Button, Stack, Box, Fade } from '@mui/material';
