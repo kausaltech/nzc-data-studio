@@ -13,7 +13,7 @@ import {
   Skeleton,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { ChevronDown } from 'react-bootstrap-icons';
 
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
@@ -201,7 +201,7 @@ export function AdditionalDatasheetEditor() {
         } catch (error) {
           setNotification({
             message: 'Failed to save, please try again',
-            extraDetails: error.message,
+            extraDetails: (error as Error).message,
             severity: 'error',
           });
           throw error;
@@ -218,7 +218,7 @@ export function AdditionalDatasheetEditor() {
         headerName: '',
         field: 'question',
         flex: 3,
-        renderCell: (params) => (
+        renderCell: (params: GridRenderCellParams) => (
           <Typography
             variant="body2"
             style={{ whiteSpace: 'normal', lineHeight: 1.5 }}
@@ -232,7 +232,7 @@ export function AdditionalDatasheetEditor() {
         headerName: 'Baseline',
         field: 'baselineYear',
         flex: 1,
-        renderCell: (params) => (
+        renderCell: (params: GridRenderCellParams) => (
           <Typography variant="body2">{params.value}</Typography>
         ),
         renderHeader: () => (
@@ -252,7 +252,7 @@ export function AdditionalDatasheetEditor() {
         field: year.toString(),
         editable: true,
         flex: 1,
-        renderCell: (params) => (
+        renderCell: (params: GridRenderCellParams) => (
           <CustomEditComponent {...params} sx={{ mx: 0, my: 0 }} />
         ),
       })),
