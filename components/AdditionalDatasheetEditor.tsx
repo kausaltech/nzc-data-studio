@@ -237,7 +237,7 @@ export function AdditionalDatasheetEditor() {
         ),
         renderHeader: () => (
           <Box sx={{ textAlign: 'center', lineHeight: 1.5 }}>
-            <Typography variant="body" component="div">
+            <Typography variant="body2" component="div">
               {baselineYear}
             </Typography>
             <Typography variant="caption" component="div">
