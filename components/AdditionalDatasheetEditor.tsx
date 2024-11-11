@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import {
   Accordion as MuiAccordion,
@@ -88,26 +88,32 @@ export function AdditionalDatasheetEditor() {
   });
 
   const currentYear = new Date().getFullYear();
-  const additionalYears = Array.from(
-    { length: currentYear - baselineYear - 1 },
-    (_, i) => baselineYear + 1 + i
+
+  const additionalYears = useMemo(
+    () =>
+      Array.from(
+        { length: currentYear - baselineYear - 1 },
+        (_, i) => baselineYear + 1 + i
+      ),
+    [currentYear, baselineYear]
+  );
+
+  const KeyMeasures = useMemo(
+    () =>
+      additionalMeasures.reduce((acc: Record<string, KeyMeasure>, measure) => {
+        acc[String(measure.id)] = {
+          label: measure.label,
+          question: measure.question,
+        };
+        return acc;
+      }, {}),
+    []
   );
 
   const [updateMeasureDataPoint] = useMutation(UPDATE_MEASURE_DATAPOINT);
 
   useEffect(() => {
     if (data && data.framework) {
-      const KeyMeasures: Record<string, KeyMeasure> = additionalMeasures.reduce(
-        (acc: Record<string, KeyMeasure>, measure) => {
-          acc[String(measure.id)] = {
-            label: measure.label,
-            question: measure.question,
-          };
-          return acc;
-        },
-        {}
-      );
-
       const grouped: MeasureSection = {};
       const allMeasureTemplates = [
         ...(data.framework.dataCollection?.descendants || []),
@@ -156,7 +162,14 @@ export function AdditionalDatasheetEditor() {
         severity: 'error',
       });
     }
-  }, [data, error, setNotification, baselineYear, additionalYears]);
+  }, [
+    data,
+    error,
+    setNotification,
+    baselineYear,
+    additionalYears,
+    KeyMeasures,
+  ]);
 
   const processRowUpdate = useCallback(
     async (updatedRow: MeasureDataPoint, originalRow: MeasureDataPoint) => {
@@ -193,52 +206,53 @@ export function AdditionalDatasheetEditor() {
     [updateMeasureDataPoint, setNotification, selectedInstanceId]
   );
 
-  const COLUMNS: GridColDef[] = [
-    {
-      headerName: '',
-      field: 'question',
-      flex: 3,
-      renderCell: (params) => (
-        <Typography
-          variant="body2"
-          style={{ whiteSpace: 'normal', lineHeight: 1.5 }}
-          sx={{
-            pr: 5,
-          }}
-        >
-          {params.value}
-        </Typography>
-      ),
-    },
-    {
-      headerName: 'Baseline',
-      field: 'baselineYear',
-      flex: 1,
-      renderCell: (params) => (
-        <Typography variant="body2">{params.value}</Typography>
-      ),
-      renderHeader: () => (
-        <Box sx={{ textAlign: 'center', lineHeight: 1.5 }}>
-          <Typography variant="body" component="div">
-            {baselineYear}
+  const COLUMNS: GridColDef[] = useMemo(
+    () => [
+      {
+        headerName: '',
+        field: 'question',
+        flex: 3,
+        renderCell: (params) => (
+          <Typography
+            variant="body2"
+            style={{ whiteSpace: 'normal', lineHeight: 1.5 }}
+            sx={{ pr: 5 }}
+          >
+            {params.value}
           </Typography>
-          <Typography variant="caption" component="div">
-            Baseline
-          </Typography>
-        </Box>
-      ),
-    },
-    { headerName: 'Unit', field: 'unit', flex: 1 },
-    ...additionalYears.map((year) => ({
-      headerName: year.toString(),
-      field: year.toString(),
-      editable: true,
-      flex: 1,
-      renderCell: (params) => (
-        <CustomEditComponent {...params} sx={{ mx: 0, my: 0 }} />
-      ),
-    })),
-  ];
+        ),
+      },
+      {
+        headerName: 'Baseline',
+        field: 'baselineYear',
+        flex: 1,
+        renderCell: (params) => (
+          <Typography variant="body2">{params.value}</Typography>
+        ),
+        renderHeader: () => (
+          <Box sx={{ textAlign: 'center', lineHeight: 1.5 }}>
+            <Typography variant="body" component="div">
+              {baselineYear}
+            </Typography>
+            <Typography variant="caption" component="div">
+              Baseline
+            </Typography>
+          </Box>
+        ),
+      },
+      { headerName: 'Unit', field: 'unit', flex: 1 },
+      ...additionalYears.map((year) => ({
+        headerName: year.toString(),
+        field: year.toString(),
+        editable: true,
+        flex: 1,
+        renderCell: (params) => (
+          <CustomEditComponent {...params} sx={{ mx: 0, my: 0 }} />
+        ),
+      })),
+    ],
+    [baselineYear, additionalYears]
+  );
 
   if (loading) {
     return <Skeleton variant="rectangular" width="100%" height={400} />;
