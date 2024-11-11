@@ -3,10 +3,13 @@
 
 import { Container, Typography, Button, Stack, Box, Fade } from '@mui/material';
 import { QuestionCircle } from 'react-bootstrap-icons';
+import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import Tip from '@/components/Tip';
 import { AdditionalDatasheetEditor } from '@/components/AdditionalDatasheetEditor';
 
 export default function AdditionalDataPage() {
+  const baselineYear = useFrameworkInstanceStore((state) => state.baselineYear);
+
   const handleButtonClick = () => {
     console.log('The Modal!');
   };
@@ -19,7 +22,7 @@ export default function AdditionalDataPage() {
           <Typography color="textSecondary">(Optional)</Typography>
         </Stack>
         <Box display="flex" alignItems="flex-start" mt={1}>
-          <Typography>Plan baseline: 2019</Typography>
+          <Typography>Baseline {baselineYear}</Typography>
           <Button
             size="small"
             variant="text"
