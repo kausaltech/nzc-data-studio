@@ -55,7 +55,7 @@ export const Tip = ({ title, text, storageKey }: TipProps) => {
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Stack direction="row" alignItems="center" spacing={1}>
           <Lightbulb size={24} color={theme.palette.text.primary} />
-          <Typography variant="h7">{title}</Typography>
+          <Typography variant="h6">{title}</Typography>
         </Stack>
         <IconButton size="small" onClick={handleToggleTip}>
           <ChevronDown size={16} />
