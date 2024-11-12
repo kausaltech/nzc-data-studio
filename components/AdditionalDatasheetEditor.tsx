@@ -252,9 +252,7 @@ export function AdditionalDatasheetEditor() {
     [baselineYear, additionalYears]
   );
 
-  const isLoading = queryLoading || mutationLoading;
-
-  if (isLoading) {
+  if (queryLoading) {
     return <Skeleton variant="rectangular" width="100%" height={400} />;
   }
 
@@ -284,7 +282,7 @@ export function AdditionalDatasheetEditor() {
               rows={measures}
               columns={COLUMNS}
               sx={DATA_GRID_SX}
-              loading={isLoading}
+              loading={mutationLoading}
               getRowHeight={() => 'auto'}
               disableColumnFilter
               disableColumnMenu
