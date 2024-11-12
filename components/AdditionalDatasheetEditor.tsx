@@ -72,6 +72,17 @@ interface MeasureDataPoint {
 
 type MeasureSection = Record<string, MeasureDataPoint[]>;
 
+const keyMeasures: Record<string, KeyMeasure> = additionalMeasures.reduce(
+  (acc: Record<string, KeyMeasure>, measure) => {
+    acc[String(measure.id)] = {
+      label: measure.label,
+      question: measure.question,
+    };
+    return acc;
+  },
+  {}
+);
+
 export function AdditionalDatasheetEditor() {
   const baselineYear =
     useFrameworkInstanceStore((state) => state.baselineYear) ?? 0;
@@ -102,18 +113,6 @@ export function AdditionalDatasheetEditor() {
     [currentYear, baselineYear]
   );
 
-  const KeyMeasures = useMemo(
-    () =>
-      additionalMeasures.reduce((acc: Record<string, KeyMeasure>, measure) => {
-        acc[String(measure.id)] = {
-          label: measure.label,
-          question: measure.question,
-        };
-        return acc;
-      }, {}),
-    []
-  );
-
   const [updateMeasureDataPoint, { loading: mutationLoading }] = useMutation(
     UPDATE_MEASURE_DATAPOINT
   );
@@ -127,7 +126,7 @@ export function AdditionalDatasheetEditor() {
       ].flatMap((section) => section.measureTemplates);
 
       allMeasureTemplates.forEach((measureTemplate) => {
-        const keyDriver = KeyMeasures[measureTemplate.id];
+        const keyDriver = keyMeasures[measureTemplate.id];
         if (keyDriver) {
           const { label, question } = keyDriver;
           if (!grouped[label]) grouped[label] = [];
@@ -168,14 +167,7 @@ export function AdditionalDatasheetEditor() {
         severity: 'error',
       });
     }
-  }, [
-    data,
-    error,
-    setNotification,
-    baselineYear,
-    additionalYears,
-    KeyMeasures,
-  ]);
+  }, [data, error, setNotification, baselineYear, additionalYears]);
 
   const processRowUpdate = useCallback(
     async (updatedRow: MeasureDataPoint, originalRow: MeasureDataPoint) => {
