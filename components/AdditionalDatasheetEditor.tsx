@@ -179,7 +179,12 @@ export function AdditionalDatasheetEditor() {
 
       if (changedYearField) {
         const year = parseInt(changedYearField, 10);
-        const newValue = updatedRow[changedYearField as keyof MeasureDataPoint];
+        const newValue =
+          (updatedRow[changedYearField as keyof MeasureDataPoint] as any)
+            ?.floatValue ??
+          parseFloat(
+            updatedRow[changedYearField as keyof MeasureDataPoint] as string
+          );
 
         try {
           await updateMeasureDataPoint({
