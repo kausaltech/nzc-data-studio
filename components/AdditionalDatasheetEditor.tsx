@@ -244,17 +244,20 @@ export function AdditionalDatasheetEditor() {
         ),
       },
       { headerName: 'Unit', field: 'unit', flex: 1 },
-      ...additionalYears.map((year) => ({
-        headerName: year.toString(),
-        field: year.toString(),
-        editable: true,
-        flex: 1,
-        type: 'number',
-        headerAlign: 'left',
-        renderCell: (params: GridRenderCellParams) => (
-          <CustomEditComponent {...params} sx={{ mx: 0, my: 0 }} />
-        ),
-      })),
+      ...additionalYears.map(
+        (year) =>
+          ({
+            headerName: year.toString(),
+            field: year.toString(),
+            editable: true,
+            flex: 1,
+            type: 'number',
+            headerAlign: 'left',
+            renderCell: (params: GridRenderCellParams) => (
+              <CustomEditComponent {...params} sx={{ mx: 0, my: 0 }} />
+            ),
+          }) as GridColDef
+      ),
     ],
     [baselineYear, additionalYears]
   );
