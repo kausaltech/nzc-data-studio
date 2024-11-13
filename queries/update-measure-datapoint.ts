@@ -16,7 +16,7 @@ export const UPDATE_MEASURE_DATAPOINT = gql`
   mutation UpdateMeasureDataPoint(
     $frameworkInstanceId: ID!
     $measureTemplateId: ID!
-    $year: Int!
+    $year: Int
     $internalNotes: String
     $value: Float
   ) {

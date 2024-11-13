@@ -2272,7 +2272,7 @@ export type DataPointFragmentFragment = (
 export type UpdateMeasureDataPointMutationVariables = Exact<{
   frameworkInstanceId: Scalars['ID']['input'];
   measureTemplateId: Scalars['ID']['input'];
-  year: Scalars['Int']['input'];
+  year?: InputMaybe<Scalars['Int']['input']>;
   internalNotes?: InputMaybe<Scalars['String']['input']>;
   value?: InputMaybe<Scalars['Float']['input']>;
 }>;

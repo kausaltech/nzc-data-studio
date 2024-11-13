@@ -296,7 +296,7 @@ export function AdditionalDatasheetEditor() {
               <Typography>{label}</Typography>
             </MuiAccordionSummary>
             <MuiAccordionDetails>
-              <Box sx={{ minHeight: 400 }}>
+              <Box sx={{ height: 400 }}>
                 <DataGrid
                   rows={measures}
                   columns={COLUMNS}
