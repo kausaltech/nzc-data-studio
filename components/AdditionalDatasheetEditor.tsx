@@ -18,6 +18,11 @@ import { ChevronDown } from 'react-bootstrap-icons';
 
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
 import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
+import {
+  UpdateMeasureDataPointMutation,
+  UpdateMeasureDataPointMutationVariables,
+  GetMeasureTemplatesQuery,
+} from '@/types/__generated__/graphql';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import { useSnackbar } from './SnackbarProvider';
 import { additionalMeasures } from '@/constants/measure-overrides';
@@ -94,13 +99,12 @@ export function AdditionalDatasheetEditor() {
   const [measureSection, setMeasureSection] = useState<MeasureSection>({});
   const [expanded, setExpanded] = useState<number | null>(0);
 
-  const {
-    data,
-    loading: queryLoading,
-    error,
-  } = useQuery(GET_MEASURE_TEMPLATES, {
-    variables: { frameworkConfigId: selectedInstanceId },
-  });
+  const { data, loading, error } = useQuery<GetMeasureTemplatesQuery>(
+    GET_MEASURE_TEMPLATES,
+    {
+      variables: { frameworkConfigId: selectedInstanceId },
+    }
+  );
 
   const currentYear = new Date().getFullYear();
 
@@ -113,9 +117,10 @@ export function AdditionalDatasheetEditor() {
     [currentYear, baselineYear]
   );
 
-  const [updateMeasureDataPoint, { loading: mutationLoading }] = useMutation(
-    UPDATE_MEASURE_DATAPOINT
-  );
+  const [updateMeasureDataPoint, { loading: mutationLoading }] = useMutation<
+    UpdateMeasureDataPointMutation,
+    UpdateMeasureDataPointMutationVariables
+  >(UPDATE_MEASURE_DATAPOINT);
 
   useEffect(() => {
     if (data && data.framework) {
@@ -132,14 +137,13 @@ export function AdditionalDatasheetEditor() {
           if (!grouped[label]) grouped[label] = [];
 
           const baselineDataPoint = measureTemplate.measure?.dataPoints.find(
-            (dp: { year: number }) => dp.year === baselineYear
+            (dp) => dp.year === baselineYear
           );
 
           const yearData = additionalYears.reduce(
             (acc, year) => {
               const dataPoint = measureTemplate.measure?.dataPoints.find(
-                (dp: { year: number; value: string | number }) =>
-                  dp.year === year
+                (dp) => dp.year === year
               );
               acc[year] = dataPoint?.value || '';
               return acc;
@@ -180,11 +184,18 @@ export function AdditionalDatasheetEditor() {
       if (changedYearField) {
         const year = parseInt(changedYearField, 10);
         const newValue =
-          (updatedRow[changedYearField as keyof MeasureDataPoint] as any)
-            ?.floatValue ??
+          (
+            updatedRow[changedYearField as keyof MeasureDataPoint] as {
+              floatValue?: number;
+            }
+          ).floatValue ??
           parseFloat(
             updatedRow[changedYearField as keyof MeasureDataPoint] as string
           );
+        if (!selectedInstanceId) {
+          console.error('Instance ID is missing.');
+          return updatedRow;
+        }
 
         try {
           await updateMeasureDataPoint({
@@ -264,14 +275,14 @@ export function AdditionalDatasheetEditor() {
 
   return (
     <div>
-      {queryLoading ? (
+      {loading ? (
         <Skeleton variant="rectangular" width="100%" height={400} />
       ) : !Object.keys(measureSection).length ? (
         <Typography>No data available</Typography>
       ) : (
         Object.entries(measureSection).map(([label, measures], index) => (
           <Accordion
-            key={label}
+            key={`${label}-${index}`}
             expanded={expanded === index}
             onChange={(_event, isExpanded) =>
               setExpanded(isExpanded ? index : null)
@@ -290,7 +301,7 @@ export function AdditionalDatasheetEditor() {
                   rows={measures}
                   columns={COLUMNS}
                   sx={DATA_GRID_SX}
-                  loading={mutationLoading}
+                  loading={loading || mutationLoading}
                   getRowHeight={() => 'auto'}
                   disableColumnFilter
                   disableColumnMenu
