@@ -24,22 +24,28 @@ export const Tip = ({ title, text, storageKey }: TipProps) => {
   const [isTipOpen, setIsTipOpen] = useState(true);
 
   useEffect(() => {
-    const savedTipState = localStorage.getItem(storageKey);
-    if (savedTipState === 'closed') {
-      setIsTextVisible(false);
-    }
+    try {
+      const savedTipState = localStorage.getItem(storageKey);
+      if (savedTipState === 'closed') {
+        setIsTextVisible(false);
+      }
+    } catch {}
   }, [storageKey]);
 
   const handleDismiss = () => {
     setIsTextVisible(false);
     setIsTipOpen(false);
-    localStorage.setItem(storageKey, 'closed');
+    try {
+      localStorage.setItem(storageKey, 'closed');
+    } catch {}
   };
 
   const handleToggleTip = () => {
     const newTipState = !isTextVisible;
     setIsTextVisible(newTipState);
-    localStorage.setItem(storageKey, newTipState ? 'open' : 'closed');
+    try {
+      localStorage.setItem(storageKey, newTipState ? 'open' : 'closed');
+    } catch {}
   };
 
   return (
