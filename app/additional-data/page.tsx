@@ -46,7 +46,7 @@ export default function AdditionalDataPage() {
         </Box>
         <Tip
           title="Estimate emissions for past years and track your progress"
-          text="To understand trends and monitor year-over-year changes, you can enter historical data for previous years. We’ve streamlined this section to focus on 18 key drivers of emissions, making it easy to gather and review past data. This data will provide yearly estimates of your city’s emissions and support tracking progress against your climate goals."
+          text="To understand trends and monitor year-over-year changes, you can enter historical data for previous years. We’ve streamlined this section to focus on 21 key drivers of emissions, making it easy to gather and review past data. This data will provide yearly estimates of your city’s emissions and support tracking progress against your climate goals."
           storageKey="additionalDataTip"
         />
         <AdditionalDatasheetEditor />
