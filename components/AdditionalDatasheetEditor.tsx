@@ -13,7 +13,12 @@ import {
   Skeleton,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  GridRenderEditCellParams,
+} from '@mui/x-data-grid';
 import { ChevronDown } from 'react-bootstrap-icons';
 
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
@@ -87,6 +92,16 @@ const keyMeasures: Record<string, KeyMeasure> = additionalMeasures.reduce(
   },
   {}
 );
+
+function NumericEditComponent(props: GridRenderEditCellParams) {
+  const { colDef } = props;
+
+  if (colDef.type === 'number') {
+    return <CustomEditComponent {...props} />;
+  }
+
+  return null;
+}
 
 export function AdditionalDatasheetEditor() {
   const baselineYear =
@@ -183,15 +198,17 @@ export function AdditionalDatasheetEditor() {
 
       if (changedYearField) {
         const year = parseInt(changedYearField, 10);
+
         const newValue =
           (
             updatedRow[changedYearField as keyof MeasureDataPoint] as {
               floatValue?: number;
             }
-          ).floatValue ??
+          )?.floatValue ??
           parseFloat(
             updatedRow[changedYearField as keyof MeasureDataPoint] as string
           );
+
         if (!selectedInstanceId) {
           console.error('Instance ID is missing.');
           return updatedRow;
@@ -265,7 +282,10 @@ export function AdditionalDatasheetEditor() {
             type: 'number',
             headerAlign: 'left',
             renderCell: (params: GridRenderCellParams) => (
-              <CustomEditComponent {...params} sx={{ mx: 0, my: 0 }} />
+              <NumericEditComponent {...params} />
+            ),
+            renderEditCell: (params: GridRenderEditCellParams) => (
+              <NumericEditComponent {...params} />
             ),
           }) as GridColDef
       ),
