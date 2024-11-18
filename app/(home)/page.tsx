@@ -110,7 +110,7 @@ function DataCollectionContent({ instance }: { instance: string }) {
   );
 }
 
-function DashboardContent() {
+export default function DashboardContent() {
   const {
     data: selectedInstanceId,
     isDataInitialized: isInstanceStoreInitialized,
@@ -236,35 +236,4 @@ function DashboardContent() {
       </Container>
     </Fade>
   );
-}
-
-export default function Dashboard() {
-  const { status } = useSession();
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    status === 'authenticated'
-  );
-
-  useEffect(() => {
-    if (status === 'authenticated') {
-      setIsAuthenticated(true);
-    } else if (status === 'unauthenticated') {
-      setIsAuthenticated(false);
-    }
-  }, [status]);
-
-  const dashboard = useMemo(() => {
-    if (isAuthenticated) {
-      return <DashboardContent />;
-    }
-  }, [isAuthenticated]);
-
-  if (!isAuthenticated && status === 'loading') {
-    return <Loading />;
-  }
-
-  if (status === 'unauthenticated') {
-    return redirect('/welcome', RedirectType.replace);
-  }
-
-  return dashboard;
 }
