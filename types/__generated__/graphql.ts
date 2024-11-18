@@ -723,8 +723,11 @@ export type InstanceBasicConfiguration = {
 export type InstanceFeaturesType = {
   __typename?: 'InstanceFeaturesType';
   baselineVisibleInGraphs: Scalars['Boolean']['output'];
+  hideNodeDetails: Scalars['Boolean']['output'];
+  maximumFractionDigits?: Maybe<Scalars['Int']['output']>;
   showAccumulatedEffects: Scalars['Boolean']['output'];
-  showSignificantDigits: Scalars['Int']['output'];
+  showRefreshPrompt: Scalars['Boolean']['output'];
+  showSignificantDigits?: Maybe<Scalars['Int']['output']>;
 };
 
 export type InstanceGoalDimension = {
@@ -2269,6 +2272,7 @@ export type DataPointFragmentFragment = (
 export type UpdateMeasureDataPointMutationVariables = Exact<{
   frameworkInstanceId: Scalars['ID']['input'];
   measureTemplateId: Scalars['ID']['input'];
+  year?: InputMaybe<Scalars['Int']['input']>;
   internalNotes?: InputMaybe<Scalars['String']['input']>;
   value?: InputMaybe<Scalars['Float']['input']>;
 }>;

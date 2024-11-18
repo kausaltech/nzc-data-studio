@@ -164,7 +164,7 @@ const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
  * interactivity. This component allows us to keep consistent input
  * styles when the cell is in edit or read mode.
  */
-function CustomEditComponent({
+export default function CustomEditComponent({
   id,
   value,
   field,
