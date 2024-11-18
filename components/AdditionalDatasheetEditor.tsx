@@ -74,6 +74,7 @@ interface KeyMeasure {
 
 interface MeasureDataPoint {
   id: string;
+  uuid: string;
   question: string;
   baselineYear: string | number;
   unit: string;
@@ -84,7 +85,7 @@ type MeasureSection = Record<string, MeasureDataPoint[]>;
 
 const keyMeasures: Record<string, KeyMeasure> = additionalMeasures.reduce(
   (acc: Record<string, KeyMeasure>, measure) => {
-    acc[String(measure.id)] = {
+    acc[String(measure.uuid)] = {
       label: measure.label,
       question: measure.question,
     };
@@ -146,7 +147,7 @@ export function AdditionalDatasheetEditor() {
       ].flatMap((section) => section.measureTemplates);
 
       allMeasureTemplates.forEach((measureTemplate) => {
-        const keyDriver = keyMeasures[measureTemplate.id];
+        const keyDriver = keyMeasures[measureTemplate.uuid];
         if (keyDriver) {
           const { label, question } = keyDriver;
           if (!grouped[label]) grouped[label] = [];
@@ -168,6 +169,7 @@ export function AdditionalDatasheetEditor() {
 
           grouped[label].push({
             id: measureTemplate.id,
+            uuid: measureTemplate.uuid,
             question,
             baselineYear: baselineDataPoint?.value ?? 'No Data',
             unit: measureTemplate.unit?.htmlShort ?? 'No data',
