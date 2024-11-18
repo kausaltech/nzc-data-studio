@@ -1,8 +1,5 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { redirect, RedirectType } from 'next/navigation';
-
 import { useQuery, useSuspenseQuery } from '@apollo/client';
 import {
   Button,
@@ -15,7 +12,6 @@ import {
   Typography,
 } from '@mui/material';
 import * as Sentry from '@sentry/nextjs';
-import { useSession } from 'next-auth/react';
 import { BoxArrowUpRight, Download } from 'react-bootstrap-icons';
 
 import CompletionScoreCard from '@/components/CompletionScoreCard';

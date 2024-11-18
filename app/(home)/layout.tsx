@@ -1,11 +1,11 @@
 'use client';
 
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 import { Box } from '@mui/material';
 
 import { InstanceControlBar } from '@/components/InstanceControlBar';
-import { redirect, RedirectType } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Loading from '../loading';
 
@@ -15,6 +15,7 @@ type Props = {
 
 export default function HomeLayout({ children }: Props) {
   const { status } = useSession();
+  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(
     status === 'authenticated'
   );
@@ -32,7 +33,7 @@ export default function HomeLayout({ children }: Props) {
   }
 
   if (status === 'unauthenticated') {
-    return redirect('/welcome', RedirectType.replace);
+    return router.replace('/welcome');
   }
 
   return (
