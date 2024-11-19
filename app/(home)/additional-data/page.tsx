@@ -12,9 +12,30 @@ import { QuestionCircle } from 'react-bootstrap-icons';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import Tip from '@/components/Tip';
 import { AdditionalDatasheetEditor } from '@/components/AdditionalDatasheetEditor';
+import { useRouter } from 'next/navigation';
+import { captureException } from '@sentry/nextjs';
+import { areHistoricalYearsAvailable } from '@/utils/historical-data';
 
 export default function AdditionalDataPage() {
+  const router = useRouter();
   const baselineYear = useFrameworkInstanceStore((state) => state.baselineYear);
+
+  // Redirect to home if the baseline year is not set or if the historical data is not available
+  if (baselineYear == null) {
+    captureException(
+      'No baseline year found when accessing additional data page'
+    );
+
+    router.replace('/');
+
+    return null;
+  }
+
+  if (!areHistoricalYearsAvailable(baselineYear)) {
+    router.replace('/');
+
+    return null;
+  }
 
   return (
     <Fade in>

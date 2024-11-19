@@ -13,17 +13,25 @@ import {
   Theme,
   Toolbar,
   Typography,
+  Divider,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import { Session } from 'next-auth';
 import { signIn, useSession } from 'next-auth/react';
-import { PersonCircle, QuestionCircle } from 'react-bootstrap-icons';
+import {
+  BoxArrowRight,
+  PersonCircle,
+  QuestionCircle,
+} from 'react-bootstrap-icons';
+import { useRouter } from 'next/navigation';
+import startCase from 'lodash/startCase';
 
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { getUserDisplay } from '@/utils/session';
 import { Logo } from './Logo';
 import SupportModal from './SupportModal';
 import { handleBackendSignOut } from '@/app/actions';
-import { useRouter } from 'next/navigation';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
@@ -59,9 +67,13 @@ export function AppBar() {
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const session = useSession();
+  const { data: profile, loading: loadingProfile } = useUserProfile();
   const router = useRouter();
 
   const isAuthenticated = session.status === 'authenticated';
+
+  const orgSlug = profile?.me?.frameworkRoles?.[0]?.orgSlug;
+  const email = profile?.me?.email;
 
   const handleOpenAuthMenu = (event: React.MouseEvent<HTMLElement>) =>
     setMenuAnchorEl(event.currentTarget);
@@ -147,7 +159,31 @@ export function AppBar() {
               open={!!menuAnchorEl}
               onClose={handleCloseAuthMenu}
             >
-              <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+              <MenuItem onClick={handleSignOut}>
+                <ListItemIcon sx={{ minWidth: '0 !important', mr: 1 }}>
+                  <BoxArrowRight size={18} />
+                </ListItemIcon>
+                <ListItemText>Sign out</ListItemText>
+              </MenuItem>
+              <Divider />
+              <MenuItem disabled>
+                {loadingProfile ? (
+                  <Skeleton width={100} height={24} />
+                ) : (
+                  <Typography variant="body2">{email}</Typography>
+                )}
+              </MenuItem>
+              <MenuItem disabled>
+                {loadingProfile ? (
+                  <Skeleton width={100} height={24} />
+                ) : (
+                  orgSlug && (
+                    <Typography variant="body2">
+                      {startCase(orgSlug)}
+                    </Typography>
+                  )
+                )}
+              </MenuItem>
             </Menu>
           </div>
         </Toolbar>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Typography,
   Button,
@@ -18,39 +18,40 @@ interface TipProps {
   storageKey: string;
 }
 
+function getStoredTipState(storageKey: string) {
+  try {
+    return localStorage.getItem(storageKey);
+  } catch {
+    return 'open';
+  }
+}
+
+function storeTipState(storageKey: string, state: 'open' | 'closed') {
+  try {
+    localStorage.setItem(storageKey, state);
+  } catch {}
+}
+
 export const Tip = ({ title, text, storageKey }: TipProps) => {
   const theme = useTheme();
-  const [isTextVisible, setIsTextVisible] = useState(true);
-  const [isTipOpen, setIsTipOpen] = useState(true);
-
-  useEffect(() => {
-    try {
-      const savedTipState = localStorage.getItem(storageKey);
-      if (savedTipState === 'closed') {
-        setIsTextVisible(false);
-      }
-    } catch {}
-  }, [storageKey]);
+  const [isTipOpen, setIsTipOpen] = useState(
+    () => getStoredTipState(storageKey) === 'open'
+  );
 
   const handleDismiss = () => {
-    setIsTextVisible(false);
     setIsTipOpen(false);
-    try {
-      localStorage.setItem(storageKey, 'closed');
-    } catch {}
+    storeTipState(storageKey, 'closed');
   };
 
   const handleToggleTip = () => {
-    const newTipState = !isTextVisible;
-    setIsTextVisible(newTipState);
-    try {
-      localStorage.setItem(storageKey, newTipState ? 'open' : 'closed');
-    } catch {}
+    const newTipState = !isTipOpen;
+    setIsTipOpen(newTipState);
+    storeTipState(storageKey, newTipState ? 'open' : 'closed');
   };
 
   return (
     <Accordion
-      expanded={isTextVisible}
+      expanded={isTipOpen}
       onChange={handleToggleTip}
       sx={{
         marginY: 2,
@@ -77,7 +78,7 @@ export const Tip = ({ title, text, storageKey }: TipProps) => {
           onClick={handleDismiss}
           sx={{ marginTop: 1 }}
         >
-          Dismiss this tip
+          Hide this tip
         </Button>
       </AccordionDetails>
     </Accordion>
