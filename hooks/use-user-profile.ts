@@ -15,6 +15,14 @@ export function useUserProfile() {
           orgId
         }
       }
+
+      framework(identifier: "nzc") {
+        id
+        userPermissions {
+          change
+          creatableRelatedModels
+        }
+      }
     }
   `);
 
@@ -23,9 +31,15 @@ export function useUserProfile() {
 
 export function usePermissions() {
   const profileQuery = useUserProfile();
+  const canEdit = !!profileQuery.data?.framework?.userPermissions?.change;
+  const canCreate =
+    !!profileQuery.data?.framework?.userPermissions?.creatableRelatedModels.includes(
+      'FrameworkConfig'
+    );
 
   return {
     isLoading: profileQuery.loading,
-    canEdit: false, // TODO: Implement permission check
+    canEdit,
+    canCreate,
   };
 }

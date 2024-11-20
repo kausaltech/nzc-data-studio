@@ -109,6 +109,7 @@ export type ActionListPageAncestorsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -118,6 +119,7 @@ export type ActionListPageChildrenArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -127,6 +129,7 @@ export type ActionListPageDescendantsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -136,6 +139,7 @@ export type ActionListPageSiblingsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -197,6 +201,11 @@ export type ActionNodeImpactMetricArgs = {
 
 export type ActionNodeMetricArgs = {
   goalId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type ActionNodeMetricDimArgs = {
+  withScenarios?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
@@ -373,6 +382,13 @@ export type DeleteFrameworkConfigMutation = {
   ok?: Maybe<Scalars['Boolean']['output']>;
 };
 
+/** An enumeration. */
+export enum DimensionKind {
+  Common = 'COMMON',
+  Node = 'NODE',
+  Scenario = 'SCENARIO'
+}
+
 export type DimensionalFlowType = {
   __typename?: 'DimensionalFlowType';
   id: Scalars['String']['output'];
@@ -524,6 +540,8 @@ export type Framework = {
   name: Scalars['String']['output'];
   section?: Maybe<Section>;
   sections: Array<Section>;
+  userPermissions?: Maybe<UserPermissions>;
+  userRoles?: Maybe<Array<Scalars['String']['output']>>;
 };
 
 
@@ -606,9 +624,13 @@ export type FrameworkConfig = {
   id: Scalars['ID']['output'];
   instance?: Maybe<InstanceType>;
   measures: Array<Measure>;
+  organizationIdentifier?: Maybe<Scalars['String']['output']>;
   organizationName?: Maybe<Scalars['String']['output']>;
+  organizationSlug?: Maybe<Scalars['String']['output']>;
   /** URL for downloading a results file */
   resultsDownloadUrl?: Maybe<Scalars['String']['output']>;
+  userPermissions?: Maybe<UserPermissions>;
+  userRoles?: Maybe<Array<Scalars['String']['output']>>;
   uuid: Scalars['UUID']['output'];
   /** Public URL for instance dashboard */
   viewUrl?: Maybe<Scalars['String']['output']>;
@@ -651,6 +673,7 @@ export type ImageObjectType = {
   aspectRatio: Scalars['Float']['output'];
   collection: CollectionObjectType;
   createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
   file: Scalars['String']['output'];
   fileHash: Scalars['String']['output'];
   fileSize?: Maybe<Scalars['Int']['output']>;
@@ -803,6 +826,7 @@ export type InstanceRootPageAncestorsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -812,6 +836,7 @@ export type InstanceRootPageChildrenArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -821,6 +846,7 @@ export type InstanceRootPageDescendantsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -830,13 +856,16 @@ export type InstanceRootPageSiblingsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type InstanceSiteContent = {
+export type InstanceSiteContent = SnippetInterface & {
   __typename?: 'InstanceSiteContent';
+  contentType: Scalars['String']['output'];
   id?: Maybe<Scalars['ID']['output']>;
   introContent?: Maybe<Array<Maybe<StreamFieldInterface>>>;
+  snippetType: Scalars['String']['output'];
 };
 
 export type InstanceType = {
@@ -920,6 +949,8 @@ export type Measure = {
   internalNotes: Scalars['String']['output'];
   measureTemplate: MeasureTemplate;
   unit?: Maybe<UnitType>;
+  userPermissions?: Maybe<UserPermissions>;
+  userRoles?: Maybe<Array<Scalars['String']['output']>>;
 };
 
 /**
@@ -933,6 +964,8 @@ export type MeasureDataPoint = {
   __typename?: 'MeasureDataPoint';
   defaultValue?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
+  userPermissions?: Maybe<UserPermissions>;
+  userRoles?: Maybe<Array<Scalars['String']['output']>>;
   value?: Maybe<Scalars['Float']['output']>;
   year: Scalars['Int']['output'];
 };
@@ -975,6 +1008,8 @@ export type MeasureTemplate = {
   priority: FrameworksMeasureTemplatePriorityChoices;
   timeSeriesMax?: Maybe<Scalars['Float']['output']>;
   unit: UnitType;
+  userPermissions?: Maybe<UserPermissions>;
+  userRoles?: Maybe<Array<Scalars['String']['output']>>;
   uuid: Scalars['UUID']['output'];
 };
 
@@ -1004,6 +1039,8 @@ export type MeasureTemplateMeasureArgs = {
 export type MeasureTemplateDefaultDataPoint = {
   __typename?: 'MeasureTemplateDefaultDataPoint';
   id: Scalars['ID']['output'];
+  userPermissions?: Maybe<UserPermissions>;
+  userRoles?: Maybe<Array<Scalars['String']['output']>>;
   value: Scalars['Float']['output'];
   year: Scalars['Int']['output'];
 };
@@ -1033,6 +1070,7 @@ export type MetricDimensionType = {
   groups: Array<MetricDimensionCategoryGroupType>;
   helpText?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  kind: DimensionKind;
   label: Scalars['String']['output'];
   originalId?: Maybe<Scalars['ID']['output']>;
 };
@@ -1043,6 +1081,14 @@ export type MetricYearlyGoalType = {
   value: Scalars['Float']['output'];
   year: Scalars['Int']['output'];
 };
+
+/** An enumeration. */
+export enum ModelAction {
+  Add = 'ADD',
+  Change = 'CHANGE',
+  Delete = 'DELETE',
+  View = 'VIEW'
+}
 
 export type Mutations = {
   __typename?: 'Mutations';
@@ -1113,7 +1159,9 @@ export type MutationsSetParameterArgs = {
 export type MutationsUpdateFrameworkConfigArgs = {
   baselineYear?: InputMaybe<Scalars['Int']['input']>;
   id: Scalars['ID']['input'];
+  organizationIdentifier?: InputMaybe<Scalars['String']['input']>;
   organizationName?: InputMaybe<Scalars['String']['input']>;
+  organizationSlug?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1195,6 +1243,11 @@ export type NodeMetricArgs = {
 };
 
 
+export type NodeMetricDimArgs = {
+  withScenarios?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
 export type NodeUpstreamActionsArgs = {
   decisionLevel?: InputMaybe<DecisionLevel>;
   onlyRoot?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1263,6 +1316,11 @@ export type NodeInterfaceImpactMetricArgs = {
 
 export type NodeInterfaceMetricArgs = {
   goalId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type NodeInterfaceMetricDimArgs = {
+  withScenarios?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 
@@ -1350,6 +1408,7 @@ export type OutcomePageAncestorsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1359,6 +1418,7 @@ export type OutcomePageChildrenArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1368,6 +1428,7 @@ export type OutcomePageDescendantsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1377,6 +1438,7 @@ export type OutcomePageSiblingsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1438,6 +1500,7 @@ export type PageAncestorsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1451,6 +1514,7 @@ export type PageChildrenArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1464,6 +1528,7 @@ export type PageDescendantsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1477,6 +1542,7 @@ export type PageSiblingsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1519,6 +1585,7 @@ export type PageInterfaceAncestorsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1528,6 +1595,7 @@ export type PageInterfaceChildrenArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1537,6 +1605,7 @@ export type PageInterfaceDescendantsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1546,6 +1615,7 @@ export type PageInterfaceSiblingsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1568,7 +1638,7 @@ export type Query = {
   actionEfficiencyPairs: Array<ActionEfficiencyPairType>;
   actions: Array<ActionNode>;
   activeNormalization?: Maybe<NormalizationType>;
-  activeScenario?: Maybe<ScenarioType>;
+  activeScenario: ScenarioType;
   availableInstances: Array<InstanceBasicConfiguration>;
   availableNormalizations: Array<NormalizationType>;
   framework?: Maybe<Framework>;
@@ -1675,13 +1745,30 @@ export type RichTextBlock = StreamFieldInterface & {
   value: Scalars['String']['output'];
 };
 
+/** An enumeration. */
+export enum ScenarioKind {
+  Baseline = 'BASELINE',
+  Custom = 'CUSTOM',
+  Default = 'DEFAULT',
+  ProgressTracking = 'PROGRESS_TRACKING'
+}
+
 export type ScenarioType = {
   __typename?: 'ScenarioType';
+  actualHistoricalYears?: Maybe<Array<Scalars['Int']['output']>>;
   id?: Maybe<Scalars['ID']['output']>;
-  isActive?: Maybe<Scalars['Boolean']['output']>;
-  isDefault?: Maybe<Scalars['Boolean']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
+  isActive: Scalars['Boolean']['output'];
+  isDefault: Scalars['Boolean']['output'];
+  isSelectable: Scalars['Boolean']['output'];
+  kind?: Maybe<ScenarioKind>;
+  name: Scalars['String']['output'];
 };
+
+/** Enum for search operator. */
+export enum SearchOperatorEnum {
+  And = 'AND',
+  Or = 'OR'
+}
 
 /**
  * Represents a section within a framework.
@@ -1701,6 +1788,8 @@ export type Section = {
   name: Scalars['String']['output'];
   parent?: Maybe<Section>;
   path: Scalars['String']['output'];
+  userPermissions?: Maybe<UserPermissions>;
+  userRoles?: Maybe<Array<Scalars['String']['output']>>;
   uuid: Scalars['UUID']['output'];
 };
 
@@ -1751,9 +1840,11 @@ export type SiteObjectTypePageArgs = {
 export type SiteObjectTypePagesArgs = {
   contentType?: InputMaybe<Scalars['String']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
+  inMenu?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1763,10 +1854,13 @@ export type SnippetChooserBlock = StreamFieldInterface & {
   field: Scalars['String']['output'];
   id?: Maybe<Scalars['String']['output']>;
   rawValue: Scalars['String']['output'];
-  snippet?: Maybe<SnippetObjectType>;
+  snippet?: Maybe<SnippetInterface>;
 };
 
-export type SnippetObjectType = InstanceSiteContent;
+export type SnippetInterface = {
+  contentType: Scalars['String']['output'];
+  snippetType: Scalars['String']['output'];
+};
 
 export type StaticBlock = StreamFieldInterface & {
   __typename?: 'StaticBlock';
@@ -1823,6 +1917,7 @@ export type StaticPageAncestorsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1832,6 +1927,7 @@ export type StaticPageChildrenArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1841,6 +1937,7 @@ export type StaticPageDescendantsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1850,6 +1947,7 @@ export type StaticPageSiblingsArgs = {
   limit?: InputMaybe<Scalars['PositiveInt']['input']>;
   offset?: InputMaybe<Scalars['PositiveInt']['input']>;
   order?: InputMaybe<Scalars['String']['input']>;
+  searchOperator?: InputMaybe<SearchOperatorEnum>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1991,6 +2089,17 @@ export type UserFrameworkRole = {
   roleId?: Maybe<Scalars['String']['output']>;
 };
 
+/** Permissions for a user on a model instance. */
+export type UserPermissions = {
+  __typename?: 'UserPermissions';
+  actions: Array<Maybe<ModelAction>>;
+  change: Scalars['Boolean']['output'];
+  creatableRelatedModels: Array<Maybe<Scalars['String']['output']>>;
+  delete: Scalars['Boolean']['output'];
+  otherPermissions: Array<Maybe<Scalars['String']['output']>>;
+  view: Scalars['Boolean']['output'];
+};
+
 export type UserType = {
   __typename?: 'UserType';
   email: Scalars['String']['output'];
@@ -2036,6 +2145,12 @@ export type ProfileQuery = (
       & { __typename?: 'UserFrameworkRole' }
     )> | null }
     & { __typename?: 'UserType' }
+  ) | null, framework?: (
+    { id: string, userPermissions?: (
+      { change: boolean, creatableRelatedModels: Array<string | null> }
+      & { __typename?: 'UserPermissions' }
+    ) | null }
+    & { __typename?: 'Framework' }
   ) | null }
   & { __typename?: 'Query' }
 );

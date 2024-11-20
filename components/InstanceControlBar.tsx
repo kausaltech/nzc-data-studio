@@ -244,7 +244,7 @@ export function InstanceControlBar() {
                 instances={instanceConfigs}
               />
             )}
-            {permissions.canEdit && (
+            {permissions.canCreate && (
               <Button
                 onClick={() => setIsAddModalOpen(true)}
                 variant="outlined"
