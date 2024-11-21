@@ -289,7 +289,7 @@ export function AdditionalDatasheetEditor() {
             editable: true,
             flex: 1,
             type: 'number',
-            headerAlign: 'left',
+            headerAlign: 'center',
             renderCell: (params: GridRenderCellParams) => (
               <NumericEditComponent {...params} />
             ),
@@ -306,13 +306,8 @@ export function AdditionalDatasheetEditor() {
     <div>
       {loading ? (
         <Skeleton variant="rectangular" width="100%" height={400} />
-      ) : Object.keys(measureSection).length === 0 ? (
-        <Typography>No data available</Typography>
       ) : (
         Object.entries(measureSection).map(([label, measures], index) => {
-          const validMeasures = measures.filter((measure) => !!measure);
-          if (!validMeasures.length) return null;
-
           return (
             <Accordion
               key={`${label}-${index}`}
@@ -331,7 +326,7 @@ export function AdditionalDatasheetEditor() {
               <MuiAccordionDetails>
                 <Box sx={{ height: 400 }}>
                   <DataGrid
-                    rows={validMeasures}
+                    rows={measures}
                     columns={COLUMNS}
                     sx={DATA_GRID_SX}
                     loading={loading || mutationLoading}
@@ -348,7 +343,7 @@ export function AdditionalDatasheetEditor() {
                       })
                     }
                     slots={{ footer: CustomFooter }}
-                    slotProps={{ footer: { count: validMeasures.length } }}
+                    slotProps={{ footer: { count: measures.length } }}
                     hideFooterPagination
                   />
                 </Box>
