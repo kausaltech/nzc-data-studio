@@ -299,50 +299,55 @@ export function AdditionalDatasheetEditor() {
     <div>
       {loading ? (
         <Skeleton variant="rectangular" width="100%" height={400} />
-      ) : !Object.keys(measureSection).length ? (
+      ) : Object.keys(measureSection).length === 0 ? (
         <Typography>No data available</Typography>
       ) : (
-        Object.entries(measureSection).map(([label, measures], index) => (
-          <Accordion
-            key={`${label}-${index}`}
-            expanded={expanded === index}
-            onChange={(_event, isExpanded) =>
-              setExpanded(isExpanded ? index : null)
-            }
-          >
-            <MuiAccordionSummary
-              expandIcon={<ChevronDown size={18} />}
-              aria-controls={`${label}-content`}
-              id={`${label}-header`}
+        Object.entries(measureSection).map(([label, measures], index) => {
+          const validMeasures = measures.filter((measure) => !!measure);
+          if (!validMeasures.length) return null;
+
+          return (
+            <Accordion
+              key={`${label}-${index}`}
+              expanded={expanded === index}
+              onChange={(_event, isExpanded) =>
+                setExpanded(isExpanded ? index : null)
+              }
             >
-              <Typography>{label}</Typography>
-            </MuiAccordionSummary>
-            <MuiAccordionDetails>
-              <Box sx={{ height: 400 }}>
-                <DataGrid
-                  rows={measures}
-                  columns={COLUMNS}
-                  sx={DATA_GRID_SX}
-                  loading={loading || mutationLoading}
-                  getRowHeight={() => 'auto'}
-                  disableColumnFilter
-                  disableColumnMenu
-                  processRowUpdate={processRowUpdate}
-                  onProcessRowUpdateError={(error) =>
-                    setNotification({
-                      message: 'Failed to save, please try again',
-                      extraDetails: error.message,
-                      severity: 'error',
-                    })
-                  }
-                  slots={{ footer: CustomFooter }}
-                  slotProps={{ footer: { count: measures.length } }}
-                  hideFooterPagination
-                />
-              </Box>
-            </MuiAccordionDetails>
-          </Accordion>
-        ))
+              <MuiAccordionSummary
+                expandIcon={<ChevronDown size={18} />}
+                aria-controls={`${label}-content`}
+                id={`${label}-header`}
+              >
+                <Typography>{label}</Typography>
+              </MuiAccordionSummary>
+              <MuiAccordionDetails>
+                <Box sx={{ height: 400 }}>
+                  <DataGrid
+                    rows={validMeasures}
+                    columns={COLUMNS}
+                    sx={DATA_GRID_SX}
+                    loading={loading || mutationLoading}
+                    getRowHeight={() => 'auto'}
+                    disableColumnFilter
+                    disableColumnMenu
+                    processRowUpdate={processRowUpdate}
+                    onProcessRowUpdateError={(error) =>
+                      setNotification({
+                        message: 'Failed to save, please try again',
+                        extraDetails: error.message,
+                        severity: 'error',
+                      })
+                    }
+                    slots={{ footer: CustomFooter }}
+                    slotProps={{ footer: { count: validMeasures.length } }}
+                    hideFooterPagination
+                  />
+                </Box>
+              </MuiAccordionDetails>
+            </Accordion>
+          );
+        })
       )}
     </div>
   );
