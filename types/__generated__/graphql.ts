@@ -2146,7 +2146,7 @@ export type ProfileQuery = (
     )> | null }
     & { __typename?: 'UserType' }
   ) | null, framework?: (
-    { id: string, userPermissions?: (
+    { id: string, userRoles?: Array<string> | null, userPermissions?: (
       { change: boolean, creatableRelatedModels: Array<string | null> }
       & { __typename?: 'UserPermissions' }
     ) | null }

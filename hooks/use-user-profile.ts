@@ -18,6 +18,7 @@ export function useUserProfile() {
 
       framework(identifier: "nzc") {
         id
+        userRoles
         userPermissions {
           change
           creatableRelatedModels
