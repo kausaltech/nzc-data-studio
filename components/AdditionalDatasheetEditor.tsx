@@ -329,6 +329,7 @@ export function AdditionalDatasheetEditor() {
                     sx={DATA_GRID_SX}
                     loading={loading || mutationLoading}
                     getRowHeight={() => 'auto'}
+                    disableColumnSorting
                     disableColumnFilter
                     disableColumnMenu
                     processRowUpdate={processRowUpdate}
