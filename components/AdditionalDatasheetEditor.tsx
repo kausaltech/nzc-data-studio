@@ -161,7 +161,10 @@ export function AdditionalDatasheetEditor() {
               const dataPoint = measureTemplate.measure?.dataPoints.find(
                 (dp) => dp.year === year
               );
-              acc[year] = dataPoint?.value || '';
+              acc[year] =
+                dataPoint?.value !== undefined && dataPoint?.value !== null
+                  ? dataPoint.value
+                  : '';
               return acc;
             },
             {} as Record<number, string | number>
