@@ -259,9 +259,16 @@ export function AdditionalDatasheetEditor() {
         headerName: 'Baseline',
         field: 'baselineYear',
         flex: 1,
-        renderCell: (params: GridRenderCellParams) => (
-          <Typography variant="body2">{params.value}</Typography>
-        ),
+        renderCell: (params: GridRenderCellParams) => {
+          const value = params.value;
+          const formattedValue =
+            typeof value === 'number'
+              ? new Intl.NumberFormat(undefined, {
+                  maximumFractionDigits: 0,
+                }).format(value)
+              : value;
+          return <Typography variant="body2">{formattedValue}</Typography>;
+        },
         renderHeader: () => (
           <Box sx={{ textAlign: 'center', lineHeight: 1.5 }}>
             <Typography variant="body2" component="div">
