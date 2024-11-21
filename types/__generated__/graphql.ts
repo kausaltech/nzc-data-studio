@@ -2149,7 +2149,13 @@ export type ProfileQuery = (
     { id: string, userRoles?: Array<string> | null, userPermissions?: (
       { change: boolean, creatableRelatedModels: Array<string | null> }
       & { __typename?: 'UserPermissions' }
-    ) | null }
+    ) | null, configs: Array<(
+      { id: string, userPermissions?: (
+        { view: boolean, change: boolean, delete: boolean, actions: Array<ModelAction | null>, creatableRelatedModels: Array<string | null>, otherPermissions: Array<string | null> }
+        & { __typename?: 'UserPermissions' }
+      ) | null }
+      & { __typename: 'FrameworkConfig' }
+    )> }
     & { __typename?: 'Framework' }
   ) | null }
   & { __typename?: 'Query' }

@@ -181,10 +181,10 @@ export default function CustomEditComponent({
   const [key, setKey] = useState(0);
 
   useLayoutEffect(() => {
-    if (hasFocus && permissions.canEdit && ref.current) {
+    if (hasFocus && permissions.edit && ref.current) {
       ref.current.focus();
     }
-  }, [hasFocus, permissions.canEdit]);
+  }, [hasFocus, permissions.edit]);
 
   async function handleValueChange(event: React.ChangeEvent<HTMLInputElement>) {
     const newValue = event.target.value;
@@ -235,13 +235,11 @@ export default function CustomEditComponent({
         key={key}
         fullWidth
         onKeyDown={handleEscape}
-        onValueChange={
-          permissions.canEdit ? handleNumberValueChange : undefined
-        }
+        onValueChange={permissions.edit ? handleNumberValueChange : undefined}
         defaultValue={
           typeof initialValue.current === 'number' ? initialValue.current : ''
         }
-        disabled={!permissions.canEdit}
+        disabled={!permissions.edit}
         inputProps={{
           'aria-label': `${row.label} ${field}`,
           decimalScale: getDecimalPrecisionByUnit(row.unit.long),
@@ -252,9 +250,9 @@ export default function CustomEditComponent({
       <TextField
         {...commonProps}
         key={key}
-        disabled={!permissions.canEdit}
+        disabled={!permissions.edit}
         onKeyDown={handleEscape}
-        onChange={permissions.canEdit ? handleValueChange : undefined}
+        onChange={permissions.edit ? handleValueChange : undefined}
         fullWidth
         multiline
         maxRows={6}
@@ -266,7 +264,7 @@ export default function CustomEditComponent({
       />
     );
 
-  if (!permissions.canEdit) {
+  if (!permissions.edit) {
     return (
       <Tooltip
         arrow
@@ -830,14 +828,14 @@ function AccordionContentWrapper({
       <AccordionDetails>
         <Box sx={{ height: 400 }}>
           <DataGrid
-            {...(permissions.canEdit ? singleClickEditProps : {})}
+            {...(permissions.edit ? singleClickEditProps : {})}
             loading={loading}
             slots={{ footer: CustomFooter }}
             slotProps={{ footer: { count: rows.length } }}
             sx={DATA_GRID_SX}
             isCellEditable={(params) =>
               !!(
-                permissions.canEdit &&
+                permissions.edit &&
                 params.colDef.editable &&
                 params.row.type !== 'SUM_PERCENT'
               )

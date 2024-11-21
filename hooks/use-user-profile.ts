@@ -1,5 +1,8 @@
 import { gql, useQuery } from '@apollo/client';
 import { ProfileQuery } from '@/types/__generated__/graphql';
+import useStore from '@/store/use-store';
+import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
+import { useMemo } from 'react';
 
 export function useUserProfile() {
   const queryResult = useQuery<ProfileQuery>(gql`
@@ -23,6 +26,18 @@ export function useUserProfile() {
           change
           creatableRelatedModels
         }
+        configs {
+          __typename
+          id
+          userPermissions {
+            view
+            change
+            delete
+            actions
+            creatableRelatedModels
+            otherPermissions
+          }
+        }
       }
     }
   `);
@@ -31,16 +46,33 @@ export function useUserProfile() {
 }
 
 export function usePermissions() {
-  const profileQuery = useUserProfile();
-  const canEdit = !!profileQuery.data?.framework?.userPermissions?.change;
+  const { loading, data } = useUserProfile();
+  const { data: selectedInstanceId, isDataInitialized } = useStore(
+    useFrameworkInstanceStore,
+    (state) => state.selectedInstance
+  );
+
+  const frameworkConfigPermissions = useMemo(() => {
+    if (!loading && isDataInitialized && selectedInstanceId) {
+      return data?.framework?.configs.find(
+        (config) => config.id === selectedInstanceId
+      )?.userPermissions;
+    }
+
+    return undefined;
+  }, [isDataInitialized, selectedInstanceId, data, loading]);
+
   const canCreate =
-    !!profileQuery.data?.framework?.userPermissions?.creatableRelatedModels.includes(
-      'FrameworkConfig'
-    );
+    (!loading &&
+      !!data?.framework?.userPermissions?.creatableRelatedModels.includes(
+        'FrameworkConfig'
+      )) ??
+    false;
 
   return {
-    isLoading: profileQuery.loading,
-    canEdit,
-    canCreate,
+    isLoading: !isDataInitialized || loading,
+    create: canCreate,
+    edit: frameworkConfigPermissions?.change ?? false,
+    delete: frameworkConfigPermissions?.delete ?? false,
   };
 }
