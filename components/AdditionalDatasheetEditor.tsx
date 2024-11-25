@@ -20,6 +20,7 @@ import {
   GridRenderEditCellParams,
 } from '@mui/x-data-grid';
 import { ChevronDown } from 'react-bootstrap-icons';
+import { getDecimalPrecisionByUnit, isYearMeasure } from '@/utils/measures';
 
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
 import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
@@ -161,7 +162,10 @@ export function AdditionalDatasheetEditor() {
               const dataPoint = measureTemplate.measure?.dataPoints.find(
                 (dp) => dp.year === year
               );
-              acc[year] = dataPoint?.value || '';
+              acc[year] =
+                dataPoint?.value !== undefined && dataPoint?.value !== null
+                  ? dataPoint.value
+                  : '';
               return acc;
             },
             {} as Record<number, string | number>
@@ -259,9 +263,29 @@ export function AdditionalDatasheetEditor() {
         headerName: 'Baseline',
         field: 'baselineYear',
         flex: 1,
-        renderCell: (params: GridRenderCellParams) => (
-          <Typography variant="body2">{params.value}</Typography>
-        ),
+        renderCell: (params: GridRenderCellParams) => {
+          const value = params.value as number | null;
+          const row = params.row as MeasureDataPoint;
+
+          if (value == null) {
+            return null;
+          }
+
+          const precision = getDecimalPrecisionByUnit(row.unit);
+
+          if (isYearMeasure(row.question, row.unit)) {
+            return <Typography variant="body2">{Math.round(value)}</Typography>;
+          }
+
+          return (
+            <Typography variant="body2">
+              {value.toLocaleString(undefined, {
+                maximumFractionDigits: precision,
+              })}
+            </Typography>
+          );
+        },
+
         renderHeader: () => (
           <Box sx={{ textAlign: 'center', lineHeight: 1.5 }}>
             <Typography variant="body2" component="div">
@@ -284,7 +308,7 @@ export function AdditionalDatasheetEditor() {
             type: 'number',
             headerAlign: 'left',
             renderCell: (params: GridRenderCellParams) => (
-              <NumericEditComponent {...params} />
+              <NumericEditComponent {...params} sx={{ mx: 0 }} />
             ),
             renderEditCell: (params: GridRenderEditCellParams) => (
               <NumericEditComponent {...params} />
@@ -299,50 +323,51 @@ export function AdditionalDatasheetEditor() {
     <div>
       {loading ? (
         <Skeleton variant="rectangular" width="100%" height={400} />
-      ) : !Object.keys(measureSection).length ? (
-        <Typography>No data available</Typography>
       ) : (
-        Object.entries(measureSection).map(([label, measures], index) => (
-          <Accordion
-            key={`${label}-${index}`}
-            expanded={expanded === index}
-            onChange={(_event, isExpanded) =>
-              setExpanded(isExpanded ? index : null)
-            }
-          >
-            <MuiAccordionSummary
-              expandIcon={<ChevronDown size={18} />}
-              aria-controls={`${label}-content`}
-              id={`${label}-header`}
+        Object.entries(measureSection).map(([label, measures], index) => {
+          return (
+            <Accordion
+              key={`${label}-${index}`}
+              expanded={expanded === index}
+              onChange={(_event, isExpanded) =>
+                setExpanded(isExpanded ? index : null)
+              }
             >
-              <Typography>{label}</Typography>
-            </MuiAccordionSummary>
-            <MuiAccordionDetails>
-              <Box sx={{ height: 400 }}>
-                <DataGrid
-                  rows={measures}
-                  columns={COLUMNS}
-                  sx={DATA_GRID_SX}
-                  loading={loading || mutationLoading}
-                  getRowHeight={() => 'auto'}
-                  disableColumnFilter
-                  disableColumnMenu
-                  processRowUpdate={processRowUpdate}
-                  onProcessRowUpdateError={(error) =>
-                    setNotification({
-                      message: 'Failed to save, please try again',
-                      extraDetails: error.message,
-                      severity: 'error',
-                    })
-                  }
-                  slots={{ footer: CustomFooter }}
-                  slotProps={{ footer: { count: measures.length } }}
-                  hideFooterPagination
-                />
-              </Box>
-            </MuiAccordionDetails>
-          </Accordion>
-        ))
+              <MuiAccordionSummary
+                expandIcon={<ChevronDown size={18} />}
+                aria-controls={`${label}-content`}
+                id={`${label}-header`}
+              >
+                <Typography>{label}</Typography>
+              </MuiAccordionSummary>
+              <MuiAccordionDetails>
+                <Box sx={{ height: 400 }}>
+                  <DataGrid
+                    rows={measures}
+                    columns={COLUMNS}
+                    sx={DATA_GRID_SX}
+                    loading={loading || mutationLoading}
+                    getRowHeight={() => 'auto'}
+                    disableColumnSorting
+                    disableColumnFilter
+                    disableColumnMenu
+                    processRowUpdate={processRowUpdate}
+                    onProcessRowUpdateError={(error) =>
+                      setNotification({
+                        message: 'Failed to save, please try again',
+                        extraDetails: error.message,
+                        severity: 'error',
+                      })
+                    }
+                    slots={{ footer: CustomFooter }}
+                    slotProps={{ footer: { count: measures.length } }}
+                    hideFooterPagination
+                  />
+                </Box>
+              </MuiAccordionDetails>
+            </Accordion>
+          );
+        })
       )}
     </div>
   );
