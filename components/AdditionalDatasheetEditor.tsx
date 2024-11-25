@@ -20,6 +20,7 @@ import {
   GridRenderEditCellParams,
 } from '@mui/x-data-grid';
 import { ChevronDown } from 'react-bootstrap-icons';
+import { getDecimalPrecisionByUnit, isYearMeasure } from '@/utils/measures';
 
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
 import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
@@ -263,15 +264,28 @@ export function AdditionalDatasheetEditor() {
         field: 'baselineYear',
         flex: 1,
         renderCell: (params: GridRenderCellParams) => {
-          const value = params.value;
-          const formattedValue =
-            typeof value === 'number'
-              ? new Intl.NumberFormat(undefined, {
-                  maximumFractionDigits: 0,
-                }).format(value)
-              : value;
-          return <Typography variant="body2">{formattedValue}</Typography>;
+          const value = params.value as number | null;
+          const row = params.row as MeasureDataPoint;
+
+          if (value == null) {
+            return null;
+          }
+
+          const precision = getDecimalPrecisionByUnit(row.unit);
+
+          if (isYearMeasure(row.question, row.unit)) {
+            return <Typography variant="body2">{Math.round(value)}</Typography>;
+          }
+
+          return (
+            <Typography variant="body2">
+              {value.toLocaleString(undefined, {
+                maximumFractionDigits: precision,
+              })}
+            </Typography>
+          );
         },
+
         renderHeader: () => (
           <Box sx={{ textAlign: 'center', lineHeight: 1.5 }}>
             <Typography variant="body2" component="div">
@@ -292,9 +306,9 @@ export function AdditionalDatasheetEditor() {
             editable: true,
             flex: 1,
             type: 'number',
-            headerAlign: 'center',
+            headerAlign: 'left',
             renderCell: (params: GridRenderCellParams) => (
-              <NumericEditComponent {...params} />
+              <NumericEditComponent {...params} sx={{ mx: 0 }} />
             ),
             renderEditCell: (params: GridRenderEditCellParams) => (
               <NumericEditComponent {...params} />
