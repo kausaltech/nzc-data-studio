@@ -34,6 +34,7 @@ import { AddPlanDialog, NewPlanData } from './AddPlanDialog';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { areHistoricalYearsAvailable } from '@/utils/historical-data';
+import { features } from '@/constants/environment';
 
 function InstanceSelector({
   selectedInstanceId,
@@ -208,7 +209,7 @@ export function InstanceControlBar() {
             alignItems: 'center',
           }}
         >
-          {!!selectedInstance && (
+          {!!selectedInstance && features.additionalData && (
             <Stack direction="row" spacing={2}>
               <MuiLink
                 href="/"
