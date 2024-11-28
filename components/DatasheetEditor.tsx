@@ -58,6 +58,7 @@ import { DataSectionSummary } from './DataSectionSummary';
 import NumberInput, { NumberInputProps } from './NumberInput';
 import { PriorityBadge } from './PriorityBadge';
 import { useSnackbar } from './SnackbarProvider';
+import { usePermissions } from '@/hooks/use-user-profile';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -173,16 +174,17 @@ export default function CustomEditComponent({
   colDef,
   row,
 }: GridRenderEditCellParams & { sx?: SxProps<Theme> }) {
+  const permissions = usePermissions();
   const apiRef = useGridApiContext();
   const ref = useRef<HTMLInputElement | null>(null);
   const initialValue = useRef(value);
   const [key, setKey] = useState(0);
 
   useLayoutEffect(() => {
-    if (hasFocus && ref.current) {
+    if (hasFocus && permissions.edit && ref.current) {
       ref.current.focus();
     }
-  }, [hasFocus]);
+  }, [hasFocus, permissions.edit]);
 
   async function handleValueChange(event: React.ChangeEvent<HTMLInputElement>) {
     const newValue = event.target.value;
@@ -226,42 +228,55 @@ export default function CustomEditComponent({
     }
   };
 
-  if (colDef.type === 'number') {
-    return (
+  const inputComponent =
+    colDef.type === 'number' ? (
       <NumberInput
         {...commonProps}
         key={key}
         fullWidth
         onKeyDown={handleEscape}
-        onValueChange={handleNumberValueChange}
+        onValueChange={permissions.edit ? handleNumberValueChange : undefined}
         defaultValue={
           typeof initialValue.current === 'number' ? initialValue.current : ''
         }
+        disabled={!permissions.edit}
         inputProps={{
           'aria-label': `${row.label} ${field}`,
           decimalScale: getDecimalPrecisionByUnit(row.unit.long),
           ...(isYearMeasure(row.label, row.unit.long) ? yearInputProps : {}),
         }}
       />
+    ) : (
+      <TextField
+        {...commonProps}
+        key={key}
+        disabled={!permissions.edit}
+        onKeyDown={handleEscape}
+        onChange={permissions.edit ? handleValueChange : undefined}
+        fullWidth
+        multiline
+        maxRows={6}
+        defaultValue={initialValue.current || ''}
+        inputProps={{
+          style: { fontSize: '0.9em' },
+          'aria-label': `${row.label} ${field}`,
+        }}
+      />
+    );
+
+  if (!permissions.edit) {
+    return (
+      <Tooltip
+        arrow
+        placement="top"
+        title="Request edit access in the NetZeroCities Portal to make changes."
+      >
+        <div>{inputComponent}</div>
+      </Tooltip>
     );
   }
 
-  return (
-    <TextField
-      {...commonProps}
-      key={key}
-      onKeyDown={handleEscape}
-      onChange={handleValueChange}
-      fullWidth
-      multiline
-      maxRows={6}
-      defaultValue={initialValue.current || ''}
-      inputProps={{
-        style: { fontSize: '0.9em' },
-        'aria-label': `${row.label} ${field}`,
-      }}
-    />
-  );
+  return inputComponent;
 }
 
 /**
@@ -706,6 +721,7 @@ function AccordionContentWrapper({
 
   const singleClickEditProps = useSingleClickEdit();
   const setExpanded = useDataCollectionStore((store) => store.setAccordion);
+  const permissions = usePermissions();
 
   const handleChange =
     (panel: number) => (event: React.SyntheticEvent, newExpanded: boolean) => {
@@ -812,13 +828,17 @@ function AccordionContentWrapper({
       <AccordionDetails>
         <Box sx={{ height: 400 }}>
           <DataGrid
-            {...singleClickEditProps}
+            {...(permissions.edit ? singleClickEditProps : {})}
             loading={loading}
             slots={{ footer: CustomFooter }}
             slotProps={{ footer: { count: rows.length } }}
             sx={DATA_GRID_SX}
             isCellEditable={(params) =>
-              !!(params.colDef.editable && params.row.type !== 'SUM_PERCENT')
+              !!(
+                permissions.edit &&
+                params.colDef.editable &&
+                params.row.type !== 'SUM_PERCENT'
+              )
             }
             getRowClassName={(params) => {
               if (params.row.type === 'SECTION') {
