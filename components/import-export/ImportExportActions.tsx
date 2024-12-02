@@ -5,8 +5,7 @@ import { Download, Upload } from 'react-bootstrap-icons';
 import { ExportPlanDialogContent } from './ExportPlanDialogContent';
 import { ImportPlanDialogContent } from './ImportPlanDialogContent';
 import { UploadLegacyDataButton } from '../UploadLegacyDataButton';
-import { useUserProfile } from '@/hooks/use-user-profile';
-import { FRAMEWORK_ADMIN_ROLE } from '@/constants/roles';
+import { usePermissions } from '@/hooks/use-user-profile';
 
 type Props = {
   measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
@@ -42,10 +41,7 @@ function tabA11yProps(tabId: string) {
 export function ImportExportActions({ measureTemplates }: Props) {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'export' | 'import'>('export');
-  const { data: profile, loading: profileLoading } = useUserProfile();
-  const canImportLegacyCsv =
-    !profileLoading &&
-    profile?.framework?.userRoles?.includes(FRAMEWORK_ADMIN_ROLE);
+  const { isFrameworkAdmin } = usePermissions();
 
   function handleClose() {
     setModalOpen(false);
@@ -78,7 +74,7 @@ export function ImportExportActions({ measureTemplates }: Props) {
             <Upload size={24} />
           </Tooltip>
         </IconButton>
-        {canImportLegacyCsv && (
+        {isFrameworkAdmin && (
           <UploadLegacyDataButton measureTemplates={measureTemplates} />
         )}
       </Stack>

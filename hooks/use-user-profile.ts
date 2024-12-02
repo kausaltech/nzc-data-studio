@@ -3,6 +3,7 @@ import { ProfileQuery } from '@/types/__generated__/graphql';
 import useStore from '@/store/use-store';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import { useMemo } from 'react';
+import { FRAMEWORK_ADMIN_ROLE } from '@/constants/roles';
 
 export function useUserProfile() {
   const queryResult = useQuery<ProfileQuery>(gql`
@@ -70,6 +71,8 @@ export function usePermissions() {
     false;
 
   return {
+    isFrameworkAdmin:
+      !!data?.framework?.userRoles?.includes(FRAMEWORK_ADMIN_ROLE),
     isLoading: !isDataInitialized || loading,
     create: canCreate,
     edit: frameworkConfigPermissions?.change ?? false,

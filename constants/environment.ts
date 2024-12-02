@@ -25,8 +25,3 @@ export const sentryDsn = publicEnvVars.KAUSAL_PUBLIC_SENTRY_DSN;
 export const deploymentType: DeploymentType =
   (publicEnvVars.KAUSAL_PUBLIC_DEPLOYMENT_TYPE ||
     'development') as DeploymentType;
-
-// Quick support for dev only features
-export const features = {
-  additionalData: isDev || deploymentType === 'development',
-};
