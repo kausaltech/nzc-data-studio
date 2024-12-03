@@ -34,140 +34,101 @@ export const SECTIONS_SUM_100_PERCENT = [
 export const additionalMeasures = [
   {
     uuid: 'c3f157c0-ae56-470f-9ac7-e7ac0080626d',
-    question:
-      'What was the total distance travelled by passenger cars and motorcycles?',
     id: 207,
     label: 'Passenger transportation',
   },
   {
     uuid: '0791d065-3de0-4667-939f-056055677973',
-    question: 'What was the total distance travelled by buses?',
     id: 208,
     label: 'Passenger transportation',
   },
   {
     uuid: '2be6f9ef-1745-40bf-9498-e9eeb4fdb984',
-    question:
-      'What percentage of passenger cars and motorcycles were fully electric (excluding hybrids)?',
     id: 224,
     label: 'Passenger transportation',
   },
   {
     uuid: '8a0ddf12-611d-45c0-b51b-c5722f5fb88c',
-    question:
-      'What percentage of buses were fully electric (excluding hybrids)?',
     id: 226,
     label: 'Passenger transportation',
   },
   {
     uuid: 'beac92cf-c0c5-4921-8019-1a464d2a4fc0',
-    question:
-      'How many light duty trucks (<3.5 tonnes) were registered in the city?',
     id: 242,
     label: 'Freight transportation',
   },
   {
     uuid: '3f433a95-e490-48c5-b629-3cffa0a132bb',
-    question:
-      'How many heavy duty trucks (>3.5 tonnes) were registered in the city?',
     id: 243,
     label: 'Freight transportation',
   },
   {
     uuid: 'f3fc1e37-d5bf-42d4-ae1e-d5ddc8acfc08',
-    question:
-      'What percentage of light duty trucks were fully electric (excluding hybrids)?',
     id: 404,
     label: 'Freight transportation',
   },
   {
     uuid: '89c7e112-6102-463a-94e8-c34a6a5d943a',
-    question:
-      'What percentage of heavy duty trucks were fully electric (excluding hybrids)?',
     id: 405,
     label: 'Freight transportation',
   },
   {
     uuid: 'f0401b8f-b988-45f8-bb09-252c33ce330f',
-    question:
-      "What percentage of the city's total building stock underwent energy efficiency renovations?",
     id: 247,
     label: 'Buildings & heating',
   },
   {
     uuid: '0ae5fb06-48a4-4774-9799-ccfa4e8f44a5',
-    question:
-      'What was the total heating demand (including space heating, domestic hot water, and heat for cooking)?',
     id: 252,
     label: 'Buildings & heating',
   },
   {
     uuid: '83080b15-af7d-44e9-bab2-cefe151879b3',
-    question:
-      'What percentage of the total heating demand was met by: District heating?',
     id: 253,
     label: 'Buildings & heating',
   },
   {
     uuid: 'b38b5eb7-fb3c-4cfe-999e-29a349d302cd',
-    question:
-      'What percentage of the total heating demand was met by: Local heating?',
     id: 254,
     label: 'Buildings & heating',
   },
   {
     uuid: 'ef9b2521-c413-4513-8251-a80700d2e558',
-    question:
-      'What percentage of district heating was provided by electric heat pumps?',
     id: 256,
     label: 'Buildings & heating',
   },
   {
     uuid: '804ac52f-8c7a-4b79-a56a-ed50f62ba8ad',
-    question:
-      'What percentage of local heating was provided by: Electric heat pumps?',
     id: 262,
     label: 'Buildings & heating',
   },
   {
     uuid: 'c8091681-cc83-416c-b4d2-7965b441e94e',
-    question:
-      'What percentage of local heating was provided by: Biobased / solar water heating?',
     id: 263,
     label: 'Buildings & heating',
   },
   {
     uuid: '3b58ecda-77bb-4ac6-80bf-7f802442bbb4',
-    question:
-      'What percentage of local heating was provided by: Inefficient electric heating (not heat pumps)?',
     id: 255,
     label: 'Buildings & heating',
   },
   {
     uuid: '5f7c8175-d3ae-4e05-9179-325b84934ead',
-    question:
-      'What was the total electricity demand within the city boundaries?',
     id: 272,
     label: 'Electricity',
   },
   {
     uuid: 'b132697d-6a72-476c-aed5-d3fa3886d943',
-    question:
-      'What was the share of electricity production from renewable sources (excluding local solar PV)?',
     id: 273,
     label: 'Electricity',
   },
   {
     uuid: 'fbf3fa68-30be-47c5-a368-decd9d6f16e2',
-    question:
-      'What were the total CO2e emissions from industrial processes and product use (IPPU)?',
     id: 327,
     label: 'Greenhouse gases',
   },
   {
     uuid: '58c99d80-8b05-4573-8291-9252560414fd',
-    question:
-      'What were the total CO2e emissions from other sources not included in previous categories?',
     id: 329,
     label: 'Greenhouse gases',
   },
