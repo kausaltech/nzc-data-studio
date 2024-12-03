@@ -426,7 +426,9 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
       {...(permissions.edit ? singleClickEditProps : {})}
       loading={loading}
       slots={{ footer: CustomFooter }}
-      slotProps={{ footer: { count: rows.length } }}
+      slotProps={{
+        footer: { count: rows.filter((row) => row.type === 'MEASURE').length },
+      }}
       sx={DATA_GRID_SX}
       isCellEditable={(params) =>
         !!(permissions.edit && params.colDef.editable)
