@@ -1,26 +1,22 @@
 'use client';
 
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import {
-  Accordion as MuiAccordion,
-  AccordionDetails as MuiAccordionDetails,
   AccordionSummary as MuiAccordionSummary,
   Box,
   Typography,
-  SxProps,
-  Theme,
-  Skeleton,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import {
-  DataGrid,
-  GridColDef,
-  GridRenderCellParams,
-  GridRenderEditCellParams,
-} from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { ChevronDown } from 'react-bootstrap-icons';
-import { getDecimalPrecisionByUnit, isYearMeasure } from '@/utils/measures';
+import {
+  getDecimalPrecisionByUnit,
+  getMeasureValue,
+  getUnitName,
+  isYearMeasure,
+  mapMeasureTemplatesToRows,
+  Section,
+} from '@/utils/measures';
 
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
 import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
@@ -28,102 +24,199 @@ import {
   UpdateMeasureDataPointMutation,
   UpdateMeasureDataPointMutationVariables,
   GetMeasureTemplatesQuery,
+  UnitType,
+  MeasureTemplateFragmentFragment,
 } from '@/types/__generated__/graphql';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import { useSnackbar } from './SnackbarProvider';
-import { additionalMeasures } from '@/constants/measure-overrides';
-import CustomEditComponent from './DatasheetEditor';
+import CustomEditComponent, {
+  Accordion,
+  AccordionDetails,
+  DATA_GRID_SX,
+  useSingleClickEdit,
+} from './DatasheetEditor';
 import { CustomFooter } from './DatasheetEditor';
+import { additionalMeasures } from '@/constants/measure-overrides';
+import { usePermissions } from '@/hooks/use-user-profile';
+import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
+import { LoadingCard } from '@/app/loading';
+import { default as ErrorComponent } from '@/app/error';
+import { captureException } from '@sentry/nextjs';
 
-const Accordion = styled(MuiAccordion)(({ theme }) => ({
-  '&:first-of-type': {
-    borderTopLeftRadius: theme.shape.borderRadius,
-    borderTopRightRadius: theme.shape.borderRadius,
-  },
-  '&:last-of-type': {
-    borderBottomLeftRadius: theme.shape.borderRadius,
-    borderBottomRightRadius: theme.shape.borderRadius,
-  },
-  border: `1px solid ${theme.palette.divider}`,
-  '&:not(:last-child)': {
-    borderBottom: 0,
-  },
-  '&::before': {
-    display: 'none',
-  },
-}));
-
-const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
-  '& .MuiDataGrid-columnHeaderTitle, & .MuiDataGrid-cell': {
-    display: 'flex',
-    fontSize: theme.typography.caption.fontSize,
-    whiteSpace: 'normal',
-    lineHeight: 'normal',
-    py: 1,
-    justifyContent: 'flex-start',
-    textAlign: 'left',
-  },
-  '& .MuiDataGrid-cell': {
-    textAlign: 'left',
-  },
-});
-
-interface KeyMeasure {
-  label: string;
-  question: string;
-}
-
-interface MeasureDataPoint {
+type MeasureDataPoint = {
+  type: 'MEASURE';
   id: string;
-  uuid: string;
-  question: string;
-  baselineYear: string | number;
-  unit: string;
-  [year: number]: string | number;
+  isTitle: false;
+  label: string;
+  baselineValue: number | null;
+  unit: UnitType;
+  originalId: string;
+  depth: number;
+  originalMeasureTemplate: MeasureTemplateFragmentFragment;
+  [year: number]: null | number;
+};
+
+type SectionRow = {
+  type: 'SECTION';
+  isTitle: boolean;
+  id: string;
+  label: string;
+  depth: number;
+};
+
+type Row = MeasureDataPoint | SectionRow;
+
+const currentYear = new Date().getFullYear();
+
+function getRowsFromSection(
+  { childSections = [], measureTemplates = [], ...section }: Section,
+  depth = 0,
+  isRoot: boolean = false,
+  baselineYear: number | null = null
+): Row[] {
+  const sectionRow: SectionRow = {
+    type: 'SECTION',
+    isTitle: true,
+    label: section.name,
+    id: section.id,
+    depth,
+  };
+
+  return [
+    ...(isRoot ? [] : [sectionRow]),
+    ...measureTemplates.flatMap(
+      (measure): MeasureDataPoint => ({
+        isTitle: false,
+        type: 'MEASURE',
+        id: measure.uuid,
+        originalId: measure.id,
+        label: measure.name,
+        baselineValue: getMeasureValue(measure, baselineYear),
+        unit: measure.unit,
+        depth: depth + 1,
+        originalMeasureTemplate: measure,
+        ...measure.measure?.dataPoints.reduce(
+          (acc, dataPoint) => {
+            return {
+              ...acc,
+              [dataPoint.year]: dataPoint.value ?? null,
+            };
+          },
+          {} as Record<number, null | number>
+        ),
+      })
+    ),
+    ...childSections.flatMap((section) =>
+      getRowsFromSection(section, depth + 1, false, baselineYear)
+    ),
+  ];
 }
 
-type MeasureSection = Record<string, MeasureDataPoint[]>;
-
-const keyMeasures: Record<string, KeyMeasure> = additionalMeasures.reduce(
-  (acc: Record<string, KeyMeasure>, measure) => {
-    acc[String(measure.uuid)] = {
-      label: measure.label,
-      question: measure.question,
-    };
-    return acc;
+const EDITABLE_COL: Partial<GridColDef> = {
+  editable: true,
+  renderCell: (params: GridRenderCellParams<Row>) => {
+    return <CustomEditComponent {...params} sx={{ mx: 0, my: 1 }} />;
   },
-  {}
-);
+  renderEditCell: (params: GridRenderCellParams<Row>) => (
+    <CustomEditComponent {...params} />
+  ),
+};
 
-function NumericEditComponent(props: GridRenderEditCellParams) {
-  const { colDef } = props;
-
-  if (colDef.type === 'number') {
-    return <CustomEditComponent {...props} />;
+/**
+ * Filter the measure templates to only include the additional
+ * measures used to calculate historical emissions.
+ */
+function filterMeasureTemplates(
+  data: GetMeasureTemplatesQuery | undefined,
+  additionalMeasures: Array<{ uuid: string }>
+) {
+  if (!data?.framework) {
+    return undefined;
   }
 
-  return null;
+  const dataCollectionMap = new Map(
+    data.framework.dataCollection?.descendants.map((section) => [
+      section.uuid,
+      section,
+    ])
+  );
+
+  const allowedMeasureTemplateUuids = new Set(
+    additionalMeasures.map((m) => m.uuid)
+  );
+
+  function getAncestorUuids(parent: { uuid: string } | undefined): string[] {
+    if (!parent?.uuid) {
+      return [];
+    }
+
+    const nextParent = dataCollectionMap.get(parent.uuid);
+
+    return [parent.uuid, ...getAncestorUuids(nextParent?.parent ?? undefined)];
+  }
+
+  const allowedSectionUuids = data.framework.dataCollection?.descendants
+    .map((section) => {
+      if (
+        section.measureTemplates.some((template) =>
+          allowedMeasureTemplateUuids.has(template.uuid)
+        )
+      ) {
+        return [
+          section.uuid,
+          ...getAncestorUuids(section?.parent ?? undefined),
+        ];
+      }
+
+      return undefined;
+    })
+    .flat()
+    .filter(Boolean);
+
+  const allowedSectionUuidsSet = new Set(
+    allowedSectionUuids?.map((uuid) => uuid) ?? []
+  );
+
+  const filteredSections = data.framework.dataCollection?.descendants
+    .filter((section) => allowedSectionUuidsSet.has(section.uuid))
+    .map((section) => ({
+      ...section,
+      measureTemplates: section.measureTemplates.filter((template) =>
+        allowedMeasureTemplateUuids.has(template.uuid)
+      ),
+    }));
+
+  return filteredSections;
 }
 
-export function AdditionalDatasheetEditor() {
-  const baselineYear =
-    useFrameworkInstanceStore((state) => state.baselineYear) ?? 0;
+type DatasheetSectionProps = {
+  section: Section;
+  baselineYear: number;
+};
+
+function isValidYear(yearString: string) {
+  const yearRegex = /^\d{4}$/;
+  if (!yearRegex.test(yearString)) {
+    return false;
+  }
+
+  const year = parseInt(yearString, 10);
+
+  const currentYear = new Date().getFullYear();
+
+  return year >= 1000 && year <= currentYear;
+}
+
+function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
+  const [rowsFailedToSave, setRowsFailedToSave] = useState<
+    { year: string; uuid: string }[]
+  >([]);
+  const { setNotification } = useSnackbar();
+  const singleClickEditProps = useSingleClickEdit();
+  const permissions = usePermissions();
   const selectedInstanceId = useFrameworkInstanceStore(
     (state) => state.selectedInstance
   );
-
-  const { setNotification } = useSnackbar();
-  const [measureSection, setMeasureSection] = useState<MeasureSection>({});
-  const [expanded, setExpanded] = useState<number | null>(0);
-
-  const { data, loading, error } = useQuery<GetMeasureTemplatesQuery>(
-    GET_MEASURE_TEMPLATES,
-    {
-      variables: { frameworkConfigId: selectedInstanceId },
-    }
-  );
-
-  const currentYear = new Date().getFullYear();
 
   const additionalYears = useMemo(
     () =>
@@ -131,112 +224,92 @@ export function AdditionalDatasheetEditor() {
         { length: currentYear - baselineYear - 1 },
         (_, i) => baselineYear + 1 + i
       ),
-    [currentYear, baselineYear]
+    [baselineYear]
   );
 
-  const [updateMeasureDataPoint, { loading: mutationLoading }] = useMutation<
+  const rows = useMemo(
+    () => getRowsFromSection(section, 0, true, baselineYear),
+    [section, baselineYear]
+  );
+
+  const [updateMeasureDataPoint, { loading }] = useMutation<
     UpdateMeasureDataPointMutation,
     UpdateMeasureDataPointMutationVariables
   >(UPDATE_MEASURE_DATAPOINT);
 
-  useEffect(() => {
-    if (data && data.framework) {
-      const grouped: MeasureSection = {};
-      const allMeasureTemplates = [
-        ...(data.framework.dataCollection?.descendants || []),
-        ...(data.framework.futureAssumptions?.descendants || []),
-      ].flatMap((section) => section.measureTemplates);
-
-      allMeasureTemplates.forEach((measureTemplate) => {
-        const keyDriver = keyMeasures[measureTemplate.uuid];
-        if (keyDriver) {
-          const { label, question } = keyDriver;
-          if (!grouped[label]) grouped[label] = [];
-
-          const baselineDataPoint = measureTemplate.measure?.dataPoints.find(
-            (dp) => dp.year === baselineYear
-          );
-
-          const yearData = additionalYears.reduce(
-            (acc, year) => {
-              const dataPoint = measureTemplate.measure?.dataPoints.find(
-                (dp) => dp.year === year
-              );
-              acc[year] =
-                dataPoint?.value !== undefined && dataPoint?.value !== null
-                  ? dataPoint.value
-                  : '';
-              return acc;
-            },
-            {} as Record<number, string | number>
-          );
-
-          grouped[label].push({
-            id: measureTemplate.id,
-            uuid: measureTemplate.uuid,
-            question,
-            baselineYear: baselineDataPoint?.value ?? 'No Data',
-            unit: measureTemplate.unit?.htmlShort ?? 'No data',
-            ...yearData,
-          });
-        }
-      });
-
-      setMeasureSection(grouped);
-    }
-
-    if (error) {
+  const handleProcessRowUpdateError = useCallback(
+    (error: Error) => {
       setNotification({
-        message: 'Failed to fetch data for Additional Datasheet',
+        message: 'Failed to save, please try again',
         extraDetails: error.message,
         severity: 'error',
       });
-    }
-  }, [data, error, setNotification, baselineYear, additionalYears]);
+    },
+    [setNotification]
+  );
 
   const processRowUpdate = useCallback(
-    async (updatedRow: MeasureDataPoint, originalRow: MeasureDataPoint) => {
+    async (updatedRow: Row, originalRow: Row): Promise<Row> => {
+      if (updatedRow.type !== 'MEASURE' || originalRow.type !== 'MEASURE') {
+        return originalRow;
+      }
+
       const changedYearField = Object.keys(updatedRow).find(
         (key) =>
-          updatedRow[key as keyof MeasureDataPoint] !==
-          originalRow[key as keyof MeasureDataPoint]
+          isValidYear(key) &&
+          updatedRow[key as keyof Row] !== originalRow[key as keyof Row]
       );
 
       if (changedYearField) {
         const year = parseInt(changedYearField, 10);
-
-        const newValue =
-          (
-            updatedRow[changedYearField as keyof MeasureDataPoint] as {
-              floatValue?: number;
-            }
-          )?.floatValue ??
-          parseFloat(
-            updatedRow[changedYearField as keyof MeasureDataPoint] as string
-          );
+        const newValue = updatedRow[changedYearField as keyof Row] ?? null;
 
         if (!selectedInstanceId) {
-          console.error('Instance ID is missing.');
-          return updatedRow;
+          throw new Error('No plan selected');
+        }
+
+        if (typeof newValue !== 'number' && newValue !== null) {
+          // Shouldn't occur, the input should always be a number
+          throw new Error('Invalid value');
         }
 
         try {
           await updateMeasureDataPoint({
             variables: {
               frameworkInstanceId: selectedInstanceId,
-              measureTemplateId: updatedRow.id,
+              measureTemplateId: updatedRow.originalId,
               year,
               value: newValue,
             },
+            refetchQueries() {
+              return [
+                {
+                  query: GET_MEASURE_TEMPLATE,
+                  variables: {
+                    id: updatedRow.originalId,
+                    frameworkConfigId: selectedInstanceId,
+                  },
+                },
+              ];
+            },
           });
+
+          if (rowsFailedToSave.find((row) => row.uuid === updatedRow.id)) {
+            setRowsFailedToSave((rows) => [
+              ...rows.filter((row) => row.uuid !== updatedRow.id),
+            ]);
+          }
         } catch (error) {
-          setNotification({
-            message: 'Failed to save, please try again',
-            extraDetails: (error as Error).message,
-            severity: 'error',
-          });
+          setRowsFailedToSave((rows) => [
+            ...rows,
+            { uuid: updatedRow.id, year: changedYearField },
+          ]);
+
+          // Rethrow the error to be caught by onProcessRowUpdateError and prevent exiting edit mode
           throw error;
         }
+
+        return updatedRow;
       }
       return updatedRow;
     },
@@ -246,34 +319,55 @@ export function AdditionalDatasheetEditor() {
   const COLUMNS: GridColDef[] = useMemo(
     () => [
       {
-        headerName: '',
-        field: 'question',
-        flex: 3,
-        renderCell: (params: GridRenderCellParams) => (
-          <Typography
-            variant="body2"
-            style={{ whiteSpace: 'normal', lineHeight: 1.5 }}
-            sx={{ pr: 5 }}
-          >
-            {params.value}
-          </Typography>
-        ),
+        display: 'flex',
+        headerName: 'Label',
+        field: 'label',
+        flex: 2,
+        renderCell: (params: GridRenderCellParams<Row>) => {
+          const isSmallText = params.row.type === 'SECTION';
+
+          return (
+            <Typography
+              sx={{
+                my: 1,
+                ml: params.row.depth,
+                fontWeight: isSmallText ? 'fontWeightMedium' : undefined,
+              }}
+              variant={isSmallText ? 'caption' : 'body2'}
+            >
+              {params.value}
+            </Typography>
+          );
+        },
+        // Stretch title rows to the full width of the table
+        colSpan: (_: any, row: Row) => {
+          if (row.type === 'SECTION') {
+            return COLUMNS.length;
+          }
+
+          return undefined;
+        },
       },
       {
+        display: 'flex',
         headerName: 'Baseline',
-        field: 'baselineYear',
+        field: 'baselineValue',
         flex: 1,
-        renderCell: (params: GridRenderCellParams) => {
-          const value = params.value as number | null;
-          const row = params.row as MeasureDataPoint;
+        renderCell: (params: GridRenderCellParams<Row>) => {
+          const value = params.value;
+          const row = params.row;
 
-          if (value == null) {
+          if (row.type === 'SECTION') {
             return null;
           }
 
-          const precision = getDecimalPrecisionByUnit(row.unit);
+          if (value == null) {
+            return '-';
+          }
 
-          if (isYearMeasure(row.question, row.unit)) {
+          const precision = getDecimalPrecisionByUnit(row.unit.short);
+
+          if (isYearMeasure(row.label, row.unit.short)) {
             return <Typography variant="body2">{Math.round(value)}</Typography>;
           }
 
@@ -287,8 +381,8 @@ export function AdditionalDatasheetEditor() {
         },
 
         renderHeader: () => (
-          <Box sx={{ textAlign: 'center', lineHeight: 1.5 }}>
-            <Typography variant="body2" component="div">
+          <Box sx={{ lineHeight: 1.5 }}>
+            <Typography variant="body2" component="span">
               {baselineYear}
             </Typography>
             <Typography variant="caption" component="div">
@@ -297,22 +391,30 @@ export function AdditionalDatasheetEditor() {
           </Box>
         ),
       },
-      { headerName: 'Unit', field: 'unit', flex: 1 },
+      {
+        headerName: 'Unit',
+        field: 'unit',
+        flex: 1,
+        display: 'flex',
+        valueFormatter: (value: UnitType, row: MeasureDataPoint) =>
+          row.type === 'MEASURE' ? value.long : undefined,
+        renderCell: (params: GridRenderCellParams<Row>) => {
+          return (
+            <Typography key={'unit'} sx={{ my: 1 }} variant={'caption'}>
+              {getUnitName(params.value.long)}
+            </Typography>
+          );
+        },
+      },
       ...additionalYears.map(
         (year) =>
           ({
             headerName: year.toString(),
             field: year.toString(),
-            editable: true,
             flex: 1,
             type: 'number',
             headerAlign: 'left',
-            renderCell: (params: GridRenderCellParams) => (
-              <NumericEditComponent {...params} sx={{ mx: 0 }} />
-            ),
-            renderEditCell: (params: GridRenderEditCellParams) => (
-              <NumericEditComponent {...params} />
-            ),
+            ...EDITABLE_COL,
           }) as GridColDef
       ),
     ],
@@ -320,55 +422,118 @@ export function AdditionalDatasheetEditor() {
   );
 
   return (
+    <DataGrid
+      {...(permissions.edit ? singleClickEditProps : {})}
+      loading={loading}
+      slots={{ footer: CustomFooter }}
+      slotProps={{
+        footer: { count: rows.filter((row) => row.type === 'MEASURE').length },
+      }}
+      sx={DATA_GRID_SX}
+      isCellEditable={(params) =>
+        !!(permissions.edit && params.colDef.editable)
+      }
+      getRowClassName={(params) => {
+        if (params.row.type === 'SECTION') {
+          const { depth } = params.row;
+          return `row-title ${depth > 1 ? 'row-title--subtitle' : ''}`;
+        }
+
+        return '';
+      }}
+      getCellClassName={(params) =>
+        rowsFailedToSave.find(
+          (row) => row.uuid === params.row.id && row.year === params.field
+        )
+          ? 'cell-error'
+          : ''
+      }
+      getRowHeight={() => 'auto'}
+      getRowId={(row) => row.id}
+      rows={rows}
+      columns={COLUMNS}
+      disableColumnSorting
+      disableColumnFilter
+      disableColumnMenu
+      disableVirtualization
+      processRowUpdate={processRowUpdate}
+      onProcessRowUpdateError={handleProcessRowUpdateError}
+    />
+  );
+}
+
+export function AdditionalDatasheetEditor() {
+  const baselineYear =
+    useFrameworkInstanceStore((state) => state.baselineYear) ?? 0;
+  const selectedInstanceId = useFrameworkInstanceStore(
+    (state) => state.selectedInstance
+  );
+
+  const [expanded, setExpanded] = useState<number | null>(0);
+
+  const { data, loading, error } = useQuery<GetMeasureTemplatesQuery>(
+    GET_MEASURE_TEMPLATES,
+    {
+      variables: { frameworkConfigId: selectedInstanceId },
+    }
+  );
+
+  const filteredData = useMemo(
+    () => filterMeasureTemplates(data, additionalMeasures),
+    [data]
+  );
+
+  const rootSectionUuid = data?.framework?.dataCollection?.uuid;
+
+  const measures = useMemo(
+    () =>
+      mapMeasureTemplatesToRows({
+        uuid: rootSectionUuid ?? '',
+        descendants: filteredData ?? [],
+      }),
+    [filteredData, rootSectionUuid]
+  );
+
+  if (loading) {
+    return <LoadingCard />;
+  }
+
+  if (error) {
+    captureException(error);
+
+    return <ErrorComponent error={error} />;
+  }
+
+  return (
     <div>
-      {loading ? (
-        <Skeleton variant="rectangular" width="100%" height={400} />
-      ) : (
-        Object.entries(measureSection).map(([label, measures], index) => {
-          return (
-            <Accordion
-              key={`${label}-${index}`}
-              expanded={expanded === index}
-              onChange={(_event, isExpanded) =>
-                setExpanded(isExpanded ? index : null)
-              }
+      {measures.map((measure, index) => {
+        return (
+          <Accordion
+            slotProps={{ transition: { unmountOnExit: true } }}
+            key={measure.id}
+            expanded={expanded === index}
+            onChange={(_event, isExpanded) =>
+              setExpanded(isExpanded ? index : null)
+            }
+          >
+            <MuiAccordionSummary
+              expandIcon={<ChevronDown size={18} />}
+              aria-controls={`${measure.id}-content`}
+              id={`${measure.id}-header`}
             >
-              <MuiAccordionSummary
-                expandIcon={<ChevronDown size={18} />}
-                aria-controls={`${label}-content`}
-                id={`${label}-header`}
-              >
-                <Typography>{label}</Typography>
-              </MuiAccordionSummary>
-              <MuiAccordionDetails>
-                <Box sx={{ height: 400 }}>
-                  <DataGrid
-                    rows={measures}
-                    columns={COLUMNS}
-                    sx={DATA_GRID_SX}
-                    loading={loading || mutationLoading}
-                    getRowHeight={() => 'auto'}
-                    disableColumnSorting
-                    disableColumnFilter
-                    disableColumnMenu
-                    processRowUpdate={processRowUpdate}
-                    onProcessRowUpdateError={(error) =>
-                      setNotification({
-                        message: 'Failed to save, please try again',
-                        extraDetails: error.message,
-                        severity: 'error',
-                      })
-                    }
-                    slots={{ footer: CustomFooter }}
-                    slotProps={{ footer: { count: measures.length } }}
-                    hideFooterPagination
-                  />
-                </Box>
-              </MuiAccordionDetails>
-            </Accordion>
-          );
-        })
-      )}
+              <Typography>{measure.name}</Typography>
+            </MuiAccordionSummary>
+            <AccordionDetails>
+              <Box sx={{ height: 400 }}>
+                <DatasheetSection
+                  section={measure}
+                  baselineYear={baselineYear}
+                />
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        );
+      })}
     </div>
   );
 }

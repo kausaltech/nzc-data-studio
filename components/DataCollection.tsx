@@ -88,7 +88,6 @@ const DataCollection = ({ measureTemplates }: Props) => {
           sectors. This phase focuses on gathering raw data to establish a
           baseline for your city&apos;s climate initiatives.
         </Typography>
-        {/* TODO: Fallback component */}
         {!!dataMeasures && (
           <DatasheetEditor sections={dataMeasures} withIndexes />
         )}
@@ -99,7 +98,6 @@ const DataCollection = ({ measureTemplates }: Props) => {
           aligned with the city&apos;s Climate Action Plan, indicating the
           extent to which the city aims to achieve decarbonisation goals.
         </Typography>
-        {/* TODO: Fallback component */}
         {!!assumptionMeasures && (
           <DatasheetEditor sections={assumptionMeasures} />
         )}

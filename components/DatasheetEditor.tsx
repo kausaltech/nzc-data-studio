@@ -60,7 +60,7 @@ import { PriorityBadge } from './PriorityBadge';
 import { useSnackbar } from './SnackbarProvider';
 import { usePermissions } from '@/hooks/use-user-profile';
 
-const Accordion = styled((props: AccordionProps) => (
+export const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
   '&:first-of-type': {
@@ -105,7 +105,7 @@ const rowSummarySx: SxProps<Theme> = (theme) => ({
 });
 
 // Override styles colors of title sections
-const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
+export const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
   '& .MuiDataGrid-columnHeaderTitle': {
     fontSize: theme.typography.caption.fontSize,
     whiteSpace: 'normal',
@@ -233,6 +233,7 @@ export default function CustomEditComponent({
       <NumberInput
         {...commonProps}
         key={key}
+        autoComplete="off"
         fullWidth
         onKeyDown={handleEscape}
         onValueChange={permissions.edit ? handleNumberValueChange : undefined}
@@ -250,6 +251,7 @@ export default function CustomEditComponent({
       <TextField
         {...commonProps}
         key={key}
+        autoComplete="off"
         disabled={!permissions.edit}
         onKeyDown={handleEscape}
         onChange={permissions.edit ? handleValueChange : undefined}
@@ -282,7 +284,7 @@ export default function CustomEditComponent({
 /**
  * Support editable cells with a single click, rather than the MUI default of double clicking
  */
-function useSingleClickEdit() {
+export function useSingleClickEdit() {
   const [cellModesModel, setCellModesModel] = useState<GridCellModesModel>({});
 
   const handleCellClick = useCallback(
@@ -592,7 +594,7 @@ type SumPercentRow = {
 
 type Row = MeasureRow | SectionRow | SumPercentRow;
 
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+export const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
   borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
