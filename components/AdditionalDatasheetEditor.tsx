@@ -36,7 +36,7 @@ import CustomEditComponent, {
   useSingleClickEdit,
 } from './DatasheetEditor';
 import { CustomFooter } from './DatasheetEditor';
-import { additionalMeasures } from '@/constants/measure-overrides';
+import { ADDITIONAL_MEASURES } from '@/constants/measure-overrides';
 import { usePermissions } from '@/hooks/use-user-profile';
 import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
 import { LoadingCard } from '@/app/loading';
@@ -128,7 +128,7 @@ const EDITABLE_COL: Partial<GridColDef> = {
  */
 function filterMeasureTemplates(
   data: GetMeasureTemplatesQuery | undefined,
-  additionalMeasures: Array<{ uuid: string }>
+  allowedMeasureTemplateUuids: Set<string>
 ) {
   if (!data?.framework) {
     return undefined;
@@ -139,10 +139,6 @@ function filterMeasureTemplates(
       section.uuid,
       section,
     ])
-  );
-
-  const allowedMeasureTemplateUuids = new Set(
-    additionalMeasures.map((m) => m.uuid)
   );
 
   function getAncestorUuids(parent: { uuid: string } | undefined): string[] {
@@ -479,7 +475,11 @@ export function AdditionalDatasheetEditor() {
   );
 
   const filteredData = useMemo(
-    () => filterMeasureTemplates(data, additionalMeasures),
+    () =>
+      filterMeasureTemplates(
+        data,
+        new Set(ADDITIONAL_MEASURES.map((measure) => measure.uuid))
+      ),
     [data]
   );
 
