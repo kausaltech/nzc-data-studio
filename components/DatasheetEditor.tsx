@@ -427,13 +427,24 @@ const EDITABLE_COL: Partial<GridColDef> = {
         return null;
       }
 
-      return <TotalPercentage total={params.row.total} />;
+      return (
+        <TotalPercentage
+          key={`${params.field}-${params.row.id}`}
+          total={params.row.total}
+        />
+      );
     }
 
-    return <CustomEditComponent {...params} sx={{ mx: 0, my: 1 }} />;
+    return (
+      <CustomEditComponent
+        key={`${params.field}-${params.row.id}`}
+        {...params}
+        sx={{ mx: 0, my: 1 }}
+      />
+    );
   },
   renderEditCell: (params: GridRenderCellParams<Row>) => (
-    <CustomEditComponent {...params} />
+    <CustomEditComponent key={`${params.field}-${params.id}`} {...params} />
   ),
 };
 
@@ -451,6 +462,7 @@ const GRID_COL_DEFS: GridColDef[] = [
 
       return (
         <Typography
+          key={`label-${params.row.id}`}
           sx={{
             my: 1,
             ml: params.row.depth,
@@ -495,7 +507,11 @@ const GRID_COL_DEFS: GridColDef[] = [
         return null;
       }
       return (
-        <Typography key={'unit'} sx={{ my: 1 }} variant={'caption'}>
+        <Typography
+          key={`unit-${params.row.id}`}
+          sx={{ my: 1 }}
+          variant={'caption'}
+        >
           {getUnitName(params.value.long)}
         </Typography>
       );
@@ -512,6 +528,7 @@ const GRID_COL_DEFS: GridColDef[] = [
       if (params.row.type === 'SUM_PERCENT') {
         return (
           <TotalPercentage
+            key={`fallback-${params.row.id}`}
             overrideIsValid
             total={
               typeof params.row.fallbackTotal === 'number'
@@ -547,7 +564,11 @@ const GRID_COL_DEFS: GridColDef[] = [
     flex: 1,
     renderCell: (params) =>
       !!params.value && (
-        <PriorityBadge variant="badge" priority={params.value} />
+        <PriorityBadge
+          key={`priority-${params.row.id}`}
+          variant="badge"
+          priority={params.value}
+        />
       ),
   },
   {
