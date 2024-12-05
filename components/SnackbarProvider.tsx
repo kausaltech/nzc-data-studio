@@ -16,8 +16,8 @@ import {
 import { Alert, AlertProps, AlertTitle, Snackbar } from '@mui/material';
 
 type Notification = {
-  message: string;
-  extraDetails?: string;
+  message: ReactNode;
+  extraDetails?: ReactNode;
   severity: AlertProps['severity'];
 };
 
@@ -73,11 +73,13 @@ export function SnackbarWrapper() {
       open={isVisible}
       autoHideDuration={10000}
       onClose={handleSnackbarClose}
+      sx={{ mt: 6 }}
     >
       <Alert
+        elevation={2}
         onClose={handleClose}
         severity={notification?.severity}
-        variant="filled"
+        variant="standard"
         sx={{ width: '100%' }}
       >
         {notification?.extraDetails ? (
