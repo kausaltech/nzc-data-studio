@@ -2243,6 +2243,7 @@ export type ProfileQuery = (
 export type CreateNzcFrameworkMutationVariables = Exact<{
   frameworkId: Scalars['ID']['input'];
   baselineYear: Scalars['Int']['input'];
+  targetYear: Scalars['Int']['input'];
   population: Scalars['Int']['input'];
   name: Scalars['String']['input'];
   slug: Scalars['ID']['input'];
@@ -2254,9 +2255,9 @@ export type CreateNzcFrameworkMutationVariables = Exact<{
 export type CreateNzcFrameworkMutation = (
   { createNzcFrameworkConfig?: (
     { ok: boolean, frameworkConfig?: (
-      { id: string, organizationName?: string | null, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null, framework: (
+      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null, framework: (
         { id: string, configs: Array<(
-          { id: string, viewUrl?: string | null, resultsDownloadUrl?: string | null, organizationName?: string | null, baselineYear: number }
+          { id: string, viewUrl?: string | null, resultsDownloadUrl?: string | null, organizationName?: string | null, baselineYear: number, targetYear?: number | null }
           & { __typename?: 'FrameworkConfig' }
         )> }
         & { __typename?: 'Framework' }
