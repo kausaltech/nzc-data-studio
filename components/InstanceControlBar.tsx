@@ -153,29 +153,33 @@ export function InstanceControlBar() {
         firstInstance.organizationName ?? undefined,
         firstInstance.baselineYear
       );
-      setNotification({
-        message: 'Plan selection updated',
-        extraDetails: (
-          <>
-            <Typography
-              variant="body2"
-              component="span"
-              fontWeight="fontWeightBold"
-              color="primary.dark"
-            >
-              {firstInstance.organizationName}
-            </Typography>{' '}
-            has been automatically set as your active plan
-          </>
-        ),
-        severity: 'info',
-      });
+
+      if (configsCount > 1) {
+        setNotification({
+          message: 'Plan selection updated',
+          extraDetails: (
+            <>
+              <Typography
+                variant="body2"
+                component="span"
+                fontWeight="fontWeightBold"
+                color="primary.dark"
+              >
+                {firstInstance.organizationName}
+              </Typography>{' '}
+              has been automatically set as your active plan
+            </>
+          ),
+          severity: 'info',
+        });
+      }
     }
   }, [
     instanceData,
     setInstance,
     isInstanceStoreInitialized,
     selectedInstanceId,
+    setNotification,
   ]);
 
   if (instanceError) {
@@ -195,6 +199,7 @@ export function InstanceControlBar() {
           frameworkId: 'nzc',
           name: data.planName,
           baselineYear: Number(data.baselineYear),
+          targetYear: Number(data.targetYear),
           slug: kebabCase(data.planName),
           population: Number(data.population),
           renewableMix:
