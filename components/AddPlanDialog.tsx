@@ -14,6 +14,7 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
+  Grid,
   IconButton,
   InputLabel,
   MenuItem,
@@ -23,6 +24,7 @@ import {
   Typography,
 } from '@mui/material';
 import { ExclamationTriangle, FileEarmarkPlus, X } from 'react-bootstrap-icons';
+import { NumberFormatValues } from 'react-number-format';
 
 import NumberInput from './NumberInput';
 
@@ -34,9 +36,13 @@ export type NewPlanData = {
   planName: string;
   baselineYear: number | '';
   population: number | '';
+  targetYear: number | '';
   climate: ClimateOption | null;
   renewableElectricityMix: RenewableMixOption | null;
 };
+
+const MIN_TARGET_YEAR = 2030;
+const MAX_TARGET_YEAR = 2050;
 
 const BASELINE_OPTIONS = [2018, 2019, 2020, 2021, 2022, 2023];
 const PANDEMIC_YEARS = [2020, 2021];
@@ -54,6 +60,7 @@ const RENEWABLE_ELECTRICITY_OPTIONS: Option<RenewableMixOption>[] = [
 const INITIAL_DATA: NewPlanData = {
   planName: '',
   baselineYear: '',
+  targetYear: '',
   population: '',
   climate: null,
   renewableElectricityMix: null,
@@ -70,7 +77,19 @@ function getErrorMessage(error: Error) {
   return `Error creating plan: ${error.message}`;
 }
 
-function isValid(data: NewPlanData, onlyStepOne = false): boolean {
+function isTargetYearValid(targetYear: number | ''): boolean {
+  return (
+    typeof targetYear === 'number' &&
+    targetYear >= MIN_TARGET_YEAR &&
+    targetYear <= MAX_TARGET_YEAR
+  );
+}
+
+/**
+ * Check if the form is ready to be submitted or move to the next step.
+ * For targetYear, we validate the value after the user clicks "Next".
+ */
+function isSubmitEnabled(data: NewPlanData, onlyStepOne = false): boolean {
   const validFirstStep = !!(data.planName && data.baselineYear);
 
   if (onlyStepOne) {
@@ -102,6 +121,7 @@ export function AddPlanDialog({
 }: Props) {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<NewPlanData>(INITIAL_DATA);
+  const [targetYearError, setTargetYearError] = useState<string | null>(null);
 
   function resetForm() {
     setStep(0);
@@ -120,10 +140,27 @@ export function AddPlanDialog({
     setData((prev) => ({ ...prev, [field]: value }));
   }
 
+  function handleTargetYearChange(values: NumberFormatValues) {
+    setTargetYearError(null);
+    handleChange('targetYear', values.floatValue ?? '');
+  }
+
+  function handleNext() {
+    if (!isTargetYearValid(data.targetYear)) {
+      setTargetYearError(
+        `Target year must be between ${MIN_TARGET_YEAR} and ${MAX_TARGET_YEAR}`
+      );
+
+      return;
+    }
+
+    setStep(1);
+  }
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (isValid(data)) {
+    if (isSubmitEnabled(data)) {
       onSubmit(data);
     }
   }
@@ -135,7 +172,7 @@ export function AddPlanDialog({
   }, [open]);
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ pb: 1 }}>
         <Stack
           direction="row"
@@ -165,84 +202,105 @@ export function AddPlanDialog({
               </Typography>
             ) : (
               <Typography variant="body1" color="text.secondary">
-                {data.planName} ({data.baselineYear})
+                {data.planName} ({data.baselineYear}-{data.targetYear})
               </Typography>
             )}
           </Box>
 
           {step === 0 ? (
-            <Stack spacing={2}>
-              <TextField
-                required
-                label="Plan or city name"
-                value={data.planName}
-                onChange={(e) => handleChange('planName', e.target.value)}
-              />
-              <FormControl required>
-                <InputLabel id="baseline-select">Baseline year</InputLabel>
-                <Select
-                  label="Baseline year"
-                  labelId="baseline-select"
-                  id="baseline-select-component"
-                  renderValue={(value) => value}
-                  value={data.baselineYear}
-                  onChange={(e) =>
-                    handleChange('baselineYear', Number(e.target.value))
-                  }
-                >
-                  {BASELINE_OPTIONS.map((year) => (
-                    <MenuItem key={year} value={year}>
-                      <Stack spacing={0.5}>
-                        <Typography>{year}</Typography>
-                        {PANDEMIC_YEARS.includes(year) && (
-                          <Stack
-                            sx={{ color: 'text.secondary' }}
-                            direction="row"
-                            spacing={0.5}
-                            justifyContent="center"
-                          >
-                            <Box sx={{ color: 'warning.main' }}>
-                              <ExclamationTriangle size={16} />
-                            </Box>
-                            <Typography variant="caption">
-                              COVID-19 may have skewed data for this year
-                            </Typography>
-                          </Stack>
-                        )}
-                      </Stack>
-                    </MenuItem>
-                  ))}
-                </Select>
-
-                {data.baselineYear &&
-                PANDEMIC_YEARS.includes(data.baselineYear) ? (
-                  <FormHelperText
-                    component={Stack}
-                    sx={{ color: 'warning.dark', pt: 1 }}
-                    direction="row"
-                    spacing={1}
-                    justifyContent="center"
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Plan or city name"
+                  value={data.planName}
+                  onChange={(e) => handleChange('planName', e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="baseline-select">Baseline year</InputLabel>
+                  <Select
+                    label="Baseline year"
+                    labelId="baseline-select"
+                    id="baseline-select-component"
+                    renderValue={(value) => value}
+                    value={data.baselineYear}
+                    onChange={(e) =>
+                      handleChange('baselineYear', Number(e.target.value))
+                    }
                   >
-                    <Box>
-                      <ExclamationTriangle size={18} />
-                    </Box>
-                    <Typography variant="caption">
-                      COVID-19 may have skewed data for this year. Consider
-                      another baseline year for more typical results.
-                    </Typography>
-                  </FormHelperText>
-                ) : (
-                  <FormHelperText>
-                    The baseline year is the reference point for measuring
-                    future emission reductions. You must provide your city's
-                    operational and statistical data for this specific year.
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </Stack>
+                    {BASELINE_OPTIONS.map((year) => (
+                      <MenuItem key={year} value={year}>
+                        <Stack spacing={0.5}>
+                          <Typography>{year}</Typography>
+                          {PANDEMIC_YEARS.includes(year) && (
+                            <Stack
+                              sx={{ color: 'text.secondary' }}
+                              direction="row"
+                              spacing={0.5}
+                              justifyContent="center"
+                            >
+                              <Box sx={{ color: 'warning.main' }}>
+                                <ExclamationTriangle size={16} />
+                              </Box>
+                              <Typography variant="caption">
+                                COVID-19 may have skewed data for this year
+                              </Typography>
+                            </Stack>
+                          )}
+                        </Stack>
+                      </MenuItem>
+                    ))}
+                  </Select>
+
+                  {data.baselineYear &&
+                  PANDEMIC_YEARS.includes(data.baselineYear) ? (
+                    <FormHelperText
+                      component={Stack}
+                      sx={{ color: 'warning.dark', pt: 1 }}
+                      direction="row"
+                      spacing={1}
+                      justifyContent="center"
+                    >
+                      <Box>
+                        <ExclamationTriangle size={18} />
+                      </Box>
+                      <Typography variant="caption">
+                        COVID-19 may have skewed data for this year. Consider
+                        another baseline year for more typical results.
+                      </Typography>
+                    </FormHelperText>
+                  ) : (
+                    <FormHelperText>
+                      The starting point for your city's emissions data
+                    </FormHelperText>
+                  )}
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <NumberInput
+                  fullWidth
+                  label="Target year"
+                  inputProps={{
+                    decimalScale: 0,
+                    thousandSeparator: false,
+                    allowNegative: false,
+                    maxLength: 4,
+                  }}
+                  value={data.targetYear}
+                  error={!!targetYearError}
+                  helperText={
+                    targetYearError ||
+                    `The year your city aims to achieve net zero emissions`
+                  }
+                  onValueChange={handleTargetYearChange}
+                />
+              </Grid>
+            </Grid>
           ) : (
             <Stack spacing={2}>
-              <FormControl required>
+              <FormControl>
                 <FormLabel id="population-input" sx={{ mb: 0.5 }}>
                   <Typography component="span" variant="body2">
                     What's your city's population?
@@ -262,7 +320,7 @@ export function AddPlanDialog({
                 />
               </FormControl>
 
-              <FormControl required>
+              <FormControl>
                 <FormLabel id="climate-select" sx={{ mb: 0.5 }}>
                   <Typography component="span" variant="body2">
                     Is your city warm or cold?
@@ -283,7 +341,7 @@ export function AddPlanDialog({
                 </Select>
               </FormControl>
 
-              <FormControl required>
+              <FormControl>
                 <FormLabel id="electricity-select" sx={{ mb: 0.5 }}>
                   <Typography component="span" variant="body2">
                     What's the percentage of renewable plus nuclear energy in
@@ -330,8 +388,8 @@ export function AddPlanDialog({
               </Button>
               <Button
                 variant="contained"
-                onClick={() => setStep(1)}
-                disabled={!isValid(data, true)}
+                onClick={handleNext}
+                disabled={!isSubmitEnabled(data, true)}
               >
                 Next
               </Button>
@@ -344,7 +402,7 @@ export function AddPlanDialog({
               <Button
                 variant="contained"
                 type="submit"
-                disabled={loading || !isValid(data)}
+                disabled={loading || !isSubmitEnabled(data)}
                 endIcon={
                   loading ? (
                     <CircularProgress color="inherit" size={20} />
