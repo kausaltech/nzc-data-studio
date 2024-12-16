@@ -16,6 +16,7 @@ import {
   Divider,
   ListItemIcon,
   ListItemText,
+  Box,
 } from '@mui/material';
 import { Session } from 'next-auth';
 import { signIn, useSession } from 'next-auth/react';
@@ -32,6 +33,7 @@ import { getUserDisplay } from '@/utils/session';
 import { Logo } from './Logo';
 import SupportModal from './SupportModal';
 import { handleBackendSignOut } from '@/app/actions';
+import { deploymentType } from '@/constants/environment';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
@@ -71,6 +73,7 @@ export function AppBar() {
   const router = useRouter();
 
   const isAuthenticated = session.status === 'authenticated';
+  const isTestEnvironment = deploymentType === 'testing';
 
   const orgSlug = profile?.me?.frameworkRoles?.[0]?.orgSlug;
   const email = profile?.me?.email;
@@ -106,6 +109,23 @@ export function AppBar() {
       <MuiAppBar position="sticky" sx={APP_BAR_STYLES}>
         <Toolbar>
           <Logo />
+
+          {isTestEnvironment && (
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  backgroundColor: 'warning.main',
+                  color: 'warning.contrastText',
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: 1,
+                }}
+              >
+                Test Environment
+              </Typography>
+            </Box>
+          )}
 
           <div>
             <Stack direction="row" spacing={2}>
