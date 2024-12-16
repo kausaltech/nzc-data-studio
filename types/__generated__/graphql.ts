@@ -180,6 +180,7 @@ export type ActionNode = NodeInterface & {
   targetYearGoal?: Maybe<Scalars['Float']['output']>;
   unit?: Maybe<UnitType>;
   upstreamNodes: Array<NodeInterface>;
+  visualizations?: Maybe<Array<VisualizationEntry>>;
 };
 
 
@@ -205,6 +206,7 @@ export type ActionNodeMetricArgs = {
 
 
 export type ActionNodeMetricDimArgs = {
+  includeScenarioKinds?: InputMaybe<Array<ScenarioKind>>;
   withScenarios?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -382,7 +384,12 @@ export type DeleteFrameworkConfigMutation = {
   ok?: Maybe<Scalars['Boolean']['output']>;
 };
 
-/** An enumeration. */
+/** Desired (benificial) direction for the values of the output of a node */
+export enum DesiredOutcome {
+  Decreasing = 'decreasing',
+  Increasing = 'increasing'
+}
+
 export enum DimensionKind {
   Common = 'COMMON',
   Node = 'NODE',
@@ -412,10 +419,10 @@ export type DimensionalMetricType = {
   goals: Array<DimensionalMetricGoalEntry>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
-  normalizedBy?: Maybe<Node>;
+  normalizedBy?: Maybe<NormalizerNodeType>;
   stackable: Scalars['Boolean']['output'];
   unit: UnitType;
-  values: Array<Maybe<Scalars['Float']['output']>>;
+  values: Array<Scalars['Float']['output']>;
   years: Array<Scalars['Int']['output']>;
 };
 
@@ -533,6 +540,7 @@ export type Framework = {
   __typename?: 'Framework';
   config?: Maybe<FrameworkConfig>;
   configs: Array<FrameworkConfig>;
+  defaults: FrameworkDefaultsType;
   description: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   identifier: Scalars['String']['output'];
@@ -629,6 +637,7 @@ export type FrameworkConfig = {
   organizationSlug?: Maybe<Scalars['String']['output']>;
   /** URL for downloading a results file */
   resultsDownloadUrl?: Maybe<Scalars['String']['output']>;
+  targetYear?: Maybe<Scalars['Int']['output']>;
   userPermissions?: Maybe<UserPermissions>;
   userRoles?: Maybe<Array<Scalars['String']['output']>>;
   uuid: Scalars['UUID']['output'];
@@ -645,8 +654,16 @@ export type FrameworkConfigInput = {
   name: Scalars['String']['input'];
   /** Name of the organization. If not set, it will be determined through the user's credentials, if possible. */
   organizationName?: InputMaybe<Scalars['String']['input']>;
+  /** Target year for model. */
+  targetYear?: InputMaybe<Scalars['Int']['input']>;
   /** UUID for the new framework config. If not set, will be generated automatically. */
   uuid?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+export type FrameworkDefaultsType = {
+  __typename?: 'FrameworkDefaultsType';
+  baselineYear: MinMaxDefaultIntType;
+  targetYear: MinMaxDefaultIntType;
 };
 
 /** An enumeration. */
@@ -741,6 +758,12 @@ export type InstanceBasicConfiguration = {
   isProtected: Scalars['Boolean']['output'];
   supportedLanguages: Array<Scalars['String']['output']>;
   themeIdentifier: Scalars['String']['output'];
+};
+
+export type InstanceContext = {
+  hostname?: InputMaybe<Scalars['String']['input']>;
+  identifier?: InputMaybe<Scalars['ID']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type InstanceFeaturesType = {
@@ -1082,6 +1105,13 @@ export type MetricYearlyGoalType = {
   year: Scalars['Int']['output'];
 };
 
+export type MinMaxDefaultIntType = {
+  __typename?: 'MinMaxDefaultIntType';
+  default?: Maybe<Scalars['Int']['output']>;
+  max?: Maybe<Scalars['Int']['output']>;
+  min?: Maybe<Scalars['Int']['output']>;
+};
+
 /** An enumeration. */
 export enum ModelAction {
   Add = 'ADD',
@@ -1162,6 +1192,7 @@ export type MutationsUpdateFrameworkConfigArgs = {
   organizationIdentifier?: InputMaybe<Scalars['String']['input']>;
   organizationName?: InputMaybe<Scalars['String']['input']>;
   organizationSlug?: InputMaybe<Scalars['String']['input']>;
+  targetYear?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -1219,6 +1250,7 @@ export type Node = NodeInterface & {
   unit?: Maybe<UnitType>;
   upstreamActions?: Maybe<Array<ActionNode>>;
   upstreamNodes: Array<NodeInterface>;
+  visualizations?: Maybe<Array<VisualizationEntry>>;
 };
 
 
@@ -1244,6 +1276,7 @@ export type NodeMetricArgs = {
 
 
 export type NodeMetricDimArgs = {
+  includeScenarioKinds?: InputMaybe<Array<ScenarioKind>>;
   withScenarios?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -1295,6 +1328,7 @@ export type NodeInterface = {
   targetYearGoal?: Maybe<Scalars['Float']['output']>;
   unit?: Maybe<UnitType>;
   upstreamNodes: Array<NodeInterface>;
+  visualizations?: Maybe<Array<VisualizationEntry>>;
 };
 
 
@@ -1320,6 +1354,7 @@ export type NodeInterfaceMetricArgs = {
 
 
 export type NodeInterfaceMetricDimArgs = {
+  includeScenarioKinds?: InputMaybe<Array<ScenarioKind>>;
   withScenarios?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -1336,6 +1371,12 @@ export type NormalizationType = {
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
   normalizer: Node;
+};
+
+export type NormalizerNodeType = {
+  __typename?: 'NormalizerNodeType';
+  id: Scalars['String']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type NumberParameterType = ParameterInterface & {
@@ -2109,6 +2150,44 @@ export type UserType = {
   lastName: Scalars['String']['output'];
 };
 
+export type VisualizationEntry = {
+  id: Scalars['ID']['output'];
+  kind: VisualizationKind;
+  label?: Maybe<Scalars['String']['output']>;
+};
+
+export type VisualizationGroup = VisualizationEntry & {
+  __typename?: 'VisualizationGroup';
+  children: Array<VisualizationEntry>;
+  id: Scalars['ID']['output'];
+  kind: VisualizationKind;
+  label?: Maybe<Scalars['String']['output']>;
+};
+
+export enum VisualizationKind {
+  Group = 'group',
+  Node = 'node'
+}
+
+export type VisualizationNodeDimension = {
+  __typename?: 'VisualizationNodeDimension';
+  categories?: Maybe<Array<Scalars['String']['output']>>;
+  flatten?: Maybe<Scalars['Boolean']['output']>;
+  id: Scalars['String']['output'];
+};
+
+export type VisualizationNodeOutput = VisualizationEntry & {
+  __typename?: 'VisualizationNodeOutput';
+  desiredOutcome: DesiredOutcome;
+  dimensions: Array<VisualizationNodeDimension>;
+  id: Scalars['ID']['output'];
+  kind: VisualizationKind;
+  label?: Maybe<Scalars['String']['output']>;
+  metricDim?: Maybe<DimensionalMetricType>;
+  nodeId: Scalars['String']['output'];
+  scenarios?: Maybe<Array<Scalars['String']['output']>>;
+};
+
 export type YearlyValue = {
   __typename?: 'YearlyValue';
   value: Scalars['Float']['output'];
@@ -2164,6 +2243,7 @@ export type ProfileQuery = (
 export type CreateNzcFrameworkMutationVariables = Exact<{
   frameworkId: Scalars['ID']['input'];
   baselineYear: Scalars['Int']['input'];
+  targetYear: Scalars['Int']['input'];
   population: Scalars['Int']['input'];
   name: Scalars['String']['input'];
   slug: Scalars['ID']['input'];
@@ -2175,9 +2255,9 @@ export type CreateNzcFrameworkMutationVariables = Exact<{
 export type CreateNzcFrameworkMutation = (
   { createNzcFrameworkConfig?: (
     { ok: boolean, frameworkConfig?: (
-      { id: string, organizationName?: string | null, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null, framework: (
+      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null, framework: (
         { id: string, configs: Array<(
-          { id: string, viewUrl?: string | null, resultsDownloadUrl?: string | null, organizationName?: string | null, baselineYear: number }
+          { id: string, viewUrl?: string | null, resultsDownloadUrl?: string | null, organizationName?: string | null, baselineYear: number, targetYear?: number | null }
           & { __typename?: 'FrameworkConfig' }
         )> }
         & { __typename?: 'Framework' }
@@ -2210,7 +2290,7 @@ export type GetFrameworkConfigQueryVariables = Exact<{
 export type GetFrameworkConfigQuery = (
   { framework?: (
     { id: string, config?: (
-      { id: string, organizationName?: string | null, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null }
+      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null }
       & { __typename?: 'FrameworkConfig' }
     ) | null }
     & { __typename?: 'Framework' }
@@ -2224,9 +2304,29 @@ export type GetFrameworkConfigsQueryVariables = Exact<{ [key: string]: never; }>
 export type GetFrameworkConfigsQuery = (
   { framework?: (
     { id: string, configs: Array<(
-      { id: string, organizationName?: string | null, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null }
+      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null }
       & { __typename?: 'FrameworkConfig' }
     )> }
+    & { __typename?: 'Framework' }
+  ) | null }
+  & { __typename?: 'Query' }
+);
+
+export type GetFrameworkSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFrameworkSettingsQuery = (
+  { framework?: (
+    { id: string, defaults: (
+      { targetYear: (
+        { min?: number | null, max?: number | null, default?: number | null }
+        & { __typename?: 'MinMaxDefaultIntType' }
+      ), baselineYear: (
+        { min?: number | null, max?: number | null, default?: number | null }
+        & { __typename?: 'MinMaxDefaultIntType' }
+      ) }
+      & { __typename?: 'FrameworkDefaultsType' }
+    ) }
     & { __typename?: 'Framework' }
   ) | null }
   & { __typename?: 'Query' }

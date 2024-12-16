@@ -4,6 +4,7 @@ export const CREATE_NZC_FRAMEWORK_CONFIG = gql`
   mutation CreateNZCFramework(
     $frameworkId: ID!
     $baselineYear: Int!
+    $targetYear: Int!
     $population: Int!
     $name: String!
     $slug: ID!
@@ -14,6 +15,7 @@ export const CREATE_NZC_FRAMEWORK_CONFIG = gql`
       configInput: {
         frameworkId: $frameworkId
         baselineYear: $baselineYear
+        targetYear: $targetYear
         name: $name
         instanceIdentifier: $slug
       }
@@ -28,6 +30,7 @@ export const CREATE_NZC_FRAMEWORK_CONFIG = gql`
         id
         organizationName
         baselineYear
+        targetYear
         viewUrl
         resultsDownloadUrl
         # Return the updated full list of framework configs to automatically update the cache
@@ -39,6 +42,7 @@ export const CREATE_NZC_FRAMEWORK_CONFIG = gql`
             resultsDownloadUrl
             organizationName
             baselineYear
+            targetYear
           }
         }
       }

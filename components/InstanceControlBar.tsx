@@ -16,6 +16,7 @@ import {
   Link as MuiLink,
   SxProps,
   Theme,
+  Typography,
 } from '@mui/material';
 import kebabCase from 'lodash/kebabCase';
 
@@ -34,6 +35,7 @@ import { AddPlanDialog, NewPlanData } from './AddPlanDialog';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { areHistoricalYearsAvailable } from '@/utils/historical-data';
+import { useSnackbar } from './SnackbarProvider';
 
 function InstanceSelector({
   selectedInstanceId,
@@ -44,6 +46,10 @@ function InstanceSelector({
 }) {
   const setInstance = useFrameworkInstanceStore((state) => state.setInstance);
 
+  const sortedInstances = [...instances].sort(
+    (a, b) => parseInt(a.id) - parseInt(b.id)
+  );
+
   function handleChange(e: SelectChangeEvent<string>) {
     const instance = instances.find(
       (instance) => instance.id === e.target.value
@@ -53,7 +59,8 @@ function InstanceSelector({
       setInstance(
         instance.id,
         instance.organizationName ?? undefined,
-        instance.baselineYear
+        instance.baselineYear,
+        instance.targetYear ?? undefined
       );
     }
   }
@@ -70,7 +77,7 @@ function InstanceSelector({
         label="City plan"
         onChange={handleChange}
       >
-        {instances.map((instance) => (
+        {sortedInstances.map((instance) => (
           <MenuItem key={instance.id} value={instance.id}>
             {instance.organizationName}
           </MenuItem>
@@ -101,6 +108,7 @@ function getNavStyles(isActive: boolean): SxProps<Theme> {
 export function InstanceControlBar() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  const { setNotification } = useSnackbar();
   const permissions = usePermissions();
   const { data: instanceData, error: instanceError } =
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
@@ -118,24 +126,54 @@ export function InstanceControlBar() {
 
   const pathname = usePathname();
 
+  /**
+   * Set the first instance as the active plan if no instance is selected
+   */
   useEffect(() => {
-    if (
-      (isInstanceStoreInitialized &&
-        !selectedInstanceId &&
-        (instanceData.framework?.configs.length ?? 0 > 0)) ||
-      (isInstanceStoreInitialized &&
-        !instanceData.framework?.configs.find(
-          (config) => config.id === selectedInstanceId
-        ))
-    ) {
-      const instance = instanceData.framework?.configs[0];
+    const configsCount = instanceData.framework?.configs.length ?? 0;
 
-      if (instance) {
-        setInstance(
-          instance.id,
-          instance.organizationName ?? undefined,
-          instance.baselineYear
-        );
+    if (!isInstanceStoreInitialized || configsCount === 0) {
+      return;
+    }
+
+    const isSelectedInstanceValid =
+      selectedInstanceId &&
+      instanceData.framework?.configs.find(
+        (config) => config.id === selectedInstanceId
+      );
+
+    if (isSelectedInstanceValid) {
+      return;
+    }
+
+    const firstInstance = instanceData.framework?.configs[0];
+
+    if (firstInstance) {
+      setInstance(
+        firstInstance.id,
+        firstInstance.organizationName ?? undefined,
+        firstInstance.baselineYear,
+        firstInstance.targetYear ?? undefined
+      );
+
+      if (configsCount > 1) {
+        setNotification({
+          message: 'Plan selection updated',
+          extraDetails: (
+            <>
+              <Typography
+                variant="body2"
+                component="span"
+                fontWeight="fontWeightBold"
+                color="primary.dark"
+              >
+                {firstInstance.organizationName}
+              </Typography>{' '}
+              has been automatically set as your active plan
+            </>
+          ),
+          severity: 'info',
+        });
       }
     }
   }, [
@@ -143,6 +181,7 @@ export function InstanceControlBar() {
     setInstance,
     isInstanceStoreInitialized,
     selectedInstanceId,
+    setNotification,
   ]);
 
   if (instanceError) {
@@ -162,6 +201,7 @@ export function InstanceControlBar() {
           frameworkId: 'nzc',
           name: data.planName,
           baselineYear: Number(data.baselineYear),
+          targetYear: Number(data.targetYear),
           slug: kebabCase(data.planName),
           population: Number(data.population),
           renewableMix:
@@ -177,7 +217,8 @@ export function InstanceControlBar() {
         setInstance(
           instance.id,
           instance.organizationName ?? undefined,
-          instance.baselineYear
+          instance.baselineYear,
+          instance.targetYear ?? undefined
         );
       }
 
@@ -244,7 +285,7 @@ export function InstanceControlBar() {
                 instances={instanceConfigs}
               />
             )}
-            {permissions.create && (
+            {!permissions.isLoading && permissions.create && (
               <Button
                 onClick={() => setIsAddModalOpen(true)}
                 variant="outlined"

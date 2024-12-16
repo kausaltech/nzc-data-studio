@@ -8,6 +8,7 @@ import { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
 import { mapMeasureTemplatesToRows } from '@/utils/measures';
 import useStore from '@/store/use-store';
 import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
+import { useDefaultTargetYear } from '@/hooks/use-framework-settings';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -49,6 +50,12 @@ const DataCollection = ({ measureTemplates }: Props) => {
     useFrameworkInstanceStore,
     (state) => state.baselineYear
   );
+  const { data: targetYear } = useStore(
+    useFrameworkInstanceStore,
+    (state) => state.targetYear
+  );
+
+  const defaultTargetYear = useDefaultTargetYear();
 
   const handleChange = (event: React.SyntheticEvent, newSelected: TTab) => {
     setSelectedTab(newSelected);
@@ -76,7 +83,7 @@ const DataCollection = ({ measureTemplates }: Props) => {
             {...a11yProps('data')}
           />
           <Tab
-            label="Future assumptions (2030)"
+            label={`Future assumptions (${targetYear || defaultTargetYear})`}
             value="assumptions"
             {...a11yProps('assumptions')}
           />

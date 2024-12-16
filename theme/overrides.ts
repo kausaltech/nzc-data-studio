@@ -202,5 +202,24 @@ export function getOverrides(theme: Theme): ThemeOptions['components'] {
         },
       },
     },
+    MuiAlert: {
+      styleOverrides: {
+        standardError: {
+          borderWidth: 2,
+          borderStyle: 'solid',
+          borderColor: theme.palette.error.main,
+        },
+        standardWarning: {
+          borderWidth: 2,
+          borderStyle: 'solid',
+          borderColor: theme.palette.warning.main,
+        },
+        standardInfo: {
+          borderWidth: 2,
+          borderStyle: 'solid',
+          borderColor: theme.palette.info.main,
+        },
+      },
+    },
   };
 }
