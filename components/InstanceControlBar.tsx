@@ -59,7 +59,8 @@ function InstanceSelector({
       setInstance(
         instance.id,
         instance.organizationName ?? undefined,
-        instance.baselineYear
+        instance.baselineYear,
+        instance.targetYear ?? undefined
       );
     }
   }
@@ -151,7 +152,8 @@ export function InstanceControlBar() {
       setInstance(
         firstInstance.id,
         firstInstance.organizationName ?? undefined,
-        firstInstance.baselineYear
+        firstInstance.baselineYear,
+        firstInstance.targetYear ?? undefined
       );
 
       if (configsCount > 1) {
@@ -215,7 +217,8 @@ export function InstanceControlBar() {
         setInstance(
           instance.id,
           instance.organizationName ?? undefined,
-          instance.baselineYear
+          instance.baselineYear,
+          instance.targetYear ?? undefined
         );
       }
 

@@ -2290,7 +2290,7 @@ export type GetFrameworkConfigQueryVariables = Exact<{
 export type GetFrameworkConfigQuery = (
   { framework?: (
     { id: string, config?: (
-      { id: string, organizationName?: string | null, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null }
+      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null }
       & { __typename?: 'FrameworkConfig' }
     ) | null }
     & { __typename?: 'Framework' }
@@ -2304,7 +2304,7 @@ export type GetFrameworkConfigsQueryVariables = Exact<{ [key: string]: never; }>
 export type GetFrameworkConfigsQuery = (
   { framework?: (
     { id: string, configs: Array<(
-      { id: string, organizationName?: string | null, baselineYear: number, viewUrl?: string | null, resultsDownloadUrl?: string | null }
+      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null }
       & { __typename?: 'FrameworkConfig' }
     )> }
     & { __typename?: 'Framework' }

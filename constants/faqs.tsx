@@ -78,7 +78,7 @@ export const FAQS = [
     title:
       'The model calculates carbon and costs and benefits for four major sectors (Transportation, Buildings & Heating, Electricity, and Waste).  How does it handle emissions outside of those four main sectors?',
     description:
-      'All emissions that do not fall into the four main sectors are grouped together in a sector called “Other”.  This sector includes emissions from IPPU and AFOLU among other emissions.  The model does not calculate the carbon reductions or costs and benefits in the “Other” sector.  There is an input on the Future Assumptions tab where you can say how much you believe this “Other” sector will decline in emissions through 2030 so these emissions can be included in your planning.',
+      'All emissions that do not fall into the four main sectors are grouped together in a sector called “Other”.  This sector includes emissions from IPPU and AFOLU among other emissions.  The model does not calculate the carbon reductions or costs and benefits in the “Other” sector.  There is an input on the Future Assumptions tab where you can say how much you believe this “Other” sector will decline in emissions through the target year so these emissions can be included in your planning.',
   },
 
   {
@@ -143,9 +143,9 @@ export const FAQS = [
 
   {
     title:
-      'The model calculates the carbon reduction from the 2030 Business as Usual (BAU) case.  How is the BAU case calculated?',
+      'The model calculates the carbon reduction from the Business as Usual (BAU) case.  How is the BAU case calculated?',
     description:
-      'The BAU 2030 case is designed to represent what would have happened if you had not implemented your Climate Action Plan.  It increases carbon over time based on population growth and reduces carbon over time through the natural replacement of worn-out equipment (cars, trucks, heating etc.) with newer more efficient fossil fuel equipment.',
+      'The BAU case is designed to represent what would have happened if you had not implemented your Climate Action Plan.  It increases carbon over time based on population growth and reduces carbon over time through the natural replacement of worn-out equipment (cars, trucks, heating etc.) with newer more efficient fossil fuel equipment.',
   },
 
   {

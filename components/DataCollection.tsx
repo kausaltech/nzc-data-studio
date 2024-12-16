@@ -49,6 +49,10 @@ const DataCollection = ({ measureTemplates }: Props) => {
     useFrameworkInstanceStore,
     (state) => state.baselineYear
   );
+  const { data: targetYear } = useStore(
+    useFrameworkInstanceStore,
+    (state) => state.targetYear
+  );
 
   const handleChange = (event: React.SyntheticEvent, newSelected: TTab) => {
     setSelectedTab(newSelected);
@@ -76,7 +80,7 @@ const DataCollection = ({ measureTemplates }: Props) => {
             {...a11yProps('data')}
           />
           <Tab
-            label="Future assumptions (2030)"
+            label={`Future assumptions (${targetYear})`}
             value="assumptions"
             {...a11yProps('assumptions')}
           />

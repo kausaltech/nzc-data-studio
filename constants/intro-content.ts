@@ -14,7 +14,7 @@ export const benefits = [
   {
     icon: '/images/illustrations/undraw_navigator_a479.svg',
     title: 'Decarbonisation Roadmap',
-    text: "NetZeroPlanner generates a customised roadmap for your city's journey to climate neutrality by 2030.",
+    text: "NetZeroPlanner generates a customised roadmap for your city's journey to climate neutrality.",
   },
   {
     icon: '/images/illustrations/undraw_term_sheet_re_ju7s.svg',

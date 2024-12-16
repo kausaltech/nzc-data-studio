@@ -5,10 +5,12 @@ type Store = {
   selectedInstance: string | null;
   name: string | null;
   baselineYear: number | null;
+  targetYear: number | null;
   setInstance: (
     instanceId: string | null,
     name?: string,
-    baselineYear?: number
+    baselineYear?: number,
+    targetYear?: number
   ) => void;
 };
 
@@ -18,11 +20,13 @@ export const useFrameworkInstanceStore = create(
       selectedInstance: null,
       name: null,
       baselineYear: null,
-      setInstance(instanceId, name, baselineYear) {
+      targetYear: null,
+      setInstance(instanceId, name, baselineYear, targetYear) {
         set({
           selectedInstance: instanceId,
           name: name ?? null,
           baselineYear: baselineYear ?? null,
+          targetYear: targetYear ?? null,
         });
       },
     }),
