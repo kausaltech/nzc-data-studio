@@ -1,7 +1,7 @@
 import './globals.css';
 
 import { ReactNode } from 'react';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 
 import { Box, Container } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
@@ -17,6 +17,8 @@ import { SnackbarProvider } from '@/components/SnackbarProvider';
 import { auth } from '@/config/auth';
 import { ThemeProvider } from '@/theme';
 import { envMetadata } from '@/utils/environment';
+import { SelectedPlanProvider } from '@/components/providers/SelectedPlanProvider';
+import { PLAN_COOKIE_KEY } from '@/constants/plan';
 
 export const metadata: Metadata = {
   title: 'NetZeroPlanner',
@@ -45,6 +47,9 @@ export default async function RootLayout({ children }: Props) {
   } else {
     Sentry.setUser(null);
   }
+
+  const cookieStore = await cookies();
+  const selectedPlan = cookieStore.get(PLAN_COOKIE_KEY);
   const headersList = headers();
   /**
    * Extract the preferred language from the 'accept-language' header. Languages are split by
@@ -66,33 +71,35 @@ export default async function RootLayout({ children }: Props) {
         }}
       >
         <PreferredLocaleProvider locale={preferredLanguage}>
-          <AuthProvider session={session}>
-            <ApolloWrapper>
-              <AppRouterCacheProvider>
-                <ThemeProvider>
-                  <SnackbarProvider>
-                    <AppBar />
-                    <Box component="main" sx={{ my: 4 }}>
-                      {children}
-                    </Box>
-                    <Box
-                      component="footer"
-                      sx={{
-                        backgroundColor: 'background.dark',
-                        color: 'primary.contrastText',
-                        py: 4,
-                        mt: 'auto',
-                      }}
-                    >
-                      <Container>
-                        <Logo variant="light" size="lg" />
-                      </Container>
-                    </Box>
-                  </SnackbarProvider>
-                </ThemeProvider>
-              </AppRouterCacheProvider>
-            </ApolloWrapper>
-          </AuthProvider>
+          <SelectedPlanProvider plan={selectedPlan?.value}>
+            <AuthProvider session={session}>
+              <ApolloWrapper>
+                <AppRouterCacheProvider>
+                  <ThemeProvider>
+                    <SnackbarProvider>
+                      <AppBar />
+                      <Box component="main" sx={{ my: 4 }}>
+                        {children}
+                      </Box>
+                      <Box
+                        component="footer"
+                        sx={{
+                          backgroundColor: 'background.dark',
+                          color: 'primary.contrastText',
+                          py: 4,
+                          mt: 'auto',
+                        }}
+                      >
+                        <Container>
+                          <Logo variant="light" size="lg" />
+                        </Container>
+                      </Box>
+                    </SnackbarProvider>
+                  </ThemeProvider>
+                </AppRouterCacheProvider>
+              </ApolloWrapper>
+            </AuthProvider>
+          </SelectedPlanProvider>
         </PreferredLocaleProvider>
       </Box>
     </html>

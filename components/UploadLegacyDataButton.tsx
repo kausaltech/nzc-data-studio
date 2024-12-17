@@ -28,8 +28,7 @@ import {
   UpdateMeasureDataPointMutation,
   UpdateMeasureDataPointMutationVariables,
 } from '@/types/__generated__/graphql';
-import useStore from '@/store/use-store';
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
+import { useSelectedPlanId } from './providers/SelectedPlanProvider';
 
 type Props = {
   measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
@@ -84,10 +83,7 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
     UpdateMeasureDataPointMutationVariables
   >(UPDATE_MEASURE_DATAPOINT);
 
-  const { data: selectedInstanceId } = useStore(
-    useFrameworkInstanceStore,
-    (state) => state.selectedInstance
-  );
+  const { selectedPlanId } = useSelectedPlanId();
 
   function handleClickUpload() {
     setModalOpen(true);
@@ -130,13 +126,13 @@ export function UploadLegacyDataButton({ measureTemplates }: Props) {
             measureTemplates
           );
 
-          if (!selectedInstanceId) {
+          if (!selectedPlanId) {
             throw new Error('No plan selected');
           }
 
           await updateMeasureDataPoint({
             variables: {
-              frameworkInstanceId: selectedInstanceId,
+              frameworkInstanceId: selectedPlanId,
               measureTemplateId: id,
               internalNotes: measure.comment || '',
               value: measure.value,

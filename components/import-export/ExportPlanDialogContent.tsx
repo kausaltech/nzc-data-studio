@@ -13,13 +13,12 @@ import {
 import { kebabCase } from 'lodash';
 import { ChevronDown, Download } from 'react-bootstrap-icons';
 
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
-import useStore from '@/store/use-store';
 import { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
 import {
   getMeasuresFromMeasureTemplates,
   MeasureForDownload,
 } from '@/utils/measures';
+import { useSuspenseSelectedPlanConfig } from '../providers/SelectedPlanProvider';
 
 type ExportedData = {
   version: number;
@@ -50,15 +49,9 @@ type Props = {
 };
 
 export function ExportPlanDialogContent({ measureTemplates, onClose }: Props) {
-  const { data: planName } = useStore(
-    useFrameworkInstanceStore,
-    (state) => state.name
-  );
-
-  const { data: baselineYear } = useStore(
-    useFrameworkInstanceStore,
-    (state) => state.baselineYear
-  );
+  const plan = useSuspenseSelectedPlanConfig();
+  const planName = plan?.organizationName;
+  const baselineYear = plan?.baselineYear;
 
   function handleDownload() {
     if (!planName) {

@@ -19,8 +19,6 @@ import DataCollection from '@/components/DataCollection';
 import { ImportExportActions } from '@/components/import-export/ImportExportActions';
 import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
-import useStore from '@/store/use-store';
 import type {
   GetFrameworkConfigsQuery,
   GetMeasureTemplatesQuery,
@@ -30,6 +28,7 @@ import Loading, { LoadingCard } from '../loading';
 import IntroSection from '@/components/IntroSection';
 import { benefits } from '@/constants/intro-content';
 import { usePermissions } from '@/hooks/use-user-profile';
+import { useSuspenseSelectedPlanConfig } from '@/components/providers/SelectedPlanProvider';
 
 function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   const { data, error, loading } = useQuery<
@@ -110,19 +109,11 @@ function DataCollectionContent({ instance }: { instance: string }) {
 }
 
 export default function DashboardContent() {
-  const {
-    data: selectedInstanceId,
-    isDataInitialized: isInstanceStoreInitialized,
-  } = useStore(useFrameworkInstanceStore, (state) => state.selectedInstance);
-
   const { data: instanceData, error: instanceError } =
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
 
   const frameworkConfigs = instanceData.framework?.configs;
-  const selectedInstance = frameworkConfigs
-    ? (frameworkConfigs.find((config) => config.id === selectedInstanceId) ??
-      null)
-    : null;
+  const plan = useSuspenseSelectedPlanConfig();
 
   if (frameworkConfigs?.length === 0) {
     return (
@@ -151,13 +142,13 @@ export default function DashboardContent() {
     );
   }
 
-  if (!isInstanceStoreInitialized || !selectedInstanceId) {
+  if (!plan) {
     return <Loading />;
   }
 
   if (!instanceData || instanceError) {
     // TODO: Return error page
-    console.log(`Error - Selected instance: ${selectedInstanceId}`);
+    console.log(`Error - Selected instance: ${plan.id}`);
     if (instanceError) Sentry.captureException(instanceError);
     return <h1>Something went wrong: Instance not found</h1>;
   }
@@ -166,7 +157,7 @@ export default function DashboardContent() {
     <Fade in>
       <Container>
         <Stack spacing={4}>
-          {!selectedInstance ? (
+          {!plan ? (
             <Skeleton variant="rounded" width="100%">
               <Card>
                 <CardContent>
@@ -186,35 +177,35 @@ export default function DashboardContent() {
                       justifyContent="space-between"
                     >
                       <Typography variant="h1">
-                        {selectedInstance.organizationName}
+                        {plan.organizationName}
                       </Typography>
                     </Stack>
                   </div>
 
-                  {selectedInstanceId ? (
-                    <CompletionScoreCardWrapper instance={selectedInstanceId} />
+                  {plan ? (
+                    <CompletionScoreCardWrapper instance={plan.id} />
                   ) : (
                     <Skeleton />
                   )}
 
                   <Stack direction="row" spacing={2}>
-                    {!!selectedInstance.viewUrl && (
+                    {!!plan.viewUrl && (
                       <Button
                         variant="outlined"
                         rel="noopener noreferrer"
                         target="_blank"
                         endIcon={<BoxArrowUpRight size={16} />}
-                        href={selectedInstance.viewUrl}
+                        href={plan.viewUrl}
                       >
                         View Outcomes Dashboard
                       </Button>
                     )}
 
-                    {selectedInstance.resultsDownloadUrl && (
+                    {plan.resultsDownloadUrl && (
                       <Button
                         variant="outlined"
                         endIcon={<Download size={18} />}
-                        href={selectedInstance?.resultsDownloadUrl}
+                        href={plan.resultsDownloadUrl}
                         download
                       >
                         Export Outcomes as Excel
@@ -226,8 +217,8 @@ export default function DashboardContent() {
             </Card>
           )}
 
-          {selectedInstanceId ? (
-            <DataCollectionContent instance={selectedInstanceId} />
+          {plan ? (
+            <DataCollectionContent instance={plan.id} />
           ) : (
             <LoadingCard />
           )}
