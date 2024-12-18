@@ -44,6 +44,7 @@ export const GET_MEASURE_TEMPLATES = gql`
     uuid
     priority
     name
+    yearBound
     unit {
       htmlShort
       htmlLong
