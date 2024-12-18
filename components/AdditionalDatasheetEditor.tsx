@@ -462,6 +462,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
 export function AdditionalDatasheetEditor() {
   const plan = useSuspenseSelectedPlanConfig();
   const baselineYear = plan?.baselineYear ?? 0;
+  const targetYear = plan?.targetYear ?? null;
   const [expanded, setExpanded] = useState<number | null>(0);
 
   const { data, loading, error } = useQuery<GetMeasureTemplatesQuery>(
@@ -484,10 +485,14 @@ export function AdditionalDatasheetEditor() {
 
   const measures = useMemo(
     () =>
-      mapMeasureTemplatesToRows({
-        uuid: rootSectionUuid ?? '',
-        descendants: filteredData ?? [],
-      }),
+      mapMeasureTemplatesToRows(
+        {
+          uuid: rootSectionUuid ?? '',
+          descendants: filteredData ?? [],
+        },
+        baselineYear,
+        targetYear
+      ),
     [filteredData, rootSectionUuid]
   );
 

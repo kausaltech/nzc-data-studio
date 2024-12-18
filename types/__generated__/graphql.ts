@@ -1034,6 +1034,7 @@ export type MeasureTemplate = {
   userPermissions?: Maybe<UserPermissions>;
   userRoles?: Maybe<Array<Scalars['String']['output']>>;
   uuid: Scalars['UUID']['output'];
+  yearBound: Scalars['Boolean']['output'];
 };
 
 
@@ -2368,7 +2369,7 @@ export type GetMeasureTemplatesQuery = (
           { uuid: any }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
-          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, yearBound: boolean, defaultValueSource: string, unit: (
             { htmlShort: string, htmlLong: string, short: string, long: string }
             & { __typename?: 'UnitType' }
           ), defaultDataPoints: Array<(
@@ -2392,7 +2393,7 @@ export type GetMeasureTemplatesQuery = (
           { uuid: any }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
-          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, yearBound: boolean, defaultValueSource: string, unit: (
             { htmlShort: string, htmlLong: string, short: string, long: string }
             & { __typename?: 'UnitType' }
           ), defaultDataPoints: Array<(
@@ -2425,7 +2426,7 @@ export type MainSectionMeasuresFragment = (
       { uuid: any }
       & { __typename?: 'Section' }
     ) | null, measureTemplates: Array<(
-      { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+      { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, yearBound: boolean, defaultValueSource: string, unit: (
         { htmlShort: string, htmlLong: string, short: string, long: string }
         & { __typename?: 'UnitType' }
       ), defaultDataPoints: Array<(
@@ -2450,7 +2451,7 @@ export type SectionFragmentFragment = (
     { uuid: any }
     & { __typename?: 'Section' }
   ) | null, measureTemplates: Array<(
-    { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+    { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, yearBound: boolean, defaultValueSource: string, unit: (
       { htmlShort: string, htmlLong: string, short: string, long: string }
       & { __typename?: 'UnitType' }
     ), defaultDataPoints: Array<(
@@ -2469,7 +2470,7 @@ export type SectionFragmentFragment = (
 );
 
 export type MeasureTemplateFragmentFragment = (
-  { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, defaultValueSource: string, unit: (
+  { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, yearBound: boolean, defaultValueSource: string, unit: (
     { htmlShort: string, htmlLong: string, short: string, long: string }
     & { __typename?: 'UnitType' }
   ), defaultDataPoints: Array<(
