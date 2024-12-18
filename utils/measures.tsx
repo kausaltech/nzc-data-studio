@@ -53,7 +53,7 @@ function filterYearBoundMeasureTemplate(
     return false;
   }
 
-  return numericName >= baselineYear && numericName <= targetYear;
+  return numericName > baselineYear && numericName <= targetYear;
 }
 
 export function mapMeasureTemplatesToRows(
