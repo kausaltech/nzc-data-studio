@@ -9,16 +9,17 @@ import {
   Tooltip,
 } from '@mui/material';
 import { QuestionCircle } from 'react-bootstrap-icons';
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import Tip from '@/components/Tip';
 import { AdditionalDatasheetEditor } from '@/components/AdditionalDatasheetEditor';
 import { useRouter } from 'next/navigation';
 import { captureException } from '@sentry/nextjs';
 import { areHistoricalYearsAvailable } from '@/utils/historical-data';
+import { useSuspenseSelectedPlanConfig } from '@/components/providers/SelectedPlanProvider';
 
 export default function AdditionalDataPage() {
   const router = useRouter();
-  const baselineYear = useFrameworkInstanceStore((state) => state.baselineYear);
+  const plan = useSuspenseSelectedPlanConfig();
+  const baselineYear = plan?.baselineYear;
 
   // Redirect to home if the baseline year is not set or if the historical data is not available
   if (baselineYear == null) {

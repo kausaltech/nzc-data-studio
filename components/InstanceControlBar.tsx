@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { useMutation, useSuspenseQuery } from '@apollo/client';
 import {
@@ -16,15 +16,12 @@ import {
   Link as MuiLink,
   SxProps,
   Theme,
-  Typography,
 } from '@mui/material';
 import kebabCase from 'lodash/kebabCase';
 
 import { usePermissions } from '@/hooks/use-user-profile';
 import { CREATE_NZC_FRAMEWORK_CONFIG } from '@/queries/framework/create-framework-config';
 import { GET_FRAMEWORK_CONFIGS } from '@/queries/framework/get-framework-config';
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
-import useStore from '@/store/use-store';
 import {
   CreateNzcFrameworkMutation,
   CreateNzcFrameworkMutationVariables,
@@ -35,7 +32,10 @@ import { AddPlanDialog, NewPlanData } from './AddPlanDialog';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { areHistoricalYearsAvailable } from '@/utils/historical-data';
-import { useSnackbar } from './SnackbarProvider';
+import {
+  useSelectedPlanId,
+  useSuspenseSelectedPlanConfig,
+} from './providers/SelectedPlanProvider';
 
 function InstanceSelector({
   selectedInstanceId,
@@ -44,7 +44,7 @@ function InstanceSelector({
   selectedInstanceId: string;
   instances: NonNullable<GetFrameworkConfigsQuery['framework']>['configs'];
 }) {
-  const setInstance = useFrameworkInstanceStore((state) => state.setInstance);
+  const { setSelectedPlanId } = useSelectedPlanId();
 
   const sortedInstances = [...instances].sort(
     (a, b) => parseInt(a.id) - parseInt(b.id)
@@ -56,12 +56,7 @@ function InstanceSelector({
     );
 
     if (instance) {
-      setInstance(
-        instance.id,
-        instance.organizationName ?? undefined,
-        instance.baselineYear,
-        instance.targetYear ?? undefined
-      );
+      setSelectedPlanId(instance.id);
     }
   }
 
@@ -108,7 +103,6 @@ function getNavStyles(isActive: boolean): SxProps<Theme> {
 export function InstanceControlBar() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const { setNotification } = useSnackbar();
   const permissions = usePermissions();
   const { data: instanceData, error: instanceError } =
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
@@ -118,71 +112,10 @@ export function InstanceControlBar() {
     CreateNzcFrameworkMutationVariables
   >(CREATE_NZC_FRAMEWORK_CONFIG);
 
-  const {
-    data: selectedInstanceId,
-    isDataInitialized: isInstanceStoreInitialized,
-  } = useStore(useFrameworkInstanceStore, (state) => state.selectedInstance);
-  const setInstance = useFrameworkInstanceStore((state) => state.setInstance);
+  const { setSelectedPlanId } = useSelectedPlanId();
+  const plan = useSuspenseSelectedPlanConfig();
 
   const pathname = usePathname();
-
-  /**
-   * Set the first instance as the active plan if no instance is selected
-   */
-  useEffect(() => {
-    const configsCount = instanceData.framework?.configs.length ?? 0;
-
-    if (!isInstanceStoreInitialized || configsCount === 0) {
-      return;
-    }
-
-    const isSelectedInstanceValid =
-      selectedInstanceId &&
-      instanceData.framework?.configs.find(
-        (config) => config.id === selectedInstanceId
-      );
-
-    if (isSelectedInstanceValid) {
-      return;
-    }
-
-    const firstInstance = instanceData.framework?.configs[0];
-
-    if (firstInstance) {
-      setInstance(
-        firstInstance.id,
-        firstInstance.organizationName ?? undefined,
-        firstInstance.baselineYear,
-        firstInstance.targetYear ?? undefined
-      );
-
-      if (configsCount > 1) {
-        setNotification({
-          message: 'Plan selection updated',
-          extraDetails: (
-            <>
-              <Typography
-                variant="body2"
-                component="span"
-                fontWeight="fontWeightBold"
-                color="primary.dark"
-              >
-                {firstInstance.organizationName}
-              </Typography>{' '}
-              has been automatically set as your active plan
-            </>
-          ),
-          severity: 'info',
-        });
-      }
-    }
-  }, [
-    instanceData,
-    setInstance,
-    isInstanceStoreInitialized,
-    selectedInstanceId,
-    setNotification,
-  ]);
 
   if (instanceError) {
     return <div>Error: {instanceError.message}</div>;
@@ -190,9 +123,6 @@ export function InstanceControlBar() {
 
   const instanceConfigs = instanceData.framework?.configs ?? [];
   const hasMultipleInstances = instanceConfigs.length > 1;
-  const selectedInstance = instanceConfigs.find(
-    (instance) => instance.id === selectedInstanceId
-  );
 
   async function handleSubmit(data: NewPlanData) {
     try {
@@ -214,12 +144,8 @@ export function InstanceControlBar() {
 
       if (resp.data?.createNzcFrameworkConfig?.frameworkConfig?.id) {
         const instance = resp.data.createNzcFrameworkConfig.frameworkConfig;
-        setInstance(
-          instance.id,
-          instance.organizationName ?? undefined,
-          instance.baselineYear,
-          instance.targetYear ?? undefined
-        );
+
+        setSelectedPlanId(instance.id);
       }
 
       setIsAddModalOpen(false);
@@ -249,7 +175,7 @@ export function InstanceControlBar() {
             alignItems: 'center',
           }}
         >
-          {!!selectedInstance && permissions.isFrameworkAdmin && (
+          {!!plan && permissions.isFrameworkAdmin && (
             <Stack direction="row" spacing={2}>
               <MuiLink
                 href="/"
@@ -260,7 +186,7 @@ export function InstanceControlBar() {
                 Overview
               </MuiLink>
 
-              {areHistoricalYearsAvailable(selectedInstance.baselineYear) && (
+              {areHistoricalYearsAvailable(plan.baselineYear) && (
                 <MuiLink
                   href="/additional-data"
                   component={Link}
@@ -279,9 +205,9 @@ export function InstanceControlBar() {
             ml="auto"
             spacing={2}
           >
-            {hasMultipleInstances && selectedInstanceId && (
+            {hasMultipleInstances && plan?.id && (
               <InstanceSelector
-                selectedInstanceId={selectedInstanceId}
+                selectedInstanceId={plan.id}
                 instances={instanceConfigs}
               />
             )}

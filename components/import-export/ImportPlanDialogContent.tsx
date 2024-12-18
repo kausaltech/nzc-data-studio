@@ -1,8 +1,6 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
-import useStore from '@/store/use-store';
 import { MeasureForDownload } from '@/utils/measures';
 import {
   Alert,
@@ -28,6 +26,7 @@ import {
 import { FileUpload } from '../FileUpload';
 import { FadeAndCollapse } from '../FadeAndCollapse';
 import { useSnackbar } from '../SnackbarProvider';
+import { useSuspenseSelectedPlanConfig } from '../providers/SelectedPlanProvider';
 
 const UPDATE_MEASURES = gql`
   mutation UpdateMeasures(
@@ -64,15 +63,8 @@ export function ImportPlanDialogContent({ onClose }: Props) {
   const [confirmOverwrite, setConfirmOverwrite] = useState(false);
   const { setNotification } = useSnackbar();
 
-  const { data: frameworkConfigId } = useStore(
-    useFrameworkInstanceStore,
-    (state) => state.selectedInstance
-  );
-
-  const { data: planName } = useStore(
-    useFrameworkInstanceStore,
-    (state) => state.name
-  );
+  const plan = useSuspenseSelectedPlanConfig();
+  const planName = plan?.organizationName;
 
   const client = useApolloClient();
 
@@ -86,7 +78,7 @@ export function ImportPlanDialogContent({ onClose }: Props) {
   }, []);
 
   async function handleUpload() {
-    if (!fileContent || !frameworkConfigId) {
+    if (!fileContent || !plan?.id) {
       console.log('Missing file or framework config ID for upload');
       return;
     }
@@ -109,7 +101,7 @@ export function ImportPlanDialogContent({ onClose }: Props) {
 
       const result = await updateMeasures({
         variables: {
-          frameworkConfigId,
+          frameworkConfigId: plan.id,
           measures,
         },
       });

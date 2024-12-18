@@ -1,9 +1,8 @@
 import { gql, useQuery } from '@apollo/client';
 import { ProfileQuery } from '@/types/__generated__/graphql';
-import useStore from '@/store/use-store';
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import { useMemo } from 'react';
 import { FRAMEWORK_ADMIN_ROLE } from '@/constants/roles';
+import { useSelectedPlanId } from '@/components/providers/SelectedPlanProvider';
 
 export function useUserProfile() {
   const queryResult = useQuery<ProfileQuery>(gql`
@@ -48,20 +47,17 @@ export function useUserProfile() {
 
 export function usePermissions() {
   const { loading, data } = useUserProfile();
-  const { data: selectedInstanceId, isDataInitialized } = useStore(
-    useFrameworkInstanceStore,
-    (state) => state.selectedInstance
-  );
+  const { selectedPlanId } = useSelectedPlanId();
 
   const frameworkConfigPermissions = useMemo(() => {
-    if (!loading && isDataInitialized && selectedInstanceId) {
+    if (!loading && selectedPlanId) {
       return data?.framework?.configs.find(
-        (config) => config.id === selectedInstanceId
+        (config) => config.id === selectedPlanId
       )?.userPermissions;
     }
 
     return undefined;
-  }, [isDataInitialized, selectedInstanceId, data, loading]);
+  }, [selectedPlanId, data, loading]);
 
   const canCreate =
     (!loading &&
@@ -73,7 +69,7 @@ export function usePermissions() {
   return {
     isFrameworkAdmin:
       !!data?.framework?.userRoles?.includes(FRAMEWORK_ADMIN_ROLE),
-    isLoading: !isDataInitialized || loading,
+    isLoading: loading,
     create: canCreate,
     edit: frameworkConfigPermissions?.change ?? false,
     delete: frameworkConfigPermissions?.delete ?? false,

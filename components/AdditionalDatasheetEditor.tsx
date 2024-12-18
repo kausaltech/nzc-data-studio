@@ -27,7 +27,6 @@ import {
   UnitType,
   MeasureTemplateFragmentFragment,
 } from '@/types/__generated__/graphql';
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
 import { useSnackbar } from './SnackbarProvider';
 import CustomEditComponent, {
   Accordion,
@@ -42,6 +41,10 @@ import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
 import { LoadingCard } from '@/app/loading';
 import { default as ErrorComponent } from '@/app/error';
 import { captureException } from '@sentry/nextjs';
+import {
+  useSelectedPlanId,
+  useSuspenseSelectedPlanConfig,
+} from './providers/SelectedPlanProvider';
 
 type MeasureDataPoint = {
   type: 'MEASURE';
@@ -210,9 +213,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
   const { setNotification } = useSnackbar();
   const singleClickEditProps = useSingleClickEdit();
   const permissions = usePermissions();
-  const selectedInstanceId = useFrameworkInstanceStore(
-    (state) => state.selectedInstance
-  );
+  const { selectedPlanId } = useSelectedPlanId();
 
   const additionalYears = useMemo(
     () =>
@@ -260,7 +261,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
         const year = parseInt(changedYearField, 10);
         const newValue = updatedRow[changedYearField as keyof Row] ?? null;
 
-        if (!selectedInstanceId) {
+        if (!selectedPlanId) {
           throw new Error('No plan selected');
         }
 
@@ -272,7 +273,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
         try {
           await updateMeasureDataPoint({
             variables: {
-              frameworkInstanceId: selectedInstanceId,
+              frameworkInstanceId: selectedPlanId,
               measureTemplateId: updatedRow.originalId,
               year,
               value: newValue,
@@ -283,7 +284,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
                   query: GET_MEASURE_TEMPLATE,
                   variables: {
                     id: updatedRow.originalId,
-                    frameworkConfigId: selectedInstanceId,
+                    frameworkConfigId: selectedPlanId,
                   },
                 },
               ];
@@ -309,7 +310,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
       }
       return updatedRow;
     },
-    [updateMeasureDataPoint, setNotification, selectedInstanceId]
+    [updateMeasureDataPoint, setNotification, selectedPlanId]
   );
 
   const COLUMNS: GridColDef[] = useMemo(
@@ -459,18 +460,14 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
 }
 
 export function AdditionalDatasheetEditor() {
-  const baselineYear =
-    useFrameworkInstanceStore((state) => state.baselineYear) ?? 0;
-  const selectedInstanceId = useFrameworkInstanceStore(
-    (state) => state.selectedInstance
-  );
-
+  const plan = useSuspenseSelectedPlanConfig();
+  const baselineYear = plan?.baselineYear ?? 0;
   const [expanded, setExpanded] = useState<number | null>(0);
 
   const { data, loading, error } = useQuery<GetMeasureTemplatesQuery>(
     GET_MEASURE_TEMPLATES,
     {
-      variables: { frameworkConfigId: selectedInstanceId },
+      variables: { frameworkConfigId: plan?.id },
     }
   );
 

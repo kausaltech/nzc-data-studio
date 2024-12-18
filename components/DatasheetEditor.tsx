@@ -38,8 +38,6 @@ import { SECTIONS_SUM_100_PERCENT } from '@/constants/measure-overrides';
 import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
 import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
 import { useDataCollectionStore } from '@/store/data-collection';
-import { useFrameworkInstanceStore } from '@/store/selected-framework-instance';
-import useStore from '@/store/use-store';
 import {
   MeasureTemplateFragmentFragment,
   UnitType,
@@ -59,6 +57,7 @@ import NumberInput, { NumberInputProps } from './NumberInput';
 import { PriorityBadge } from './PriorityBadge';
 import { useSnackbar } from './SnackbarProvider';
 import { usePermissions } from '@/hooks/use-user-profile';
+import { useSuspenseSelectedPlanConfig } from './providers/SelectedPlanProvider';
 
 export const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -728,14 +727,10 @@ function AccordionContentWrapper({
 }: AccordionContentWrapperProps) {
   const [rowsFailedToSave, setRowsFailedToSave] = useState<string[]>([]); // UUIDs of rows that failed to save
   const { setNotification } = useSnackbar();
-  const { data: baselineYear } = useStore(
-    useFrameworkInstanceStore,
-    (state) => state.baselineYear
-  );
-  const { data: selectedInstanceId } = useStore(
-    useFrameworkInstanceStore,
-    (state) => state.selectedInstance
-  );
+  const plan = useSuspenseSelectedPlanConfig();
+
+  const baselineYear = plan?.baselineYear;
+  const selectedPlanId = plan?.id;
 
   const [updateMeasureDataPoint, { loading }] = useMutation<
     UpdateMeasureDataPointMutation,
@@ -768,14 +763,14 @@ function AccordionContentWrapper({
         return originalRow;
       }
 
-      if (!selectedInstanceId) {
+      if (!selectedPlanId) {
         throw new Error('No plan selected');
       }
 
       try {
         await updateMeasureDataPoint({
           variables: {
-            frameworkInstanceId: selectedInstanceId,
+            frameworkInstanceId: selectedPlanId,
             measureTemplateId: updatedRow.originalId,
             value: updatedRow.value,
             internalNotes: updatedRow.notes,
@@ -792,7 +787,7 @@ function AccordionContentWrapper({
                 query: GET_MEASURE_TEMPLATE,
                 variables: {
                   id: updatedRow.originalId,
-                  frameworkConfigId: selectedInstanceId,
+                  frameworkConfigId: selectedPlanId,
                 },
               },
             ];
@@ -813,7 +808,7 @@ function AccordionContentWrapper({
 
       return updatedRow;
     },
-    [rowsFailedToSave, selectedInstanceId, updateMeasureDataPoint]
+    [rowsFailedToSave, selectedPlanId, updateMeasureDataPoint]
   );
 
   const handleProcessRowUpdateError = useCallback(
