@@ -56,11 +56,19 @@ const DataCollection = ({ measureTemplates }: Props) => {
   };
 
   const dataMeasures = measureTemplates.dataCollection
-    ? mapMeasureTemplatesToRows(measureTemplates.dataCollection)
+    ? mapMeasureTemplatesToRows(
+        measureTemplates.dataCollection,
+        baselineYear ?? null,
+        targetYear ?? null
+      )
     : undefined;
 
   const assumptionMeasures = measureTemplates.futureAssumptions
-    ? mapMeasureTemplatesToRows(measureTemplates.futureAssumptions)
+    ? mapMeasureTemplatesToRows(
+        measureTemplates.futureAssumptions,
+        baselineYear ?? null,
+        targetYear ?? null
+      )
     : undefined;
 
   return (

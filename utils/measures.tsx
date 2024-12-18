@@ -25,8 +25,34 @@ export type Section = BaseSectionOrMeasure & {
   measureTemplates?: MeasureTemplateFragmentFragment[];
 };
 
+const filterMeasureTemplates =
+  createFilterByTypename<MeasureTemplateFragmentFragment>('MeasureTemplate');
+
+function filterYearBoundMeasureTemplates(
+  measureTemplates: MeasureTemplateFragmentFragment[],
+  baselineYear: number | null,
+  targetYear: number | null
+) {
+  return measureTemplates.filter((measureTemplate) => {
+    // Expect year bound measure templates to have a name like '2025'
+    const numericName = parseInt(measureTemplate.name);
+
+    if (!baselineYear || !targetYear) {
+      return true;
+    }
+
+    if (isNaN(numericName)) {
+      return false;
+    }
+
+    return numericName >= baselineYear && numericName <= targetYear;
+  });
+}
+
 export function mapMeasureTemplatesToRows(
-  mainSection: MainSectionMeasuresFragment
+  mainSection: MainSectionMeasuresFragment,
+  baselineYear: number | null,
+  targetYear: number | null
 ) {
   function createChildren(
     sectionId: string,
@@ -35,12 +61,23 @@ export function mapMeasureTemplatesToRows(
     return sections
       .filter((section) => section.parent?.uuid === sectionId)
       .reduce<Section[]>((previousSections, section) => {
-        const measureTemplates: MeasureTemplateFragmentFragment[] =
-          section.measureTemplates?.filter(
-            createFilterByTypename<MeasureTemplateFragmentFragment>(
-              'MeasureTemplate'
-            )
-          );
+        /**
+         * Year bound measures have a list of measure templates with a year as the name.
+         * We filter these measure templates so that they're between the baseline and target year.
+         */
+        const isYearBound = !!section.yearBound;
+
+        const filteredMeasureTemplates: MeasureTemplateFragmentFragment[] =
+          section.measureTemplates?.filter(filterMeasureTemplates);
+
+        const measureTemplates =
+          filteredMeasureTemplates.length === 0 || !isYearBound
+            ? filteredMeasureTemplates
+            : filterYearBoundMeasureTemplates(
+                filteredMeasureTemplates,
+                baselineYear,
+                targetYear
+              );
 
         const nextSection: Section = {
           id: section.uuid,
