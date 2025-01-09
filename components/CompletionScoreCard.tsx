@@ -127,8 +127,8 @@ const calculatePercentage = (scoreData: ScoreData[]) => {
 
 export const CompletionScoreCard = ({ measureTemplates }: Props) => {
   const plan = useSuspenseSelectedPlanConfig();
-  const baselineYear = plan?.baselineYear;
-  const targetYear = plan?.targetYear;
+  const baselineYear = plan?.baselineYear ?? null;
+  const targetYear = plan?.targetYear ?? null;
 
   const scoreData = processDataCollection(
     measureTemplates,
