@@ -33,7 +33,7 @@ const filterMeasureTemplate =
  * We filter these measure templates so that they're between the baseline and target year.
  * This isn't the ideal solution, but we'll revisit this logic on the backend later.
  */
-function filterYearBoundMeasureTemplate(
+export function filterYearBoundMeasureTemplate(
   measureTemplate: MeasureTemplateFragmentFragment,
   baselineYear: number | null,
   targetYear: number | null

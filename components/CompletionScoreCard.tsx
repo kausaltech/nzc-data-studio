@@ -6,8 +6,13 @@ import {
   FrameworksMeasureTemplatePriorityChoices as Priority,
   GetMeasureTemplatesQuery,
 } from '@/types/__generated__/graphql';
-import { measureTemplateHasValue, MeasureTemplates } from '@/utils/measures';
+import {
+  filterYearBoundMeasureTemplate,
+  measureTemplateHasValue,
+  MeasureTemplates,
+} from '@/utils/measures';
 import { getPriorityLabel, PriorityIcon } from './PriorityBadge';
+import { useSuspenseSelectedPlanConfig } from './providers/SelectedPlanProvider';
 
 interface Props {
   measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
@@ -23,7 +28,11 @@ type Totals = {
   [K in Priority]: ScoreData;
 };
 
-const processDataCollection = (measureTemplates: Props['measureTemplates']) => {
+const processDataCollection = (
+  measureTemplates: Props['measureTemplates'],
+  baselineYear: number | null,
+  targetYear: number | null
+) => {
   const result: Totals = {
     [Priority.High]: {
       priority: Priority.High,
@@ -42,19 +51,29 @@ const processDataCollection = (measureTemplates: Props['measureTemplates']) => {
     },
   };
 
-  const processItems = (measureTemplates: MeasureTemplates) => {
-    function tallyScore(
-      scoreData: ScoreData,
-      measureTemplate: MeasureTemplates[0]
-    ) {
-      if (measureTemplateHasValue(measureTemplate)) {
-        scoreData.completed += 1;
-      }
-
-      scoreData.total += 1;
+  function tallyScore(
+    scoreData: ScoreData,
+    measureTemplate: MeasureTemplates[0]
+  ) {
+    if (measureTemplateHasValue(measureTemplate)) {
+      scoreData.completed += 1;
     }
 
+    scoreData.total += 1;
+  }
+
+  const processItems = (measureTemplates: MeasureTemplates) => {
     measureTemplates.forEach((measureTemplate) => {
+      if (
+        !filterYearBoundMeasureTemplate(
+          measureTemplate,
+          baselineYear,
+          targetYear
+        )
+      ) {
+        return;
+      }
+
       if (measureTemplate.priority === Priority.High) {
         tallyScore(result[Priority.High], measureTemplate);
       } else if (measureTemplate.priority === Priority.Medium) {
@@ -107,22 +126,17 @@ const calculatePercentage = (scoreData: ScoreData[]) => {
 };
 
 export const CompletionScoreCard = ({ measureTemplates }: Props) => {
-  const theme = useTheme();
+  const plan = useSuspenseSelectedPlanConfig();
+  const baselineYear = plan?.baselineYear;
+  const targetYear = plan?.targetYear;
 
-  const scoreData = processDataCollection(measureTemplates);
+  const scoreData = processDataCollection(
+    measureTemplates,
+    baselineYear,
+    targetYear
+  );
   const scores = calculateScores(Object.values(scoreData));
   const completionPercentage = calculatePercentage(Object.values(scoreData));
-
-  const getPriorityColor = (priority: Priority) => {
-    switch (priority) {
-      case Priority.High:
-        return theme.palette.error.main;
-      case Priority.Medium:
-        return theme.palette.warning.main;
-      case Priority.Low:
-        return theme.palette.success.main;
-    }
-  };
 
   return (
     <Box
