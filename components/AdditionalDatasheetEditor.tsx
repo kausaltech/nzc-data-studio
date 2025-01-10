@@ -493,7 +493,7 @@ export function AdditionalDatasheetEditor() {
         baselineYear,
         targetYear
       ),
-    [filteredData, rootSectionUuid]
+    [filteredData, rootSectionUuid, baselineYear, targetYear]
   );
 
   if (loading) {
