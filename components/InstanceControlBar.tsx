@@ -175,7 +175,7 @@ export function InstanceControlBar() {
             alignItems: 'center',
           }}
         >
-          {!!plan && permissions.isFrameworkAdmin && (
+          {!!plan && areHistoricalYearsAvailable(plan.baselineYear) && (
             <Stack direction="row" spacing={2}>
               <MuiLink
                 href="/"
@@ -186,16 +186,14 @@ export function InstanceControlBar() {
                 Overview
               </MuiLink>
 
-              {areHistoricalYearsAvailable(plan.baselineYear) && (
-                <MuiLink
-                  href="/additional-data"
-                  component={Link}
-                  underline="none"
-                  sx={getNavStyles(isActive('/additional-data'))}
-                >
-                  Additional historical data
-                </MuiLink>
-              )}
+              <MuiLink
+                href="/additional-data"
+                component={Link}
+                underline="none"
+                sx={getNavStyles(isActive('/additional-data'))}
+              >
+                Additional historical data
+              </MuiLink>
             </Stack>
           )}
 
