@@ -21,6 +21,7 @@ import { SelectedPlanProvider } from '@/components/providers/SelectedPlanProvide
 import { PLAN_COOKIE_KEY } from '@/constants/plan';
 
 export const revalidate = 0;
+
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
