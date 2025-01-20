@@ -1,4 +1,5 @@
 'use client';
+
 import React from 'react';
 import { Container, Stack } from '@mui/material';
 import WelcomeSection from '../../components/WelcomeSection';

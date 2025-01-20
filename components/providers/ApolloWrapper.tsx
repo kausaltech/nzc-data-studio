@@ -101,6 +101,14 @@ function makeClient(sessionTokenRef: MutableRefObject<string | null>) {
 
   return new ApolloClient({
     cache,
+    defaultOptions: {
+      watchQuery: {
+        fetchPolicy: 'network-only',
+      },
+      query: {
+        fetchPolicy: 'network-only',
+      },
+    },
     link: ApolloLink.from([
       errorLink,
       makeAuthMiddleware(sessionTokenRef),
