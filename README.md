@@ -96,12 +96,12 @@ The application will be available on [http://localhost:3000](http://localhost:30
 
 Variables prefixed with `KAUSAL_PUBLIC_` are made available client side. When using these environment variables, import them from `@/constants/environment` to support fallbacks.
 
-- `KAUSAL_PUBLIC_PATHS_BACKEND_URL`: Configure the backend URL for Kausal Paths, e.g. a staging or local backend
+- `KAUSAL_PUBLIC_API_URL`: Configure the backend URL for Kausal Paths, e.g. a staging or local backend
 - `KAUSAL_PUBLIC_DEPLOYMENT_TYPE`: The deployment type e.g `staging` or `production`
 - `AUTH_SECRET`: Secret key used for encrypting tokens and cookies (this can be any random string)
 - `AUTH_CLIENT_ID`: Client ID for authentication
 - `AUTH_CLIENT_SECRET`: Client secret for authentication
-- `KAUSAL_PUBLIC_AUTH_ISSUER`: URL of the authentication issuer; if not set, will use `KAUSAL_PUBLIC_PATHS_BACKEND_URL`
+- `KAUSAL_PUBLIC_AUTH_ISSUER`: URL of the authentication issuer; if not set, will use `KAUSAL_PUBLIC_API_URL`
 
 ### Analyzing the Next Bundle
 
