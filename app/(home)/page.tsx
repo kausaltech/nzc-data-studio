@@ -43,10 +43,13 @@ function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   }
 
   if (!data?.framework || error) {
-    // TODO: Return error component
-    console.log('Error', error);
     if (error) {
-      Sentry.captureException(error);
+      Sentry.captureException(error, {
+        extra: {
+          location: 'CompletionScoreCardWrapper',
+          error: JSON.stringify(error, null, 2),
+        },
+      });
     }
     return <h1>Something went wrong</h1>;
   }
@@ -75,10 +78,13 @@ function DataCollectionContent({ instance }: { instance: string }) {
   }
 
   if (!data || error) {
-    // TODO: Return error page
-    console.log('Error', error);
     if (error) {
-      Sentry.captureException(error);
+      Sentry.captureException(error, {
+        extra: {
+          location: 'DataCollectionContent',
+          error: JSON.stringify(error, null, 2),
+        },
+      });
     }
     return <h1>Something went wrong</h1>;
   }
@@ -147,9 +153,14 @@ export default function DashboardContent() {
   }
 
   if (!instanceData || instanceError) {
-    // TODO: Return error page
-    console.log(`Error - Selected instance: ${plan.id}`);
-    if (instanceError) Sentry.captureException(instanceError);
+    if (instanceError) {
+      Sentry.captureException(instanceError, {
+        extra: {
+          location: 'DashboardContent',
+          error: JSON.stringify(instanceError, null, 2),
+        },
+      });
+    }
     return <h1>Something went wrong: Instance not found</h1>;
   }
 

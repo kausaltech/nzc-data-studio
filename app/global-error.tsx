@@ -11,7 +11,12 @@ export default function GlobalError({
   error: Error & { digest?: string };
 }) {
   useEffect(() => {
-    Sentry.captureException(error);
+    Sentry.captureException(error, {
+      extra: {
+        component: 'global-error',
+        error: JSON.stringify(error, null, 2),
+      },
+    });
   }, [error]);
 
   return (

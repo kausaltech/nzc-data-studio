@@ -53,9 +53,10 @@ function logError(
 
   Sentry.captureException(message, {
     extra: {
-      query: operation.query,
+      query: JSON.stringify(operation.query, null, 2),
       operationName: operation.operationName,
       variables: JSON.stringify(operation.variables, null, 2),
+      error: JSON.stringify(error, null, 2),
       ...sentryExtras,
     },
   });
