@@ -21,7 +21,17 @@ export default function Error({ error }: Props) {
   const session = useSession();
 
   useEffect(() => {
-    Sentry.captureException(error, session);
+    Sentry.captureException(error, {
+      extra: {
+        session: {
+          error: session.data?.error,
+          user: session.data?.user,
+          expires: session.data?.expires,
+          status: session.status,
+        },
+        error: JSON.stringify(error, null, 2),
+      },
+    });
   }, [error, session]);
 
   return (

@@ -501,7 +501,12 @@ export function AdditionalDatasheetEditor() {
   }
 
   if (error) {
-    captureException(error);
+    captureException(error, {
+      extra: {
+        location: 'AdditionalDatasheetEditor',
+        error: JSON.stringify(error, null, 2),
+      },
+    });
 
     return <ErrorComponent error={error} />;
   }
