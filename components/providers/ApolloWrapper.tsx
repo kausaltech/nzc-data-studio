@@ -2,6 +2,7 @@
 
 import { MutableRefObject, useCallback, useMemo, useRef } from 'react';
 
+import { serializeError } from 'serialize-error';
 import { ApolloLink, HttpLink, Operation } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
@@ -56,7 +57,7 @@ function logError(
       query: JSON.stringify(operation.query, null, 2),
       operationName: operation.operationName,
       variables: JSON.stringify(operation.variables, null, 2),
-      error: JSON.stringify(error, null, 2),
+      error: JSON.stringify(serializeError(error), null, 2),
       ...sentryExtras,
     },
   });

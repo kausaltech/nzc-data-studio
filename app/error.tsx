@@ -1,5 +1,6 @@
 'use client';
 
+import { serializeError } from 'serialize-error';
 import { useEffect } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import {
@@ -29,7 +30,7 @@ export default function Error({ error }: Props) {
           expires: session.data?.expires,
           status: session.status,
         },
-        error: JSON.stringify(error, null, 2),
+        error: JSON.stringify(serializeError(error), null, 2),
       },
     });
   }, [error, session]);

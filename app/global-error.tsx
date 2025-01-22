@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import NextError from 'next/error';
 
 import * as Sentry from '@sentry/nextjs';
+import { serializeError } from 'serialize-error';
 
 export default function GlobalError({
   error,
@@ -14,7 +15,7 @@ export default function GlobalError({
     Sentry.captureException(error, {
       extra: {
         component: 'global-error',
-        error: JSON.stringify(error, null, 2),
+        error: JSON.stringify(serializeError(error), null, 2),
       },
     });
   }, [error]);

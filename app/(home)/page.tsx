@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import * as Sentry from '@sentry/nextjs';
 import { BoxArrowUpRight, Download } from 'react-bootstrap-icons';
+import { serializeError } from 'serialize-error';
 
 import CompletionScoreCard from '@/components/CompletionScoreCard';
 import DataCollection from '@/components/DataCollection';
@@ -47,7 +48,7 @@ function CompletionScoreCardWrapper({ instance }: { instance: string }) {
       Sentry.captureException(error, {
         extra: {
           location: 'CompletionScoreCardWrapper',
-          error: JSON.stringify(error, null, 2),
+          error: JSON.stringify(serializeError(error), null, 2),
         },
       });
     }
@@ -82,7 +83,7 @@ function DataCollectionContent({ instance }: { instance: string }) {
       Sentry.captureException(error, {
         extra: {
           location: 'DataCollectionContent',
-          error: JSON.stringify(error, null, 2),
+          error: JSON.stringify(serializeError(error), null, 2),
         },
       });
     }

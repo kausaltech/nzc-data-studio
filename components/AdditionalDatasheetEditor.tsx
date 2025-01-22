@@ -45,6 +45,7 @@ import {
   useSelectedPlanId,
   useSuspenseSelectedPlanConfig,
 } from './providers/SelectedPlanProvider';
+import { serializeError } from 'serialize-error';
 
 type MeasureDataPoint = {
   type: 'MEASURE';
@@ -504,7 +505,7 @@ export function AdditionalDatasheetEditor() {
     captureException(error, {
       extra: {
         location: 'AdditionalDatasheetEditor',
-        error: JSON.stringify(error, null, 2),
+        error: JSON.stringify(serializeError(error), null, 2),
       },
     });
 
