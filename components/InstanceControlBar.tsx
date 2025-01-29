@@ -16,6 +16,7 @@ import {
   Link as MuiLink,
   SxProps,
   Theme,
+  Divider,
 } from '@mui/material';
 import kebabCase from 'lodash/kebabCase';
 
@@ -37,6 +38,31 @@ import {
   useSuspenseSelectedPlanConfig,
 } from './providers/SelectedPlanProvider';
 
+function isTestInstance(name: string) {
+  // Note that this is a best guess of test instances until we have a better way to identify them
+  // Genuine cities with 'test' in the name will be false positives
+  return name.startsWith('[') || name.toLocaleLowerCase().includes('test');
+}
+
+function sortTestInstancesToBottom(
+  instances: NonNullable<GetFrameworkConfigsQuery['framework']>['configs']
+) {
+  return [...instances].sort((a, b) => {
+    const aName = a.organizationName ?? '';
+    const bName = b.organizationName ?? '';
+    const aIsTest = isTestInstance(aName);
+    const bIsTest = isTestInstance(bName);
+
+    if (aIsTest && !bIsTest) {
+      return 1;
+    } else if (!aIsTest && bIsTest) {
+      return -1;
+    } else {
+      return aName.localeCompare(bName);
+    }
+  });
+}
+
 function InstanceSelector({
   selectedInstanceId,
   instances,
@@ -44,11 +70,22 @@ function InstanceSelector({
   selectedInstanceId: string;
   instances: NonNullable<GetFrameworkConfigsQuery['framework']>['configs'];
 }) {
+  // In cases where there are many instances (common for some users who have access
+  // to many city plans), we want to sort the test instances to the bottom of the list
+  const sortTestInstancesLast = instances.length > 10;
   const { setSelectedPlanId } = useSelectedPlanId();
 
-  const sortedInstances = [...instances].sort(
-    (a, b) => parseInt(a.id) - parseInt(b.id)
-  );
+  const sortedInstances = sortTestInstancesLast
+    ? sortTestInstancesToBottom(instances)
+    : [...instances].sort((a, b) =>
+        (a.organizationName ?? '').localeCompare(b.organizationName ?? '')
+      );
+
+  const firstTestInstance = sortTestInstancesLast
+    ? sortedInstances.findIndex((instance) =>
+        isTestInstance(instance.organizationName ?? '')
+      )
+    : -1;
 
   function handleChange(e: SelectChangeEvent<string>) {
     const instance = instances.find(
@@ -72,11 +109,14 @@ function InstanceSelector({
         label="City plan"
         onChange={handleChange}
       >
-        {sortedInstances.map((instance) => (
+        {sortedInstances.map((instance, index) => [
+          sortTestInstancesLast && index === firstTestInstance ? (
+            <Divider key={`divider-${instance.id}`} />
+          ) : undefined,
           <MenuItem key={instance.id} value={instance.id}>
             {instance.organizationName}
-          </MenuItem>
-        ))}
+          </MenuItem>,
+        ])}
       </Select>
     </FormControl>
   );
