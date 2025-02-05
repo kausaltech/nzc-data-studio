@@ -32,6 +32,7 @@ import CustomEditComponent, {
   Accordion,
   AccordionDetails,
   DATA_GRID_SX,
+  formatNumericValue,
   useSingleClickEdit,
 } from './DatasheetEditor';
 import { CustomFooter } from './DatasheetEditor';
@@ -56,6 +57,7 @@ type MeasureDataPoint = {
   unit: UnitType;
   originalId: string;
   depth: number;
+  placeholderDataPoints: Record<number, null | number>;
   originalMeasureTemplate: MeasureTemplateFragmentFragment;
   [year: number]: null | number;
 };
@@ -72,6 +74,14 @@ type Row = MeasureDataPoint | SectionRow;
 
 const currentYear = new Date().getFullYear();
 
+function getPlaceholderValue(row: Row, year: number) {
+  if (row.type === 'MEASURE') {
+    return row.placeholderDataPoints[year] ?? undefined;
+  }
+
+  return undefined;
+}
+
 function getRowsFromSection(
   { childSections = [], measureTemplates = [], ...section }: Section,
   depth = 0,
@@ -86,6 +96,23 @@ function getRowsFromSection(
     depth,
   };
 
+  function reduceDataPoints(
+    acc: Record<number, null | number>,
+    dataPoint: {
+      year?: number | null | undefined;
+      value?: number | null | undefined;
+    } | null
+  ) {
+    if (typeof dataPoint?.year !== 'number') {
+      return acc;
+    }
+
+    return {
+      ...acc,
+      [dataPoint.year]: dataPoint.value ?? null,
+    };
+  }
+
   return [
     ...(isRoot ? [] : [sectionRow]),
     ...measureTemplates.flatMap(
@@ -99,13 +126,13 @@ function getRowsFromSection(
         unit: measure.unit,
         depth: depth + 1,
         originalMeasureTemplate: measure,
+        placeholderDataPoints:
+          measure.measure?.placeholderDataPoints?.reduce(
+            reduceDataPoints,
+            {} as Record<number, null | number>
+          ) ?? {},
         ...measure.measure?.dataPoints.reduce(
-          (acc, dataPoint) => {
-            return {
-              ...acc,
-              [dataPoint.year]: dataPoint.value ?? null,
-            };
-          },
+          reduceDataPoints,
           {} as Record<number, null | number>
         ),
       })
@@ -115,16 +142,6 @@ function getRowsFromSection(
     ),
   ];
 }
-
-const EDITABLE_COL: Partial<GridColDef> = {
-  editable: true,
-  renderCell: (params: GridRenderCellParams<Row>) => {
-    return <CustomEditComponent {...params} sx={{ mx: 0, my: 1 }} />;
-  },
-  renderEditCell: (params: GridRenderCellParams<Row>) => (
-    <CustomEditComponent {...params} />
-  ),
-};
 
 /**
  * Filter the measure templates to only include the additional
@@ -311,7 +328,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
       }
       return updatedRow;
     },
-    [updateMeasureDataPoint, setNotification, selectedPlanId]
+    [updateMeasureDataPoint, selectedPlanId, rowsFailedToSave]
   );
 
   const COLUMNS: GridColDef[] = useMemo(
@@ -359,21 +376,9 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
             return null;
           }
 
-          if (value == null) {
-            return '-';
-          }
-
-          const precision = getDecimalPrecisionByUnit(row.unit.short);
-
-          if (isYearMeasure(row.label, row.unit.short)) {
-            return <Typography variant="body2">{Math.round(value)}</Typography>;
-          }
-
           return (
             <Typography variant="body2">
-              {value.toLocaleString(undefined, {
-                maximumFractionDigits: precision,
-              })}
+              {formatNumericValue(value, row)}
             </Typography>
           );
         },
@@ -412,7 +417,28 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
             flex: 1,
             type: 'number',
             headerAlign: 'left',
-            ...EDITABLE_COL,
+            editable: true,
+            renderCell: (params: GridRenderCellParams<Row>) => {
+              const placeholderValue = getPlaceholderValue(params.row, year);
+
+              return (
+                <CustomEditComponent
+                  {...params}
+                  sx={{ mx: 0, my: 1 }}
+                  placeholderValue={placeholderValue}
+                />
+              );
+            },
+            renderEditCell: (params: GridRenderCellParams<Row>) => {
+              const placeholderValue = getPlaceholderValue(params.row, year);
+
+              return (
+                <CustomEditComponent
+                  {...params}
+                  placeholderValue={placeholderValue}
+                />
+              );
+            },
           }) as GridColDef
       ),
     ],

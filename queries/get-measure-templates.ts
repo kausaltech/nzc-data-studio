@@ -61,6 +61,11 @@ export const GET_MEASURE_TEMPLATES = gql`
       __typename
       id
       internalNotes
+      placeholderDataPoints {
+        __typename
+        year
+        value
+      }
       dataPoints {
         ...DataPointFragment
       }

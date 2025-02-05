@@ -323,14 +323,14 @@ export type CollectionObjectType = {
 
 export type CreateFrameworkConfigMutation = {
   __typename?: 'CreateFrameworkConfigMutation';
-  /** The created framework config instance. */
+  /** The created framework config instance */
   frameworkConfig?: Maybe<FrameworkConfig>;
   ok: Scalars['Boolean']['output'];
 };
 
 export type CreateNzcFrameworkConfigMutation = {
   __typename?: 'CreateNZCFrameworkConfigMutation';
-  /** The created framework config instance. */
+  /** The created framework config instance */
   frameworkConfig?: Maybe<FrameworkConfig>;
   ok: Scalars['Boolean']['output'];
 };
@@ -756,6 +756,7 @@ export type InstanceBasicConfiguration = {
   hostname: InstanceHostname;
   identifier: Scalars['String']['output'];
   isProtected: Scalars['Boolean']['output'];
+  requiresAuthentication: Scalars['Boolean']['output'];
   supportedLanguages: Array<Scalars['String']['output']>;
   themeIdentifier: Scalars['String']['output'];
 };
@@ -771,6 +772,7 @@ export type InstanceFeaturesType = {
   baselineVisibleInGraphs: Scalars['Boolean']['output'];
   hideNodeDetails: Scalars['Boolean']['output'];
   maximumFractionDigits?: Maybe<Scalars['Int']['output']>;
+  requiresAuthentication: Scalars['Boolean']['output'];
   showAccumulatedEffects: Scalars['Boolean']['output'];
   showRefreshPrompt: Scalars['Boolean']['output'];
   showSignificantDigits?: Maybe<Scalars['Int']['output']>;
@@ -971,6 +973,7 @@ export type Measure = {
   id: Scalars['ID']['output'];
   internalNotes: Scalars['String']['output'];
   measureTemplate: MeasureTemplate;
+  placeholderDataPoints?: Maybe<Array<Maybe<PlaceHolderDataPoint>>>;
   unit?: Maybe<UnitType>;
   userPermissions?: Maybe<UserPermissions>;
   userRoles?: Maybe<Array<Scalars['String']['output']>>;
@@ -996,7 +999,7 @@ export type MeasureDataPoint = {
 export type MeasureDataPointInput = {
   /** Value for the data point (set to null to remove) */
   value?: InputMaybe<Scalars['Float']['input']>;
-  /** Year of the data point. If not given, defaults to the baseline year for the framework instance */
+  /** Year of the data point. If not given, defaults to the baseline year for the framework instance. */
   year?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -1672,6 +1675,12 @@ export type ParameterInterface = {
   localId?: Maybe<Scalars['ID']['output']>;
   node?: Maybe<NodeInterface>;
   nodeRelativeId?: Maybe<Scalars['ID']['output']>;
+};
+
+export type PlaceHolderDataPoint = {
+  __typename?: 'PlaceHolderDataPoint';
+  value?: Maybe<Scalars['Float']['output']>;
+  year?: Maybe<Scalars['Int']['output']>;
 };
 
 export type Query = {
@@ -2376,7 +2385,10 @@ export type GetMeasureTemplatesQuery = (
             { id: string, year: number, value: number }
             & { __typename?: 'MeasureTemplateDefaultDataPoint' }
           )>, measure?: (
-            { id: string, internalNotes: string, dataPoints: Array<(
+            { id: string, internalNotes: string, placeholderDataPoints?: Array<(
+              { year?: number | null, value?: number | null }
+              & { __typename: 'PlaceHolderDataPoint' }
+            ) | null> | null, dataPoints: Array<(
               { id: string, value?: number | null, year: number, defaultValue?: number | null }
               & { __typename: 'MeasureDataPoint' }
             )> }
@@ -2400,7 +2412,10 @@ export type GetMeasureTemplatesQuery = (
             { id: string, year: number, value: number }
             & { __typename?: 'MeasureTemplateDefaultDataPoint' }
           )>, measure?: (
-            { id: string, internalNotes: string, dataPoints: Array<(
+            { id: string, internalNotes: string, placeholderDataPoints?: Array<(
+              { year?: number | null, value?: number | null }
+              & { __typename: 'PlaceHolderDataPoint' }
+            ) | null> | null, dataPoints: Array<(
               { id: string, value?: number | null, year: number, defaultValue?: number | null }
               & { __typename: 'MeasureDataPoint' }
             )> }
@@ -2433,7 +2448,10 @@ export type MainSectionMeasuresFragment = (
         { id: string, year: number, value: number }
         & { __typename?: 'MeasureTemplateDefaultDataPoint' }
       )>, measure?: (
-        { id: string, internalNotes: string, dataPoints: Array<(
+        { id: string, internalNotes: string, placeholderDataPoints?: Array<(
+          { year?: number | null, value?: number | null }
+          & { __typename: 'PlaceHolderDataPoint' }
+        ) | null> | null, dataPoints: Array<(
           { id: string, value?: number | null, year: number, defaultValue?: number | null }
           & { __typename: 'MeasureDataPoint' }
         )> }
@@ -2458,7 +2476,10 @@ export type SectionFragmentFragment = (
       { id: string, year: number, value: number }
       & { __typename?: 'MeasureTemplateDefaultDataPoint' }
     )>, measure?: (
-      { id: string, internalNotes: string, dataPoints: Array<(
+      { id: string, internalNotes: string, placeholderDataPoints?: Array<(
+        { year?: number | null, value?: number | null }
+        & { __typename: 'PlaceHolderDataPoint' }
+      ) | null> | null, dataPoints: Array<(
         { id: string, value?: number | null, year: number, defaultValue?: number | null }
         & { __typename: 'MeasureDataPoint' }
       )> }
@@ -2477,7 +2498,10 @@ export type MeasureTemplateFragmentFragment = (
     { id: string, year: number, value: number }
     & { __typename?: 'MeasureTemplateDefaultDataPoint' }
   )>, measure?: (
-    { id: string, internalNotes: string, dataPoints: Array<(
+    { id: string, internalNotes: string, placeholderDataPoints?: Array<(
+      { year?: number | null, value?: number | null }
+      & { __typename: 'PlaceHolderDataPoint' }
+    ) | null> | null, dataPoints: Array<(
       { id: string, value?: number | null, year: number, defaultValue?: number | null }
       & { __typename: 'MeasureDataPoint' }
     )> }

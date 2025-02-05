@@ -158,6 +158,29 @@ export const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
   },
 });
 
+export function formatNumericValue(
+  value: number,
+  row: Pick<MeasureRow, 'unit' | 'label'>
+) {
+  if (value == null) {
+    return '-';
+  }
+
+  const precision = getDecimalPrecisionByUnit(row.unit.short);
+
+  if (isYearMeasure(row.label, row.unit.short)) {
+    return Math.round(value).toString();
+  }
+
+  return value.toLocaleString(undefined, {
+    maximumFractionDigits: precision,
+  });
+}
+
+type CustomEditComponentProps = GridRenderEditCellParams & {
+  sx?: SxProps<Theme>;
+  placeholderValue?: number;
+};
 /**
  * Since the sheet editor only has a few cells available to edit,
  * we display an input field for these at all times rather for clear
@@ -172,7 +195,8 @@ export default function CustomEditComponent({
   sx = [],
   colDef,
   row,
-}: GridRenderEditCellParams & { sx?: SxProps<Theme> }) {
+  placeholderValue,
+}: CustomEditComponentProps) {
   const permissions = usePermissions();
   const apiRef = useGridApiContext();
   const ref = useRef<HTMLInputElement | null>(null);
@@ -234,6 +258,11 @@ export default function CustomEditComponent({
         key={key}
         autoComplete="off"
         fullWidth
+        placeholder={
+          placeholderValue
+            ? formatNumericValue(placeholderValue, row)
+            : undefined
+        }
         onKeyDown={handleEscape}
         onValueChange={permissions.edit ? handleNumberValueChange : undefined}
         defaultValue={
