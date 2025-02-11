@@ -87,4 +87,7 @@ export const ADDITIONAL_MEASURES = [
   {
     uuid: '58c99d80-8b05-4573-8291-9252560414fd',
   },
+  {
+    uuid: 'a08d4504-a43c-4dc1-ac2d-27d7aef5c241',
+  },
 ];
