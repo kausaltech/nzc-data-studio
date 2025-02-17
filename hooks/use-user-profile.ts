@@ -3,61 +3,64 @@ import { ProfileQuery } from '@/types/__generated__/graphql';
 import { useMemo } from 'react';
 import { FRAMEWORK_ADMIN_ROLE } from '@/constants/roles';
 import { useSelectedPlanId } from '@/components/providers/SelectedPlanProvider';
+import { FrameworkConfigFragment } from '@/queries/framework/get-framework-config';
 
 export function useUserProfile() {
-  const queryResult = useQuery<ProfileQuery>(gql`
-    query Profile {
-      me {
-        id
-        email
-        firstName
-        lastName
-        frameworkRoles {
-          roleId
-          orgSlug
-          orgId
-        }
-      }
+  const { selectedPlanId } = useSelectedPlanId();
 
-      framework(identifier: "nzc") {
-        id
-        userRoles
-        userPermissions {
-          change
-          creatableRelatedModels
-        }
-        configs {
-          __typename
+  const queryResult = useQuery<ProfileQuery>(
+    gql`
+      query Profile($selectedPlanId: ID!) {
+        me {
           id
+          email
+          firstName
+          lastName
+          frameworkRoles {
+            roleId
+            orgSlug
+            orgId
+          }
+        }
+
+        framework(identifier: "nzc") {
+          id
+          userRoles
           userPermissions {
-            view
             change
-            delete
-            actions
             creatableRelatedModels
-            otherPermissions
+          }
+          config(id: $selectedPlanId) {
+            ...FrameworkConfig
+            userPermissions {
+              view
+              change
+              delete
+              actions
+              creatableRelatedModels
+              otherPermissions
+            }
           }
         }
       }
+      ${FrameworkConfigFragment}
+    `,
+    {
+      variables: {
+        selectedPlanId,
+      },
     }
-  `);
+  );
 
   return queryResult;
 }
 
 export function usePermissions() {
   const { loading, data } = useUserProfile();
-  const { selectedPlanId } = useSelectedPlanId();
 
-  const frameworkConfigPermissions = useMemo(() => {
-    if (!loading && selectedPlanId) {
-      return data?.framework?.configs.find(
-        (config) => config.id === selectedPlanId
-      )?.userPermissions;
-    }
-
-    return undefined;
-  }, [selectedPlanId, data, loading]);
+  const frameworkConfigPermissions = !loading
+    ? data?.framework?.config?.userPermissions
+    : undefined;
 
   const canCreate =
     (!loading &&
