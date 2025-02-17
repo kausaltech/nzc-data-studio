@@ -6,7 +6,7 @@ export const DECIMAL_PRECISION_BY_UNIT = {
   'passenger/vehicle': 1,
   'gram/vkm': 2,
   vehicle: 0,
-  '%': 0,
+  '%': 1,
   'Mkm·metric ton/year': 0,
   thousand_square_meters: 0,
   'kilowatt hour/meter²/year': 0,

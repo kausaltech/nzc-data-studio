@@ -2,7 +2,10 @@ import { gql } from '@apollo/client';
 import { measureDataPointFragment } from './update-measure-datapoint';
 
 export const GET_MEASURE_TEMPLATES = gql`
-  query GetMeasureTemplates($frameworkConfigId: ID!) {
+  query GetMeasureTemplates(
+    $frameworkConfigId: ID!
+    $includePlaceholders: Boolean = false
+  ) {
     framework(identifier: "nzc") {
       id
       dataCollection: section(identifier: "data_collection") {
@@ -61,6 +64,11 @@ export const GET_MEASURE_TEMPLATES = gql`
       __typename
       id
       internalNotes
+      placeholderDataPoints @include(if: $includePlaceholders) {
+        __typename
+        year
+        value
+      }
       dataPoints {
         ...DataPointFragment
       }
