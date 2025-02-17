@@ -20,6 +20,21 @@ import logger from '@/utils/logger';
 
 const cache = new InMemoryCache({
   typePolicies: {
+    Framework: {
+      fields: {
+        configs: {
+          merge(existing, incoming) {
+            return incoming; // Replace Framework.configs with incoming data since we always fetch full list
+          },
+        },
+        config: {
+          read(_, { args, toReference }) {
+            // Read individual config from configs array
+            return toReference({ __typename: 'FrameworkConfig', id: args?.id });
+          },
+        },
+      },
+    },
     Section: {
       keyFields: ['uuid'],
     },
