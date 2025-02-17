@@ -2367,6 +2367,7 @@ export type GetMeasureTemplateQuery = (
 
 export type GetMeasureTemplatesQueryVariables = Exact<{
   frameworkConfigId: Scalars['ID']['input'];
+  includePlaceholders?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 

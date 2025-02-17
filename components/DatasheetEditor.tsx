@@ -166,7 +166,7 @@ export function formatNumericValue(
     return '-';
   }
 
-  const precision = getDecimalPrecisionByUnit(row.unit.short);
+  const precision = getDecimalPrecisionByUnit(row.unit.long);
 
   if (isYearMeasure(row.label, row.unit.short)) {
     return Math.round(value).toString();
@@ -179,8 +179,9 @@ export function formatNumericValue(
 
 type CustomEditComponentProps = GridRenderEditCellParams & {
   sx?: SxProps<Theme>;
-  placeholderValue?: number;
+  placeholder?: string;
 };
+
 /**
  * Since the sheet editor only has a few cells available to edit,
  * we display an input field for these at all times rather for clear
@@ -195,7 +196,7 @@ export default function CustomEditComponent({
   sx = [],
   colDef,
   row,
-  placeholderValue,
+  placeholder,
 }: CustomEditComponentProps) {
   const permissions = usePermissions();
   const apiRef = useGridApiContext();
@@ -258,11 +259,7 @@ export default function CustomEditComponent({
         key={key}
         autoComplete="off"
         fullWidth
-        placeholder={
-          placeholderValue
-            ? formatNumericValue(placeholderValue, row)
-            : undefined
-        }
+        placeholder={placeholder || undefined}
         onKeyDown={handleEscape}
         onValueChange={permissions.edit ? handleNumberValueChange : undefined}
         defaultValue={

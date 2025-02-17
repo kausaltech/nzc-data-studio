@@ -10,10 +10,8 @@ import {
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { ChevronDown } from 'react-bootstrap-icons';
 import {
-  getDecimalPrecisionByUnit,
   getMeasureValue,
   getUnitName,
-  isYearMeasure,
   mapMeasureTemplatesToRows,
   Section,
 } from '@/utils/measures';
@@ -74,9 +72,12 @@ type Row = MeasureDataPoint | SectionRow;
 
 const currentYear = new Date().getFullYear();
 
-function getPlaceholderValue(row: Row, year: number) {
-  if (row.type === 'MEASURE') {
-    return row.placeholderDataPoints[year] ?? undefined;
+function getPlaceholder(row: Row, year: number) {
+  if (
+    row.type === 'MEASURE' &&
+    typeof row.placeholderDataPoints[year] === 'number'
+  ) {
+    return formatNumericValue(row.placeholderDataPoints[year], row);
   }
 
   return undefined;
@@ -418,27 +419,19 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
             type: 'number',
             headerAlign: 'left',
             editable: true,
-            renderCell: (params: GridRenderCellParams<Row>) => {
-              const placeholderValue = getPlaceholderValue(params.row, year);
-
-              return (
-                <CustomEditComponent
-                  {...params}
-                  sx={{ mx: 0, my: 1 }}
-                  placeholderValue={placeholderValue}
-                />
-              );
-            },
-            renderEditCell: (params: GridRenderCellParams<Row>) => {
-              const placeholderValue = getPlaceholderValue(params.row, year);
-
-              return (
-                <CustomEditComponent
-                  {...params}
-                  placeholderValue={placeholderValue}
-                />
-              );
-            },
+            renderCell: (params: GridRenderCellParams<Row>) => (
+              <CustomEditComponent
+                {...params}
+                sx={{ mx: 0, my: 1 }}
+                placeholder={getPlaceholder(params.row, year)}
+              />
+            ),
+            renderEditCell: (params: GridRenderCellParams<Row>) => (
+              <CustomEditComponent
+                {...params}
+                placeholder={getPlaceholder(params.row, year)}
+              />
+            ),
           }) as GridColDef
       ),
     ],
@@ -495,7 +488,7 @@ export function AdditionalDatasheetEditor() {
   const { data, loading, error } = useQuery<GetMeasureTemplatesQuery>(
     GET_MEASURE_TEMPLATES,
     {
-      variables: { frameworkConfigId: plan?.id },
+      variables: { frameworkConfigId: plan?.id, includePlaceholders: true },
     }
   );
 
