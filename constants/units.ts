@@ -11,6 +11,7 @@ export const DECIMAL_PRECISION_BY_UNIT = {
   thousand_square_meters: 0,
   'kilowatt hour/meter²/year': 0,
   'gigawatt_hour/year': 0,
+  'gigawatt hours/year': 0,
   'gram/kilowatt hour': 2,
   'EUR/megawatt_hour': 0,
   'kilowatt hour/kilowatt/year': 0,
