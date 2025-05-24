@@ -1,0 +1,149 @@
+'use client';
+
+import { type RefObject, useCallback, useMemo, useRef } from 'react';
+
+import { serializeError } from 'serialize-error';
+import { ApolloLink, HttpLink, type Operation } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+import { onError } from '@apollo/client/link/error';
+import {
+  ApolloClient,
+  ApolloNextAppProvider,
+  InMemoryCache,
+  SSRMultipartLink,
+} from '@apollo/client-integration-nextjs';
+import * as Sentry from '@sentry/nextjs';
+import { useSession } from 'next-auth/react';
+
+import { apiUrl, isDev, isServer } from '@/constants/environment';
+import logger from '@/utils/logger';
+import { getPathsBackendUrl, getPathsGraphQLUrl, getWatchGraphQLUrl } from '@common/env';
+import { GRAPHQL_CLIENT_PROXY_PATH } from '@common/constants/routes.mjs';
+
+const cache = new InMemoryCache({
+  typePolicies: {
+    Section: {
+      keyFields: ['uuid'],
+    },
+    MeasureTemplate: {
+      keyFields: ['uuid'],
+    },
+  },
+});
+
+/**
+ * The current locale is passed to Apollo links as context,
+ * allowing us to inject the "@locale" directive in all queries.
+ */
+declare module '@apollo/client' {
+  export interface DefaultContext {
+    sessionToken?: string;
+  }
+}
+
+function logError(
+  operation: Operation,
+  message: string,
+  error: unknown,
+  sentryExtras: { [key: string]: unknown }
+) {
+  if (isDev) {
+    logger.error(
+      error,
+      `An error occurred while querying ${operation.operationName}: ${message}`
+    );
+  }
+
+  Sentry.captureException(message, {
+    extra: {
+      query: JSON.stringify(operation.query, null, 2),
+      operationName: operation.operationName,
+      variables: JSON.stringify(operation.variables, null, 2),
+      error: JSON.stringify(serializeError(error), null, 2),
+      ...sentryExtras,
+    },
+  });
+}
+
+const errorLink = onError(({ networkError, graphQLErrors, operation }) => {
+  if (networkError) {
+    logError(operation, networkError.message, networkError, {
+      cause: networkError.cause,
+      name: networkError.name,
+    });
+  }
+
+  if (graphQLErrors) {
+    graphQLErrors.forEach((error) => {
+      logError(operation, error.message, error, {
+        errorPath: error.path,
+      });
+    });
+  }
+});
+
+type AccessTokenRef = RefObject<string | null>;
+
+const makeAuthMiddleware = (tokenRef: AccessTokenRef) => {
+  return setContext((_, { headers: initialHeaders = {} }) => {
+    return {
+      headers: {
+        ...initialHeaders,
+        ...(tokenRef.current
+          ? { Authorization: `Bearer ${tokenRef.current}` }
+          : {}),
+      },
+    };
+  });
+};
+
+function makeClient(sessionTokenRef: RefObject<string | null>) {
+  const uri = isServer ? getPathsGraphQLUrl() : GRAPHQL_CLIENT_PROXY_PATH;
+  const httpLink = new HttpLink({
+    uri,
+    fetchOptions: { cache: 'no-store' },
+  });
+
+  return new ApolloClient({
+    cache,
+    defaultOptions: {
+      watchQuery: {
+        fetchPolicy: 'network-only',
+      },
+      query: {
+        fetchPolicy: 'network-only',
+      },
+    },
+    link: ApolloLink.from([
+      errorLink,
+      makeAuthMiddleware(sessionTokenRef),
+      ...(isServer
+        ? [
+            new SSRMultipartLink({
+              stripDefer: true,
+            }),
+          ]
+        : []),
+      httpLink,
+    ]),
+  });
+}
+
+export function ApolloWrapper({ children }: React.PropsWithChildren) {
+  const session = useSession();
+  const accessToken =
+    session.status === 'authenticated' ? session.data.accessToken : null;
+  const tokenRef: AccessTokenRef = useRef(accessToken);
+
+  const client = useCallback(() => makeClient(tokenRef), [tokenRef]);
+  tokenRef.current = accessToken;
+
+  return useMemo(
+    () => (
+      <ApolloNextAppProvider makeClient={client}>
+        {children}
+      </ApolloNextAppProvider>
+    ),
+    [client, children]
+  );
+}
