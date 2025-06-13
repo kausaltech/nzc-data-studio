@@ -28,7 +28,7 @@ Before you begin, ensure you have the following installed on your machine:
 1. **Clone the repository:**
 
    ```sh
-   git clone https://github.com/kausaltech/nzc-data-studio.git
+   git clone --recursive https://github.com/kausaltech/nzc-data-studio.git
    cd nzc-data-studio
    ```
 
@@ -59,7 +59,7 @@ Before you begin, ensure you have the following installed on your machine:
    3. Add the desired API URL depending on your environment, if you're not sure which one to use, check with the Kausal team
 
       ```env
-      KAUSAL_PUBLIC_API_URL=https://<API_URL>.dev
+      PATHS_BACKEND_URL=https://<API_URL>.dev
       ```
 
 ## Development
@@ -96,12 +96,12 @@ The application will be available on [http://localhost:3000](http://localhost:30
 
 Variables prefixed with `KAUSAL_PUBLIC_` are made available client side. When using these environment variables, import them from `@/constants/environment` to support fallbacks.
 
-- `KAUSAL_PUBLIC_API_URL`: Configure the backend URL for Kausal Paths, e.g. a staging or local backend
-- `KAUSAL_PUBLIC_DEPLOYMENT_TYPE`: The deployment type e.g `staging` or `production`
+- `PATHS_BACKEND_URL`: Configure the backend URL for Kausal Paths, e.g. a staging or local backend
+- `DEPLOYMENT_TYPE`: The deployment type e.g `staging` or `production`
 - `AUTH_SECRET`: Secret key used for encrypting tokens and cookies (this can be any random string)
 - `AUTH_CLIENT_ID`: Client ID for authentication
 - `AUTH_CLIENT_SECRET`: Client secret for authentication
-- `KAUSAL_PUBLIC_AUTH_ISSUER`: URL of the authentication issuer; if not set, will use `KAUSAL_PUBLIC_API_URL`
+- `AUTH_ISSUER`: URL of the authentication issuer; if not set, will use `PATHS_BACKEND_URL`
 
 ### Analyzing the Next Bundle
 
@@ -114,11 +114,11 @@ Here is an overview of the project's folder structure:
 ```
 nzc-data-studio/
 ├── public/                # Public assets such as images and fonts
-├── app/                   # Next App Router directory, containing all paths and pages
-├── components/            # React components
-├── theme/                 # Material UI theme overrides
-├── utils/                 # Shared utility functions
-├── store/                 # Shared application state
+├── src/app/                   # Next App Router directory, containing all paths and pages
+├── src/components/            # React components
+├── src/theme/                 # Material UI theme overrides
+├── src/utils/                 # Shared utility functions
+├── src/store/                 # Shared application state
 ```
 
 ### Store
