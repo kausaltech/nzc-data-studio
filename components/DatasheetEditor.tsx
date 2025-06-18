@@ -685,39 +685,44 @@ function getRowsFromSection(
 
   return [
     ...(isRoot ? [] : [sectionRow]),
-    ...measureTemplates.flatMap(
-      (measure): MeasureRow => ({
-        isTitle: false,
-        type: 'MEASURE',
-        id: measure.uuid,
-        originalId: measure.id,
-        label: measure.name,
-        value: getMeasureValue(measure, baselineYear),
-        unit: measure.unit,
-        fallback: getMeasureFallback(measure, baselineYear),
-        priority: measure.priority,
-        notes: measure.measure?.internalNotes ?? null,
-        depth: depth + 1,
-        originalMeasureTemplate: measure,
-      })
-    ),
+    ...measureTemplates
+      .filter((m) => m.hidden === false)
+      .flatMap(
+        (measure): MeasureRow => ({
+          isTitle: false,
+          type: 'MEASURE',
+          id: measure.uuid,
+          originalId: measure.id,
+          label: measure.name,
+          value: getMeasureValue(measure, baselineYear),
+          unit: measure.unit,
+          fallback: getMeasureFallback(measure, baselineYear),
+          priority: measure.priority,
+          notes: measure.measure?.internalNotes ?? null,
+          depth: depth + 1,
+          originalMeasureTemplate: measure,
+        })
+      ),
     ...(sectionRow.sumTo100
       ? [
           {
             type: 'SUM_PERCENT',
             depth: depth + 1,
-            total: measureTemplates.reduce((total: number | null, measure) => {
-              const value = getMeasureValue(measure, baselineYear);
+            total: measureTemplates
+              .filter((m) => m.hidden === false)
+              .reduce((total: number | null, measure) => {
+                const value = getMeasureValue(measure, baselineYear);
 
-              if (typeof value === 'number' || typeof total === 'number') {
-                return (total ?? 0) + (value ?? 0);
-              }
+                if (typeof value === 'number' || typeof total === 'number') {
+                  return (total ?? 0) + (value ?? 0);
+                }
 
-              return null;
-            }, null),
+                return null;
+              }, null),
             // TODO: This could be combined with the above total reduce function
-            fallbackTotal: measureTemplates.reduce(
-              (total: number | null, measure) => {
+            fallbackTotal: measureTemplates
+              .filter((m) => m.hidden === false)
+              .reduce((total: number | null, measure) => {
                 const value = getMeasureFallback(measure, baselineYear);
 
                 if (typeof value === 'number' || typeof total === 'number') {
@@ -725,9 +730,7 @@ function getRowsFromSection(
                 }
 
                 return null;
-              },
-              null
-            ),
+              }, null),
             id: `${section.id}_sum`,
           } as SumPercentRow,
         ]
