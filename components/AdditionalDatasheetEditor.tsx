@@ -116,28 +116,30 @@ function getRowsFromSection(
 
   return [
     ...(isRoot ? [] : [sectionRow]),
-    ...measureTemplates.flatMap(
-      (measure): MeasureDataPoint => ({
-        isTitle: false,
-        type: 'MEASURE',
-        id: measure.uuid,
-        originalId: measure.id,
-        label: measure.name,
-        baselineValue: getMeasureValue(measure, baselineYear),
-        unit: measure.unit,
-        depth: depth + 1,
-        originalMeasureTemplate: measure,
-        placeholderDataPoints:
-          measure.measure?.placeholderDataPoints?.reduce(
+    ...measureTemplates
+      .filter((measure) => measure.hidden === false)
+      .flatMap(
+        (measure): MeasureDataPoint => ({
+          isTitle: false,
+          type: 'MEASURE',
+          id: measure.uuid,
+          originalId: measure.id,
+          label: measure.name,
+          baselineValue: getMeasureValue(measure, baselineYear),
+          unit: measure.unit,
+          depth: depth + 1,
+          originalMeasureTemplate: measure,
+          placeholderDataPoints:
+            measure.measure?.placeholderDataPoints?.reduce(
+              reduceDataPoints,
+              {} as Record<number, null | number>
+            ) ?? {},
+          ...measure.measure?.dataPoints.reduce(
             reduceDataPoints,
             {} as Record<number, null | number>
-          ) ?? {},
-        ...measure.measure?.dataPoints.reduce(
-          reduceDataPoints,
-          {} as Record<number, null | number>
-        ),
-      })
-    ),
+          ),
+        })
+      ),
     ...childSections.flatMap((section) =>
       getRowsFromSection(section, depth + 1, false, baselineYear)
     ),
