@@ -30,6 +30,7 @@ import CustomEditComponent, {
   Accordion,
   AccordionDetails,
   DATA_GRID_SX,
+  filterSections,
   formatNumericValue,
   useSingleClickEdit,
 } from './DatasheetEditor';
@@ -116,30 +117,28 @@ function getRowsFromSection(
 
   return [
     ...(isRoot ? [] : [sectionRow]),
-    ...measureTemplates
-      .filter((measure) => measure.hidden === false)
-      .flatMap(
-        (measure): MeasureDataPoint => ({
-          isTitle: false,
-          type: 'MEASURE',
-          id: measure.uuid,
-          originalId: measure.id,
-          label: measure.name,
-          baselineValue: getMeasureValue(measure, baselineYear),
-          unit: measure.unit,
-          depth: depth + 1,
-          originalMeasureTemplate: measure,
-          placeholderDataPoints:
-            measure.measure?.placeholderDataPoints?.reduce(
-              reduceDataPoints,
-              {} as Record<number, null | number>
-            ) ?? {},
-          ...measure.measure?.dataPoints.reduce(
+    ...measureTemplates.flatMap(
+      (measure): MeasureDataPoint => ({
+        isTitle: false,
+        type: 'MEASURE',
+        id: measure.uuid,
+        originalId: measure.id,
+        label: measure.name,
+        baselineValue: getMeasureValue(measure, baselineYear),
+        unit: measure.unit,
+        depth: depth + 1,
+        originalMeasureTemplate: measure,
+        placeholderDataPoints:
+          measure.measure?.placeholderDataPoints?.reduce(
             reduceDataPoints,
             {} as Record<number, null | number>
-          ),
-        })
-      ),
+          ) ?? {},
+        ...measure.measure?.dataPoints.reduce(
+          reduceDataPoints,
+          {} as Record<number, null | number>
+        ),
+      })
+    ),
     ...childSections.flatMap((section) =>
       getRowsFromSection(section, depth + 1, false, baselineYear)
     ),
@@ -518,6 +517,8 @@ export function AdditionalDatasheetEditor() {
     [filteredData, rootSectionUuid, baselineYear, targetYear]
   );
 
+  const visibleMeasures = useMemo(() => filterSections(measures), [measures]);
+
   if (loading) {
     return <LoadingCard />;
   }
@@ -535,7 +536,7 @@ export function AdditionalDatasheetEditor() {
 
   return (
     <div>
-      {measures.map((measure, index) => {
+      {visibleMeasures.map((measure, index) => {
         return (
           <Accordion
             slotProps={{ transition: { unmountOnExit: true } }}

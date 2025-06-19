@@ -64,7 +64,7 @@ const processDataCollection = (
 
   const processItems = (measureTemplates: MeasureTemplates) => {
     measureTemplates
-      .filter((measureTemplate) => measureTemplate.hidden === false)
+      .filter((measureTemplate) => measureTemplate.hidden !== true)
       .forEach((measureTemplate) => {
         if (
           !filterYearBoundMeasureTemplate(

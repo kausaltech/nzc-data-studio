@@ -158,13 +158,13 @@ export const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
   },
 });
 
-function filterSectionTree(section: Section): Section | null {
+export function filterSectionTree(section: Section): Section | null {
   const visibleChildren = (section.childSections || [])
     .map(filterSectionTree)
     .filter((s): s is Section => s !== null);
 
   const visibleMeasures = (section.measureTemplates || []).filter(
-    (m) => !m.hidden
+    (m) => m.hidden !== true
   );
 
   if (visibleMeasures.length === 0 && visibleChildren.length === 0) {
@@ -178,7 +178,7 @@ function filterSectionTree(section: Section): Section | null {
   };
 }
 
-function filterSections(sections: Section[]): Section[] {
+export function filterSections(sections: Section[]): Section[] {
   return sections
     .map(filterSectionTree)
     .filter((s): s is Section => s !== null);
