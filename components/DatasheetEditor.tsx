@@ -40,7 +40,6 @@ import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
 import { useDataCollectionStore } from '@/store/data-collection';
 import {
   MeasureTemplateFragmentFragment,
-  UnitType,
   UpdateMeasureDataPointMutation,
   UpdateMeasureDataPointMutationVariables,
 } from '@/types/__generated__/graphql';
@@ -184,10 +183,12 @@ export function filterSections(sections: Section[]): Section[] {
     .filter((s): s is Section => s !== null);
 }
 
+type UnitFragment = MeasureTemplateFragmentFragment['unit'];
+
 export function formatNumericValue(
-  value: number,
-  row: Pick<MeasureRow, 'unit' | 'label'>
-) {
+  value: number | null,
+  row: { label: string; unit: UnitFragment }
+): string {
   if (value == null) {
     return '-';
   }
@@ -551,7 +552,7 @@ const GRID_COL_DEFS: GridColDef[] = [
     headerName: 'Unit',
     field: 'unit',
     flex: 1,
-    valueFormatter: (value: UnitType, row: MeasureRow | SumPercentRow) =>
+    valueFormatter: (value: UnitFragment, row: MeasureRow | SumPercentRow) =>
       row.type === 'MEASURE' ? value.long : undefined,
     renderCell: (params: GridRenderCellParams<Row>) => {
       if (params.row.type === 'SUM_PERCENT') {
@@ -638,7 +639,7 @@ export type MeasureRow = {
   isTitle: false;
   label: string;
   value: number | null;
-  unit: UnitType;
+  unit: MeasureTemplateFragmentFragment['unit'];
   originalId: string;
   fallback: number | null;
   priority: string;
