@@ -40,7 +40,6 @@ import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
 import { useDataCollectionStore } from '@/store/data-collection';
 import {
   MeasureTemplateFragmentFragment,
-  UnitType,
   UpdateMeasureDataPointMutation,
   UpdateMeasureDataPointMutationVariables,
 } from '@/types/__generated__/graphql';
@@ -158,10 +157,38 @@ export const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
   },
 });
 
+export function filterSectionTree(section: Section): Section | null {
+  const visibleChildren = (section.childSections || [])
+    .map(filterSectionTree)
+    .filter((s): s is Section => s !== null);
+
+  const visibleMeasures = (section.measureTemplates || []).filter(
+    (m) => m.hidden !== true
+  );
+
+  if (visibleMeasures.length === 0 && visibleChildren.length === 0) {
+    return null;
+  }
+
+  return {
+    ...section,
+    measureTemplates: visibleMeasures,
+    childSections: visibleChildren,
+  };
+}
+
+export function filterSections(sections: Section[]): Section[] {
+  return sections
+    .map(filterSectionTree)
+    .filter((s): s is Section => s !== null);
+}
+
+type UnitFragment = MeasureTemplateFragmentFragment['unit'];
+
 export function formatNumericValue(
-  value: number,
-  row: Pick<MeasureRow, 'unit' | 'label'>
-) {
+  value: number | null,
+  row: { label: string; unit: UnitFragment }
+): string {
   if (value == null) {
     return '-';
   }
@@ -525,7 +552,7 @@ const GRID_COL_DEFS: GridColDef[] = [
     headerName: 'Unit',
     field: 'unit',
     flex: 1,
-    valueFormatter: (value: UnitType, row: MeasureRow | SumPercentRow) =>
+    valueFormatter: (value: UnitFragment, row: MeasureRow | SumPercentRow) =>
       row.type === 'MEASURE' ? value.long : undefined,
     renderCell: (params: GridRenderCellParams<Row>) => {
       if (params.row.type === 'SUM_PERCENT') {
@@ -612,7 +639,7 @@ export type MeasureRow = {
   isTitle: false;
   label: string;
   value: number | null;
-  unit: UnitType;
+  unit: MeasureTemplateFragmentFragment['unit'];
   originalId: string;
   fallback: number | null;
   priority: string;
@@ -925,13 +952,14 @@ type Props = {
 };
 
 export function DatasheetEditor({ sections, withIndexes = false }: Props) {
+  const visibleSections = useMemo(() => filterSections(sections), [sections]);
   const expanded = useDataCollectionStore((store) =>
     store.getSelectedAccordion()
   );
 
   return (
     <div>
-      {sections.map((section, i) => (
+      {visibleSections.map((section, i) => (
         <AccordionContentWrapper
           key={section.id}
           withIndexes={withIndexes}
