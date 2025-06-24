@@ -22,7 +22,6 @@ import {
   UpdateMeasureDataPointMutation,
   UpdateMeasureDataPointMutationVariables,
   GetMeasureTemplatesQuery,
-  UnitType,
   MeasureTemplateFragmentFragment,
 } from '@/types/__generated__/graphql';
 import { useSnackbar } from './SnackbarProvider';
@@ -53,7 +52,7 @@ type MeasureDataPoint = {
   isTitle: false;
   label: string;
   baselineValue: number | null;
-  unit: UnitType;
+  unit: MeasureTemplateFragmentFragment['unit'];
   originalId: string;
   depth: number;
   placeholderDataPoints: Record<number, null | number>;
@@ -401,8 +400,10 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
         field: 'unit',
         flex: 1,
         display: 'flex',
-        valueFormatter: (value: UnitType, row: MeasureDataPoint) =>
-          row.type === 'MEASURE' ? value.long : undefined,
+        valueFormatter: (
+          value: MeasureTemplateFragmentFragment['unit'],
+          row: MeasureDataPoint
+        ) => (row.type === 'MEASURE' ? value.long : undefined),
         renderCell: (params: GridRenderCellParams<Row>) => {
           return (
             <Typography key={'unit'} sx={{ my: 1 }} variant={'caption'}>
