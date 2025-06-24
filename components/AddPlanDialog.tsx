@@ -361,7 +361,7 @@ export function AddPlanDialog({
                     error={!!targetYearError}
                     helperText={
                       targetYearError ||
-                      `The year your city aims to achieve net zero emissions`
+                      `The year your city aims to achieve net zero emissions (between 2030 and 2050)`
                     }
                     onValueChange={handleTargetYearChange}
                   />
