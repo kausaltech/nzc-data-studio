@@ -7,6 +7,7 @@ import {
   CardContent,
   Container,
   Fade,
+  Link,
   Skeleton,
   Stack,
   Typography,
@@ -30,6 +31,8 @@ import IntroSection from '@/components/IntroSection';
 import { benefits } from '@/constants/intro-content';
 import { usePermissions } from '@/hooks/use-user-profile';
 import { useSuspenseSelectedPlanConfig } from '@/components/providers/SelectedPlanProvider';
+import { HelpText } from '@/components/HelpText';
+import { SUPPORT_FORM_URL } from '@/components/links';
 
 function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   const { data, error, loading } = useQuery<
@@ -118,6 +121,7 @@ function DataCollectionContent({ instance }: { instance: string }) {
 export default function DashboardContent() {
   const { data: instanceData, error: instanceError } =
     useSuspenseQuery<GetFrameworkConfigsQuery>(GET_FRAMEWORK_CONFIGS);
+  const permissions = usePermissions();
 
   const frameworkConfigs = instanceData.framework?.configs;
   const plan = useSuspenseSelectedPlanConfig();
@@ -133,9 +137,23 @@ export default function DashboardContent() {
                   Welcome to NetZeroPlanner
                 </Typography>
                 <Typography variant="subtitle1" sx={{ maxWidth: '80%' }}>
-                  It looks like there aren't any plans for your city yet. Get
-                  started by creating a new plan to begin your decarbonisation
-                  journey.
+                  It looks like there aren't any plans for your city yet.{' '}
+                  {!permissions.create ? (
+                    <>
+                      You don't currently have permission to create one. To
+                      request edit access, please fill out{' '}
+                      <Link
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={SUPPORT_FORM_URL}
+                      >
+                        this form
+                      </Link>
+                      .
+                    </>
+                  ) : (
+                    'Get started by creating a new plan to begin your decarbonisation journey.'
+                  )}
                 </Typography>
               </CardContent>
             </Card>

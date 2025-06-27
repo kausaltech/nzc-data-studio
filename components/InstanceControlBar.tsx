@@ -17,6 +17,8 @@ import {
   SxProps,
   Theme,
   Divider,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import kebabCase from 'lodash/kebabCase';
 
@@ -37,6 +39,8 @@ import {
   useSelectedPlanId,
   useSuspenseSelectedPlanConfig,
 } from './providers/SelectedPlanProvider';
+import { Lock } from 'react-bootstrap-icons';
+import { SUPPORT_FORM_URL } from './links';
 
 function isTestInstance(name: string) {
   // Note that this is a best guess of test instances until we have a better way to identify them
@@ -142,6 +146,8 @@ function getNavStyles(isActive: boolean): SxProps<Theme> {
 
 export function InstanceControlBar() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isRequestEditTooltipOpen, setIsRequestEditTooltipOpen] =
+    useState(true); // Initially true, but will only be shown if the user has no create permissions
 
   const permissions = usePermissions();
   const { data: instanceData, error: instanceError } =
@@ -249,13 +255,50 @@ export function InstanceControlBar() {
                 instances={instanceConfigs}
               />
             )}
-            {!permissions.isLoading && permissions.create && (
-              <Button
-                onClick={() => setIsAddModalOpen(true)}
-                variant="outlined"
-              >
-                Create new plan
-              </Button>
+            {!permissions.isLoading && (
+              <>
+                {permissions.create ? (
+                  <Button
+                    onClick={() => setIsAddModalOpen(true)}
+                    variant="outlined"
+                  >
+                    Create new plan
+                  </Button>
+                ) : (
+                  <Tooltip
+                    placement="bottom-end"
+                    open={isRequestEditTooltipOpen}
+                    onOpen={() => setIsRequestEditTooltipOpen(true)}
+                    onClose={() => setIsRequestEditTooltipOpen(false)}
+                    arrow
+                    title={
+                      <Typography variant="body2">
+                        You don't have permission to create a plan. To request
+                        edit access, please fill out{' '}
+                        <MuiLink
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={SUPPORT_FORM_URL}
+                          color="inherit"
+                          sx={{ fontWeight: 'bold' }}
+                        >
+                          this form
+                        </MuiLink>
+                      </Typography>
+                    }
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'stretch' }}>
+                      <Button
+                        variant="outlined"
+                        disabled
+                        startIcon={<Lock size={18} />}
+                      >
+                        Create new plan
+                      </Button>
+                    </Box>
+                  </Tooltip>
+                )}
+              </>
             )}
           </Stack>
         </Container>
