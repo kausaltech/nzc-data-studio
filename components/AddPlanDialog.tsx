@@ -342,7 +342,8 @@ export function AddPlanDialog({
                       </FormHelperText>
                     ) : (
                       <FormHelperText>
-                        The starting point for your city's emissions data
+                        All data you enter will refer to this year, which serves
+                        as the starting point for tracking your city's emissions
                       </FormHelperText>
                     )}
                   </FormControl>

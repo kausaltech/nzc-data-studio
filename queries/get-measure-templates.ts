@@ -33,6 +33,9 @@ export const GET_MEASURE_TEMPLATES = gql`
     __typename
     uuid
     name
+    maxTotal
+    # TODO: Add help text to sections on the backend first
+    # helpText
     path
     parent {
       uuid
@@ -49,6 +52,9 @@ export const GET_MEASURE_TEMPLATES = gql`
     name
     hidden
     yearBound
+    helpText
+    minValue
+    maxValue
     unit {
       htmlShort
       htmlLong

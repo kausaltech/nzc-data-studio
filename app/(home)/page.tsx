@@ -220,7 +220,21 @@ export default function DashboardContent() {
                         href={plan.resultsDownloadUrl}
                         download
                       >
-                        Export Outcomes as Excel
+                        Export Outcomes as Excel{' '}
+                        <HelpText
+                          text={
+                            <>
+                              Here you can download tables that are helpful in
+                              building an Economic Case for your Climate Action
+                              Plan. These tables display an analysis of GHG
+                              reduction along with the costs and benefits by
+                              sub-sector and stakeholder group. This will
+                              provide you with both the GHG and financial Return
+                              on Investment for better decision making in your
+                              Climate Action Plan.
+                            </>
+                          }
+                        />
                       </Button>
                     )}
                   </Stack>

@@ -34,7 +34,6 @@ import {
 import { ChevronDown, ExclamationTriangle } from 'react-bootstrap-icons';
 import { NumberFormatValues } from 'react-number-format';
 
-import { SECTIONS_SUM_100_PERCENT } from '@/constants/measure-overrides';
 import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
 import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
 import { useDataCollectionStore } from '@/store/data-collection';
@@ -57,6 +56,7 @@ import { PriorityBadge } from './PriorityBadge';
 import { useSnackbar } from './SnackbarProvider';
 import { usePermissions } from '@/hooks/use-user-profile';
 import { useSuspenseSelectedPlanConfig } from './providers/SelectedPlanProvider';
+import { HelpText } from './HelpText';
 
 export const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -500,6 +500,27 @@ const EDITABLE_COL: Partial<GridColDef> = {
   ),
 };
 
+function HeaderWithHelpText({
+  headerName,
+  helpText,
+}: {
+  headerName: string;
+  helpText: string;
+}) {
+  return (
+    <Stack direction="row" spacing={1} alignItems="center" sx={{ py: 1 }}>
+      <Typography
+        component="span"
+        variant="caption"
+        sx={{ whiteSpace: 'normal', lineHeight: 'normal' }}
+      >
+        {headerName}
+      </Typography>
+      <HelpText size="sm" text={helpText} />
+    </Stack>
+  );
+}
+
 const GRID_COL_DEFS: GridColDef[] = [
   {
     display: 'flex',
@@ -525,6 +546,12 @@ const GRID_COL_DEFS: GridColDef[] = [
           variant={isSmallText ? 'caption' : 'body2'}
         >
           {label}
+          {'helpText' in params.row && !!params.row.helpText && (
+            <HelpText
+              text={params.row.helpText}
+              size={isSmallText ? 'sm' : 'md'}
+            />
+          )}
         </Typography>
       );
     },
@@ -572,8 +599,15 @@ const GRID_COL_DEFS: GridColDef[] = [
   {
     display: 'flex',
     headerName: 'Comparable City Value',
+    minWidth: 110,
+    renderHeader: ({ colDef }) => (
+      <HeaderWithHelpText
+        headerName={colDef.headerName!}
+        helpText={colDef.description!}
+      />
+    ),
     description:
-      'Comparable City Values are utilized when no city-specific value is provided. Fallbacks are derived from comparable cities.',
+      'Comparable City Values are developed based on the 3 questions you answered when you created your plan. 1) Population, 2) Climate 3) % Zero Carbon Electricity. The system averages the data for European cities that have similar Climate and % Zero Carbon Electricity and then adjusts for the exact population of your city. Comparable City Values can be used to validate your own data inputs. If you have no information for a given cell, you can leave that cell blank, and the system will default to the Comparable City Value.',
     field: 'fallback',
     flex: 1,
     renderCell: (params: GridRenderCellParams<Row>) => {
@@ -614,6 +648,15 @@ const GRID_COL_DEFS: GridColDef[] = [
     headerName: 'Priority',
     field: 'priority',
     flex: 1,
+    minWidth: 90,
+    renderHeader: ({ colDef }) => (
+      <HeaderWithHelpText
+        headerName={colDef.headerName!}
+        helpText={colDef.description!}
+      />
+    ),
+    description:
+      'Priority shows how much impact the metric has on the outputs of the model. Given limited time, you should focus on filling in all High Priority inputs with the most accurate information possible.',
     renderCell: (params) =>
       !!params.value && (
         <PriorityBadge
@@ -645,6 +688,7 @@ export type MeasureRow = {
   priority: string;
   notes: string | null;
   depth: number;
+  helpText: string | null;
   originalMeasureTemplate: MeasureTemplateFragmentFragment;
 };
 
@@ -655,6 +699,7 @@ type SectionRow = {
   id: string;
   label: string;
   depth: number;
+  helpText: string | null;
 };
 
 type SumPercentRow = {
@@ -703,9 +748,10 @@ function getRowsFromSection(
 ): Row[] {
   const sectionRow: SectionRow = {
     type: 'SECTION',
-    sumTo100: SECTIONS_SUM_100_PERCENT.includes(section.id),
+    sumTo100: section.maxTotal === 100,
     isTitle: true,
     label: section.name,
+    helpText: section.helpText,
     id: section.id,
     depth,
   };
@@ -719,6 +765,7 @@ function getRowsFromSection(
         id: measure.uuid,
         originalId: measure.id,
         label: measure.name,
+        helpText: measure.helpText,
         value: getMeasureValue(measure, baselineYear),
         unit: measure.unit,
         fallback: getMeasureFallback(measure, baselineYear),

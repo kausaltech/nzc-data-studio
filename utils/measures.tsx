@@ -20,8 +20,9 @@ type SectionOrMeasure = MainSectionMeasuresFragment['descendants'][0];
 
 export type Section = BaseSectionOrMeasure & {
   type: 'ACCORDION_SECTION' | 'SECTION';
-  availableYears: number[] | null;
   childSections: Section[];
+  maxTotal: number | null;
+  helpText: string | null;
   measureTemplates?: MeasureTemplateFragmentFragment[];
 };
 
@@ -87,12 +88,9 @@ export function mapMeasureTemplatesToRows(
             section.parent?.uuid === mainSection.uuid
               ? 'ACCORDION_SECTION'
               : 'SECTION',
-
-          availableYears:
-            'availableYears' in section
-              ? (section.availableYears as number[])
-              : null,
-
+          maxTotal: section.maxTotal ?? null,
+          // TODO: Add helpText to sections on the backend first
+          helpText: /** section.helpText ?? **/ null,
           measureTemplates,
         };
 
