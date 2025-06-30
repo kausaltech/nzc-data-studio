@@ -89,8 +89,7 @@ export function mapMeasureTemplatesToRows(
               ? 'ACCORDION_SECTION'
               : 'SECTION',
           maxTotal: section.maxTotal ?? null,
-          // TODO: Add helpText to sections on the backend first
-          helpText: /** section.helpText ?? **/ null,
+          helpText: section.helpText ?? null,
           measureTemplates,
         };
 
