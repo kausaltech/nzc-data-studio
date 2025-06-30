@@ -55,6 +55,7 @@ export const GET_MEASURE_TEMPLATES = gql`
     helpText
     minValue
     maxValue
+    includeInProgressTracker
     unit {
       htmlShort
       htmlLong

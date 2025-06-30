@@ -34,7 +34,6 @@ import CustomEditComponent, {
   useSingleClickEdit,
 } from './DatasheetEditor';
 import { CustomFooter } from './DatasheetEditor';
-import { ADDITIONAL_MEASURES } from '@/constants/measure-overrides';
 import { usePermissions } from '@/hooks/use-user-profile';
 import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
 import { LoadingCard } from '@/app/loading';
@@ -498,7 +497,12 @@ export function AdditionalDatasheetEditor() {
     () =>
       filterMeasureTemplates(
         data,
-        new Set(ADDITIONAL_MEASURES.map((measure) => measure.uuid))
+        new Set(
+          data?.framework?.dataCollection?.descendants
+            .flatMap((section) => section.measureTemplates)
+            .filter((measure) => measure.includeInProgressTracker)
+            .map((measure) => measure.uuid)
+        )
       ),
     [data]
   );

@@ -2456,7 +2456,7 @@ export type GetMeasureTemplatesQuery = (
           { uuid: any }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
-          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, defaultValueSource: string, unit: (
+          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
             { htmlShort: string, htmlLong: string, short: string, long: string }
             & { __typename?: 'UnitType' }
           ), defaultDataPoints: Array<(
@@ -2483,7 +2483,7 @@ export type GetMeasureTemplatesQuery = (
           { uuid: any }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
-          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, defaultValueSource: string, unit: (
+          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
             { htmlShort: string, htmlLong: string, short: string, long: string }
             & { __typename?: 'UnitType' }
           ), defaultDataPoints: Array<(
@@ -2519,7 +2519,7 @@ export type MainSectionMeasuresFragment = (
       { uuid: any }
       & { __typename?: 'Section' }
     ) | null, measureTemplates: Array<(
-      { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, defaultValueSource: string, unit: (
+      { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
         { htmlShort: string, htmlLong: string, short: string, long: string }
         & { __typename?: 'UnitType' }
       ), defaultDataPoints: Array<(
@@ -2547,7 +2547,7 @@ export type SectionFragmentFragment = (
     { uuid: any }
     & { __typename?: 'Section' }
   ) | null, measureTemplates: Array<(
-    { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, defaultValueSource: string, unit: (
+    { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
       { htmlShort: string, htmlLong: string, short: string, long: string }
       & { __typename?: 'UnitType' }
     ), defaultDataPoints: Array<(
@@ -2569,7 +2569,7 @@ export type SectionFragmentFragment = (
 );
 
 export type MeasureTemplateFragmentFragment = (
-  { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, defaultValueSource: string, unit: (
+  { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
     { htmlShort: string, htmlLong: string, short: string, long: string }
     & { __typename?: 'UnitType' }
   ), defaultDataPoints: Array<(
