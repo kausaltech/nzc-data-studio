@@ -2452,7 +2452,7 @@ export type GetMeasureTemplatesQuery = (
   { framework?: (
     { id: string, dataCollection?: (
       { uuid: any, descendants: Array<(
-        { uuid: any, name: string, maxTotal?: number | null, path: string, parent?: (
+        { uuid: any, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
           { uuid: any }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
@@ -2479,7 +2479,7 @@ export type GetMeasureTemplatesQuery = (
       & { __typename?: 'Section' }
     ) | null, futureAssumptions?: (
       { uuid: any, descendants: Array<(
-        { uuid: any, name: string, maxTotal?: number | null, path: string, parent?: (
+        { uuid: any, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
           { uuid: any }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
@@ -2515,7 +2515,7 @@ export type GetMeasureTemplatesQuery = (
 
 export type MainSectionMeasuresFragment = (
   { uuid: any, descendants: Array<(
-    { uuid: any, name: string, maxTotal?: number | null, path: string, parent?: (
+    { uuid: any, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
       { uuid: any }
       & { __typename?: 'Section' }
     ) | null, measureTemplates: Array<(
@@ -2543,7 +2543,7 @@ export type MainSectionMeasuresFragment = (
 );
 
 export type SectionFragmentFragment = (
-  { uuid: any, name: string, maxTotal?: number | null, path: string, parent?: (
+  { uuid: any, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
     { uuid: any }
     & { __typename?: 'Section' }
   ) | null, measureTemplates: Array<(

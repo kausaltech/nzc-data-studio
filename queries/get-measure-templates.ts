@@ -34,8 +34,7 @@ export const GET_MEASURE_TEMPLATES = gql`
     uuid
     name
     maxTotal
-    # TODO: Add help text to sections on the backend first
-    # helpText
+    helpText
     path
     parent {
       uuid
