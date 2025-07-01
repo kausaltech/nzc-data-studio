@@ -937,6 +937,9 @@ function AccordionContentWrapper({
         <Grid container>
           <Grid xs={6}>
             {withIndexes && `${index + 1}.`} {section.name}
+            {!!section.helpText && (
+              <HelpText text={section.helpText} size="sm" />
+            )}
           </Grid>
           <Grid xs>
             <DataSectionSummary rows={rows} />

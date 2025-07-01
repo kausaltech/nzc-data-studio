@@ -44,6 +44,7 @@ import {
   useSuspenseSelectedPlanConfig,
 } from './providers/SelectedPlanProvider';
 import { serializeError } from 'serialize-error';
+import { HelpText } from './HelpText';
 
 type MeasureDataPoint = {
   type: 'MEASURE';
@@ -54,6 +55,7 @@ type MeasureDataPoint = {
   unit: MeasureTemplateFragmentFragment['unit'];
   originalId: string;
   depth: number;
+  helpText: string | null;
   placeholderDataPoints: Record<number, null | number>;
   originalMeasureTemplate: MeasureTemplateFragmentFragment;
   [year: number]: null | number;
@@ -64,6 +66,7 @@ type SectionRow = {
   isTitle: boolean;
   id: string;
   label: string;
+  helpText: string | null;
   depth: number;
 };
 
@@ -92,6 +95,7 @@ function getRowsFromSection(
     type: 'SECTION',
     isTitle: true,
     label: section.name,
+    helpText: section.helpText,
     id: section.id,
     depth,
   };
@@ -122,6 +126,7 @@ function getRowsFromSection(
         id: measure.uuid,
         originalId: measure.id,
         label: measure.name,
+        helpText: measure.helpText,
         baselineValue: getMeasureValue(measure, baselineYear),
         unit: measure.unit,
         depth: depth + 1,
@@ -343,6 +348,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
 
           return (
             <Typography
+              key={`label-${params.row.id}`}
               sx={{
                 my: 1,
                 ml: params.row.depth,
@@ -351,6 +357,12 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
               variant={isSmallText ? 'caption' : 'body2'}
             >
               {params.value}
+              {'helpText' in params.row && !!params.row.helpText && (
+                <HelpText
+                  text={params.row.helpText}
+                  size={isSmallText ? 'sm' : 'md'}
+                />
+              )}
             </Typography>
           );
         },
@@ -541,11 +553,11 @@ export function AdditionalDatasheetEditor() {
 
   return (
     <div>
-      {visibleMeasures.map((measure, index) => {
+      {visibleMeasures.map((section, index) => {
         return (
           <Accordion
             slotProps={{ transition: { unmountOnExit: true } }}
-            key={measure.id}
+            key={section.id}
             expanded={expanded === index}
             onChange={(_event, isExpanded) =>
               setExpanded(isExpanded ? index : null)
@@ -553,15 +565,20 @@ export function AdditionalDatasheetEditor() {
           >
             <MuiAccordionSummary
               expandIcon={<ChevronDown size={18} />}
-              aria-controls={`${measure.id}-content`}
-              id={`${measure.id}-header`}
+              aria-controls={`${section.id}-content`}
+              id={`${section.id}-header`}
             >
-              <Typography>{measure.name}</Typography>
+              <Typography>
+                {section.name}
+                {!!section.helpText && (
+                  <HelpText text={section.helpText} size="sm" />
+                )}
+              </Typography>
             </MuiAccordionSummary>
             <AccordionDetails>
               <Box sx={{ height: 400 }}>
                 <DatasheetSection
-                  section={measure}
+                  section={section}
                   baselineYear={baselineYear}
                 />
               </Box>

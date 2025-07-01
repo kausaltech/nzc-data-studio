@@ -16,8 +16,7 @@ export function HelpText({ text, size = 'md' }: Props) {
     >
       <Box
         sx={{
-          ml: 1,
-          mr: 2,
+          mx: 1,
           cursor: 'pointer',
           display: 'inline-block',
           verticalAlign: 'middle',
