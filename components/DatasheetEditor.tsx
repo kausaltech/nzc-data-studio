@@ -414,7 +414,7 @@ type TotalPercentageProps = {
  * If no measure values have been provided, i.e. the total is null, hide the total.
  * If the total does not equal 100%, show a warning.
  */
-function TotalPercentage({
+export function TotalPercentage({
   total,
   overrideIsValid = false,
 }: TotalPercentageProps) {
@@ -521,41 +521,52 @@ function HeaderWithHelpText({
   );
 }
 
+export function renderLabelCell(
+  type: Row['type'],
+  id: string,
+  depth: number,
+  helpText: string | null,
+  value: string | number | null
+) {
+  const isSection = type === 'SECTION';
+  const isSectionSummary = type === 'SUM_PERCENT';
+  const isSmallText = isSection || isSectionSummary;
+  const label = type === 'SUM_PERCENT' ? 'Total' : value;
+
+  return (
+    <Typography
+      key={`label-${id}`}
+      sx={{
+        my: 1,
+        ml: depth,
+        fontWeight: isSmallText ? 'fontWeightMedium' : undefined,
+        fontStyle: isSectionSummary ? 'italic' : undefined,
+        color: isSectionSummary ? 'text.secondary' : undefined,
+      }}
+      variant={isSmallText ? 'caption' : 'body2'}
+    >
+      {label}
+      {!!helpText && (
+        <HelpText text={helpText} size={isSmallText ? 'sm' : 'md'} />
+      )}
+    </Typography>
+  );
+}
+
 const GRID_COL_DEFS: GridColDef[] = [
   {
     display: 'flex',
     headerName: 'Label',
     field: 'label',
     flex: 2,
-    renderCell: (params: GridRenderCellParams<Row>) => {
-      const isSection = params.row.type === 'SECTION';
-      const isSectionSummary = params.row.type === 'SUM_PERCENT';
-      const isSmallText = isSection || isSectionSummary;
-      const label = params.row.type === 'SUM_PERCENT' ? 'Total' : params.value;
-
-      return (
-        <Typography
-          key={`label-${params.row.id}`}
-          sx={{
-            my: 1,
-            ml: params.row.depth,
-            fontWeight: isSmallText ? 'fontWeightMedium' : undefined,
-            fontStyle: isSectionSummary ? 'italic' : undefined,
-            color: isSectionSummary ? 'text.secondary' : undefined,
-          }}
-          variant={isSmallText ? 'caption' : 'body2'}
-        >
-          {label}
-          {'helpText' in params.row && !!params.row.helpText && (
-            <HelpText
-              text={params.row.helpText}
-              size={isSmallText ? 'sm' : 'md'}
-            />
-          )}
-        </Typography>
-      );
-    },
-    // Stretch title rows to the full width of the table
+    renderCell: (params: GridRenderCellParams<Row>) =>
+      renderLabelCell(
+        params.row.type,
+        params.row.id,
+        params.row.depth,
+        'helpText' in params.row ? params.row.helpText : null,
+        params.value
+      ),
     colSpan: (value, row: Row) => {
       if (row.type === 'SECTION') {
         return GRID_COL_DEFS.length;
@@ -585,6 +596,7 @@ const GRID_COL_DEFS: GridColDef[] = [
       if (params.row.type === 'SUM_PERCENT') {
         return null;
       }
+
       return (
         <Typography
           key={`unit-${params.row.id}`}
@@ -692,7 +704,7 @@ export type MeasureRow = {
   originalMeasureTemplate: MeasureTemplateFragmentFragment;
 };
 
-type SectionRow = {
+export type SectionRow = {
   type: 'SECTION';
   sumTo100: boolean;
   isTitle: boolean;
@@ -721,6 +733,37 @@ declare module '@mui/x-data-grid' {
   interface FooterPropsOverrides {
     count: number;
   }
+}
+
+function getSumPercentRow(
+  { measureTemplates = [], ...section }: Section,
+  depth: number,
+  baselineYear: number | null
+): SumPercentRow {
+  return {
+    type: 'SUM_PERCENT',
+    depth: depth + 1,
+    total: measureTemplates.reduce((total: number | null, measure) => {
+      const value = getMeasureValue(measure, baselineYear);
+
+      if (typeof value === 'number' || typeof total === 'number') {
+        return (total ?? 0) + (value ?? 0);
+      }
+
+      return null;
+    }, null),
+    // TODO: This could be combined with the above total reduce function
+    fallbackTotal: measureTemplates.reduce((total: number | null, measure) => {
+      const value = getMeasureFallback(measure, baselineYear);
+
+      if (typeof value === 'number' || typeof total === 'number') {
+        return (total ?? 0) + (value ?? 0);
+      }
+
+      return null;
+    }, null),
+    id: `${section.id}_sum`,
+  } as SumPercentRow;
 }
 
 export function CustomFooter({
@@ -777,39 +820,29 @@ function getRowsFromSection(
     ),
     ...(sectionRow.sumTo100
       ? [
-          {
-            type: 'SUM_PERCENT',
-            depth: depth + 1,
-            total: measureTemplates.reduce((total: number | null, measure) => {
-              const value = getMeasureValue(measure, baselineYear);
-
-              if (typeof value === 'number' || typeof total === 'number') {
-                return (total ?? 0) + (value ?? 0);
-              }
-
-              return null;
-            }, null),
-            // TODO: This could be combined with the above total reduce function
-            fallbackTotal: measureTemplates.reduce(
-              (total: number | null, measure) => {
-                const value = getMeasureFallback(measure, baselineYear);
-
-                if (typeof value === 'number' || typeof total === 'number') {
-                  return (total ?? 0) + (value ?? 0);
-                }
-
-                return null;
-              },
-              null
-            ),
-            id: `${section.id}_sum`,
-          } as SumPercentRow,
+          getSumPercentRow(
+            { measureTemplates, childSections, ...section },
+            depth + 1,
+            baselineYear
+          ),
         ]
       : []),
     ...childSections.flatMap((section) =>
       getRowsFromSection(section, depth + 1, false, baselineYear)
     ),
   ];
+}
+
+export function getRowClassName(type: Row['type'], depth: number) {
+  if (type === 'SECTION') {
+    return `row-title ${depth > 1 ? 'row-title--subtitle' : ''}`;
+  }
+
+  if (type === 'SUM_PERCENT') {
+    return 'row-summary';
+  }
+
+  return '';
 }
 
 type AccordionContentWrapperProps = {
@@ -850,6 +883,10 @@ function AccordionContentWrapper({
     () => getRowsFromSection(section, 0, true, baselineYear),
     [section, baselineYear]
   );
+
+  const measureCount = useMemo(() => {
+    return rows.filter((row) => row.type === 'MEASURE').length;
+  }, [rows]);
 
   const processRowUpdate = useCallback(
     async (updatedRow: Row, originalRow: Row): Promise<Row> => {
@@ -952,7 +989,7 @@ function AccordionContentWrapper({
             {...(permissions.edit ? singleClickEditProps : {})}
             loading={loading}
             slots={{ footer: CustomFooter }}
-            slotProps={{ footer: { count: rows.length } }}
+            slotProps={{ footer: { count: measureCount } }}
             sx={DATA_GRID_SX}
             isCellEditable={(params) =>
               !!(
@@ -961,18 +998,9 @@ function AccordionContentWrapper({
                 params.row.type !== 'SUM_PERCENT'
               )
             }
-            getRowClassName={(params) => {
-              if (params.row.type === 'SECTION') {
-                const { depth } = params.row;
-                return `row-title ${depth > 1 ? 'row-title--subtitle' : ''}`;
-              }
-
-              if (params.row.type === 'SUM_PERCENT') {
-                return 'row-summary';
-              }
-
-              return '';
-            }}
+            getRowClassName={(params) =>
+              getRowClassName(params.row.type, params.row.depth)
+            }
             getCellClassName={(params) =>
               params.field === 'value' &&
               rowsFailedToSave.includes(params.row.id)
