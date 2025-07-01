@@ -96,7 +96,7 @@ function getSumPercentRow(
       }
 
       return dataPoints.reduce((acc, dataPoint) => {
-        if (typeof dataPoint.year !== 'number') {
+        if (typeof dataPoint.year !== 'number' || dataPoint.value === null) {
           return acc;
         }
 
