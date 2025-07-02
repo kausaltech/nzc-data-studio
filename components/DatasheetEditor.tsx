@@ -49,6 +49,7 @@ import {
   getUnitName,
   isYearMeasure,
   Section,
+  validateMinMax,
 } from '@/utils/measures';
 import { DataSectionSummary } from './DataSectionSummary';
 import NumberInput, { NumberInputProps } from './NumberInput';
@@ -904,6 +905,23 @@ function AccordionContentWrapper({
         throw new Error('No plan selected');
       }
 
+      /** TODO: Validation will be migrated to the backend, pending task in Asana */
+      const { valid, error } = validateMinMax(
+        updatedRow.value,
+        updatedRow.originalMeasureTemplate
+      );
+
+      if (!valid) {
+        setRowsFailedToSave((rows) => [...new Set([...rows, updatedRow.id])]);
+        setNotification({
+          message: 'Failed to save',
+          extraDetails: error,
+          severity: 'error',
+        });
+
+        return updatedRow;
+      }
+
       try {
         await updateMeasureDataPoint({
           variables: {
@@ -945,7 +963,7 @@ function AccordionContentWrapper({
 
       return updatedRow;
     },
-    [rowsFailedToSave, selectedPlanId, updateMeasureDataPoint]
+    [rowsFailedToSave, selectedPlanId, updateMeasureDataPoint, setNotification]
   );
 
   const handleProcessRowUpdateError = useCallback(
