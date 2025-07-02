@@ -14,6 +14,7 @@ import {
   getUnitName,
   mapMeasureTemplatesToRows,
   Section,
+  validateMinMax,
 } from '@/utils/measures';
 
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
@@ -325,6 +326,26 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
         if (typeof newValue !== 'number' && newValue !== null) {
           // Shouldn't occur, the input should always be a number
           throw new Error('Invalid value');
+        }
+
+        /** TODO: Validation will be migrated to the backend, pending task in Asana */
+        const { valid, error } = validateMinMax(
+          newValue,
+          updatedRow.originalMeasureTemplate
+        );
+
+        if (!valid) {
+          setRowsFailedToSave((rows) => [
+            ...rows,
+            { uuid: updatedRow.id, year: changedYearField },
+          ]);
+          setNotification({
+            message: 'Failed to save',
+            extraDetails: error,
+            severity: 'error',
+          });
+
+          return updatedRow;
         }
 
         try {
