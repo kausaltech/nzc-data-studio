@@ -442,6 +442,17 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
             </Typography>
             <Typography variant="caption" component="div">
               Baseline
+              <HelpText
+                size="sm"
+                text={
+                  <>
+                    The baseline year represents the starting point for
+                    measuring your city's emissions. This year provides a
+                    reference for tracking progress over time and should ideally
+                    be a recent year for which accurate data is available.
+                  </>
+                }
+              />
             </Typography>
           </Box>
         ),
@@ -605,7 +616,11 @@ export function AdditionalDatasheetEditor() {
   const visibleMeasures = useMemo(() => filterSections(measures), [measures]);
 
   if (loading) {
-    return <LoadingCard />;
+    return (
+      <div>
+        <LoadingCard />
+      </div>
+    );
   }
 
   if (error) {

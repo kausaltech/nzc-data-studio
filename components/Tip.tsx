@@ -14,7 +14,7 @@ import { Lightbulb, ChevronDown } from 'react-bootstrap-icons';
 
 interface TipProps {
   title: string;
-  text: string;
+  text: React.ReactNode;
   storageKey: string;
 }
 
@@ -54,7 +54,6 @@ export const Tip = ({ title, text, storageKey }: TipProps) => {
       expanded={isTipOpen}
       onChange={handleToggleTip}
       sx={{
-        marginY: 2,
         backgroundColor: theme.palette.brand[50],
         borderRadius: 1,
         overflow: 'hidden',
@@ -65,8 +64,10 @@ export const Tip = ({ title, text, storageKey }: TipProps) => {
         sx={{ display: 'flex', alignItems: 'center' }}
       >
         <Stack direction="row" alignItems="center" spacing={1}>
-          <Lightbulb size={24} color={theme.palette.text.primary} />
-          <Typography variant="h6">{title}</Typography>
+          <Lightbulb size={18} color={theme.palette.text.primary} />
+          <Typography variant="body1" fontWeight="bold">
+            {title}
+          </Typography>
         </Stack>
       </AccordionSummary>
       <AccordionDetails>
@@ -76,7 +77,7 @@ export const Tip = ({ title, text, storageKey }: TipProps) => {
           variant="outlined"
           color="primary"
           onClick={handleDismiss}
-          sx={{ marginTop: 1 }}
+          sx={{ marginTop: 2 }}
         >
           Hide this tip
         </Button>
