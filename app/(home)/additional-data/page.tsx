@@ -57,6 +57,7 @@ export default function AdditionalDataPage() {
                   data will provide yearly estimates of your city's emissions
                   and support tracking progress against your climate goals.
                   <br />
+                  <br />
                   Placeholder values reflect your expected or planned values. If
                   you enter any observed values for a specific year, the
                   dashboard will use them to calculate and plot actual emissions
