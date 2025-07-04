@@ -341,7 +341,8 @@ export function AddPlanDialog({
                       </FormHelperText>
                     ) : (
                       <FormHelperText>
-                        {"The starting point for your city's emissions data"}
+                        All data you enter will refer to this year, which serves
+                        as the starting point for tracking your city's emissions
                       </FormHelperText>
                     )}
                   </FormControl>
@@ -360,7 +361,7 @@ export function AddPlanDialog({
                     error={!!targetYearError}
                     helperText={
                       targetYearError ||
-                      `The year your city aims to achieve net zero emissions`
+                      `The year your city aims to achieve net zero emissions (between 2030 and 2050)`
                     }
                     onValueChange={handleTargetYearChange}
                   />

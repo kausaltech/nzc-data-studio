@@ -33,6 +33,8 @@ export const GET_MEASURE_TEMPLATES = gql`
     __typename
     uuid
     name
+    maxTotal
+    helpText
     path
     parent {
       uuid
@@ -47,7 +49,12 @@ export const GET_MEASURE_TEMPLATES = gql`
     uuid
     priority
     name
+    hidden
     yearBound
+    helpText
+    minValue
+    maxValue
+    includeInProgressTracker
     unit {
       htmlShort
       htmlLong

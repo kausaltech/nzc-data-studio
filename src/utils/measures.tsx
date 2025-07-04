@@ -21,8 +21,9 @@ type SectionOrMeasure = MainSectionMeasuresFragment['descendants'][0];
 
 export type Section = BaseSectionOrMeasure & {
   type: 'ACCORDION_SECTION' | 'SECTION';
-  availableYears: number[] | null;
   childSections: Section[];
+  maxTotal: number | null;
+  helpText: string | null;
   measureTemplates?: MeasureTemplateFragmentFragment[];
 };
 
@@ -88,12 +89,8 @@ export function mapMeasureTemplatesToRows(
             section.parent?.uuid === mainSection.uuid
               ? 'ACCORDION_SECTION'
               : 'SECTION',
-
-          availableYears:
-            'availableYears' in section
-              ? (section.availableYears as number[])
-              : null,
-
+          maxTotal: section.maxTotal ?? null,
+          helpText: section.helpText ?? null,
           measureTemplates,
         };
 
@@ -242,4 +239,44 @@ export function isYearMeasure(measureLabel: string, unit: string) {
   }
 
   return false;
+}
+
+function getMinMaxErrorMessage(
+  minValue: number | null,
+  maxValue: number | null
+) {
+  if (typeof minValue === 'number' && typeof maxValue === 'number') {
+    return `Please enter a value between ${minValue} and ${maxValue}`;
+  }
+
+  if (typeof minValue === 'number') {
+    return `Please enter a value greater than or equal to ${minValue}`;
+  }
+
+  if (typeof maxValue === 'number') {
+    return `Please enter a value less than or equal to ${maxValue}`;
+  }
+
+  return undefined;
+}
+
+export function validateMinMax(
+  value: number | null,
+  measureTemplate: MeasureTemplateFragmentFragment
+): { valid: boolean; error?: string } {
+  const { minValue = null, maxValue = null } = measureTemplate;
+
+  if (value == null) {
+    return { valid: true };
+  }
+
+  if (typeof minValue === 'number' && value < minValue) {
+    return { valid: false, error: getMinMaxErrorMessage(minValue, maxValue) };
+  }
+
+  if (typeof maxValue === 'number' && value > maxValue) {
+    return { valid: false, error: getMinMaxErrorMessage(minValue, maxValue) };
+  }
+
+  return { valid: true };
 }

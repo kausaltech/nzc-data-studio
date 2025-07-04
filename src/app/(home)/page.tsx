@@ -7,6 +7,7 @@ import {
   CardContent,
   Container,
   Fade,
+  Link,
   Skeleton,
   Stack,
   Typography,
@@ -28,6 +29,8 @@ import IntroSection from '@/components/IntroSection';
 import { benefits } from '@/constants/intro-content';
 import { usePermissions } from '@/hooks/use-user-profile';
 import { usePlans } from '@/components/providers/SelectedPlanProvider';
+import { HelpText } from '@/components/HelpText';
+import { SUPPORT_FORM_URL } from '@/components/links';
 
 function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   const { data, error, loading } = useQuery<
@@ -115,6 +118,7 @@ function DataCollectionContent({ instance }: { instance: string }) {
 
 export default function DashboardContent() {
   const { allPlans, selectedPlan } = usePlans();
+  const permissions = usePermissions();
 
   if (allPlans === null) {
     return <Loading />;
@@ -131,9 +135,23 @@ export default function DashboardContent() {
                   Welcome to NetZeroPlanner
                 </Typography>
                 <Typography variant="subtitle1" sx={{ maxWidth: '80%' }}>
-                  It looks like there aren't any plans for your city yet. Get
-                  started by creating a new plan to begin your decarbonisation
-                  journey.
+                  It looks like there aren't any plans for your city yet.{' '}
+                  {!permissions.create ? (
+                    <>
+                      You don't currently have permission to create one. To
+                      request edit access, please fill out{' '}
+                      <Link
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={SUPPORT_FORM_URL}
+                      >
+                        this form
+                      </Link>
+                      .
+                    </>
+                  ) : (
+                    'Get started by creating a new plan to begin your decarbonisation journey.'
+                  )}
                 </Typography>
               </CardContent>
             </Card>
@@ -202,7 +220,21 @@ export default function DashboardContent() {
                         href={selectedPlan.resultsDownloadUrl}
                         download
                       >
-                        Export Outcomes as Excel
+                        Export Outcomes as Excel{' '}
+                        <HelpText
+                          text={
+                            <>
+                              Here you can download tables that are helpful in
+                              building an Economic Case for your Climate Action
+                              Plan. These tables display an analysis of GHG
+                              reduction along with the costs and benefits by
+                              sub-sector and stakeholder group. This will
+                              provide you with both the GHG and financial Return
+                              on Investment for better decision making in your
+                              Climate Action Plan.
+                            </>
+                          }
+                        />
                       </Button>
                     )}
                   </Stack>

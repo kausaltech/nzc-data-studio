@@ -15,7 +15,8 @@ import type {
 import {
   getMeasureValue,
   getUnitName,
-  mapMeasureTemplatesToRows
+  mapMeasureTemplatesToRows,
+  validateMinMax,
 } from '@/utils/measures';
 
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
@@ -24,7 +25,6 @@ import type {
   UpdateMeasureDataPointMutation,
   UpdateMeasureDataPointMutationVariables,
   GetMeasureTemplatesQuery,
-  UnitType,
   MeasureTemplateFragmentFragment,
 } from '@/types/__generated__/graphql';
 import { useSnackbar } from './SnackbarProvider';
@@ -32,11 +32,16 @@ import CustomEditComponent, {
   Accordion,
   AccordionDetails,
   DATA_GRID_SX,
+  filterSections,
   formatNumericValue,
+  getRowClassName,
+  type MeasureRow,
+  renderLabelCell,
+  type SectionRow,
+  TotalPercentage,
   useSingleClickEdit,
 } from './DatasheetEditor';
 import { CustomFooter } from './DatasheetEditor';
-import { ADDITIONAL_MEASURES } from '@/constants/measure-overrides';
 import { usePermissions } from '@/hooks/use-user-profile';
 import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
 import { LoadingCard } from '@/app/loading';
@@ -47,30 +52,23 @@ import {
   useSuspenseSelectedPlanConfig,
 } from './providers/SelectedPlanProvider';
 import { serializeError } from 'serialize-error';
+import { HelpText } from './HelpText';
 
-type MeasureDataPoint = {
-  type: 'MEASURE';
-  id: string;
-  isTitle: false;
-  label: string;
+interface MeasureDataPoint
+  extends Omit<MeasureRow, 'fallback' | 'priority' | 'notes' | 'value'> {
   baselineValue: number | null;
-  unit: UnitType;
-  originalId: string;
-  depth: number;
   placeholderDataPoints: Record<number, null | number>;
-  originalMeasureTemplate: MeasureTemplateFragmentFragment;
   [year: number]: null | number;
-};
+}
 
-type SectionRow = {
-  type: 'SECTION';
-  isTitle: boolean;
+export type SumPercentRow = {
+  type: 'SUM_PERCENT';
+  totals: Record<number, number | null>;
   id: string;
-  label: string;
   depth: number;
 };
 
-type Row = MeasureDataPoint | SectionRow;
+type Row = MeasureDataPoint | SectionRow | SumPercentRow;
 
 const currentYear = new Date().getFullYear();
 
@@ -85,6 +83,36 @@ function getPlaceholder(row: Row, year: number) {
   return undefined;
 }
 
+function getSumPercentRow(
+  { measureTemplates = [], ...section }: Section,
+  depth: number
+): SumPercentRow {
+  type Totals = { [year: number]: number | null };
+  return {
+    type: 'SUM_PERCENT',
+    depth: depth + 1,
+    totals: measureTemplates.reduce((totals: Totals, measureTemplate) => {
+      const dataPoints = measureTemplate.measure?.dataPoints;
+
+      if (!dataPoints) {
+        return totals;
+      }
+
+      return dataPoints.reduce((acc, dataPoint) => {
+        if (typeof dataPoint.year !== 'number' || dataPoint.value === null) {
+          return acc;
+        }
+
+        return {
+          ...acc,
+          [dataPoint.year]: (acc[dataPoint.year] ?? 0) + (dataPoint.value ?? 0),
+        };
+      }, totals);
+    }, {} as Totals),
+    id: `${section.id}_sum`,
+  } as SumPercentRow;
+}
+
 function getRowsFromSection(
   { childSections = [], measureTemplates = [], ...section }: Section,
   depth = 0,
@@ -93,8 +121,10 @@ function getRowsFromSection(
 ): Row[] {
   const sectionRow: SectionRow = {
     type: 'SECTION',
+    sumTo100: section.maxTotal === 100 && measureTemplates.length > 1,
     isTitle: true,
     label: section.name,
+    helpText: section.helpText,
     id: section.id,
     depth,
   };
@@ -125,6 +155,7 @@ function getRowsFromSection(
         id: measure.uuid,
         originalId: measure.id,
         label: measure.name,
+        helpText: measure.helpText,
         baselineValue: getMeasureValue(measure, baselineYear),
         unit: measure.unit,
         depth: depth + 1,
@@ -140,6 +171,14 @@ function getRowsFromSection(
         ),
       })
     ),
+    ...(sectionRow.sumTo100
+      ? [
+          getSumPercentRow(
+            { measureTemplates, childSections, ...section },
+            depth + 1
+          ),
+        ]
+      : []),
     ...childSections.flatMap((section) =>
       getRowsFromSection(section, depth + 1, false, baselineYear)
     ),
@@ -291,6 +330,26 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
           throw new Error('Invalid value');
         }
 
+        /** TODO: Validation will be migrated to the backend, pending task in Asana */
+        const { valid, error } = validateMinMax(
+          newValue,
+          updatedRow.originalMeasureTemplate
+        );
+
+        if (!valid) {
+          setRowsFailedToSave((rows) => [
+            ...rows,
+            { uuid: updatedRow.id, year: changedYearField },
+          ]);
+          setNotification({
+            message: 'Failed to save',
+            extraDetails: error,
+            severity: 'error',
+          });
+
+          return updatedRow;
+        }
+
         try {
           await updateMeasureDataPoint({
             variables: {
@@ -334,33 +393,25 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
     [updateMeasureDataPoint, selectedPlanId, rowsFailedToSave]
   );
 
-  const COLUMNS: GridColDef[] = useMemo(
+  const columns: GridColDef[] = useMemo(
     () => [
       {
         display: 'flex',
         headerName: 'Label',
         field: 'label',
         flex: 2,
-        renderCell: (params: GridRenderCellParams<Row>) => {
-          const isSmallText = params.row.type === 'SECTION';
-
-          return (
-            <Typography
-              sx={{
-                my: 1,
-                ml: params.row.depth,
-                fontWeight: isSmallText ? 'fontWeightMedium' : undefined,
-              }}
-              variant={isSmallText ? 'caption' : 'body2'}
-            >
-              {params.value}
-            </Typography>
-          );
-        },
+        renderCell: (params: GridRenderCellParams<Row>) =>
+          renderLabelCell(
+            params.row.type,
+            params.row.id,
+            params.row.depth,
+            'helpText' in params.row ? params.row.helpText : null,
+            params.value
+          ),
         // Stretch title rows to the full width of the table
         colSpan: (_: any, row: Row) => {
           if (row.type === 'SECTION') {
-            return COLUMNS.length;
+            return columns.length;
           }
 
           return undefined;
@@ -375,7 +426,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
           const value = params.value;
           const row = params.row;
 
-          if (row.type === 'SECTION') {
+          if (row.type !== 'MEASURE') {
             return null;
           }
 
@@ -393,6 +444,17 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
             </Typography>
             <Typography variant="caption" component="div">
               Baseline
+              <HelpText
+                size="sm"
+                text={
+                  <>
+                    The baseline year represents the starting point for
+                    measuring your city's emissions. This year provides a
+                    reference for tracking progress over time and should ideally
+                    be a recent year for which accurate data is available.
+                  </>
+                }
+              />
             </Typography>
           </Box>
         ),
@@ -402,9 +464,15 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
         field: 'unit',
         flex: 1,
         display: 'flex',
-        valueFormatter: (value: UnitType, row: MeasureDataPoint) =>
-          row.type === 'MEASURE' ? value.long : undefined,
+        valueFormatter: (
+          value: MeasureTemplateFragmentFragment['unit'],
+          row: MeasureDataPoint
+        ) => (row.type === 'MEASURE' ? value.long : undefined),
         renderCell: (params: GridRenderCellParams<Row>) => {
+          if (params.row.type !== 'MEASURE') {
+            return null;
+          }
+
           return (
             <Typography key={'unit'} sx={{ my: 1 }} variant={'caption'}>
               {getUnitName(params.value.long)}
@@ -415,25 +483,52 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
       ...additionalYears.map(
         (year) =>
           ({
+            display: 'flex',
             headerName: year.toString(),
             field: year.toString(),
             flex: 1,
             type: 'number',
             headerAlign: 'left',
+            align: 'left',
             editable: true,
-            renderCell: (params: GridRenderCellParams<Row>) => (
-              <CustomEditComponent
-                {...params}
-                sx={{ mx: 0, my: 1 }}
-                placeholder={getPlaceholder(params.row, year)}
-              />
-            ),
-            renderEditCell: (params: GridRenderCellParams<Row>) => (
-              <CustomEditComponent
-                {...params}
-                placeholder={getPlaceholder(params.row, year)}
-              />
-            ),
+            renderCell: (params: GridRenderCellParams<Row>) => {
+              if (params.row.type === 'SECTION') {
+                return null;
+              }
+
+              if (params.row.type === 'SUM_PERCENT') {
+                if (params.row.totals[year] == null) {
+                  return null;
+                }
+
+                return (
+                  <TotalPercentage
+                    key={`${params.field}-${params.row.id}`}
+                    total={params.row.totals[year]}
+                  />
+                );
+              }
+
+              return (
+                <CustomEditComponent
+                  {...params}
+                  sx={{ mx: 0, my: 1 }}
+                  placeholder={getPlaceholder(params.row, year)}
+                />
+              );
+            },
+            renderEditCell: (params: GridRenderCellParams<Row>) => {
+              if (params.row.type !== 'MEASURE') {
+                return null;
+              }
+
+              return (
+                <CustomEditComponent
+                  {...params}
+                  placeholder={getPlaceholder(params.row, year)}
+                />
+              );
+            },
           }) as GridColDef
       ),
     ],
@@ -450,16 +545,13 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
       }}
       sx={DATA_GRID_SX}
       isCellEditable={(params) =>
-        !!(permissions.edit && params.colDef.editable)
+        !!(
+          permissions.edit &&
+          params.colDef.editable &&
+          params.row.type !== 'SUM_PERCENT'
+        )
       }
-      getRowClassName={(params) => {
-        if (params.row.type === 'SECTION') {
-          const { depth } = params.row;
-          return `row-title ${depth > 1 ? 'row-title--subtitle' : ''}`;
-        }
-
-        return '';
-      }}
+      getRowClassName={({ row }) => getRowClassName(row.type, row.depth)}
       getCellClassName={(params) =>
         rowsFailedToSave.find(
           (row) => row.uuid === params.row.id && row.year === params.field
@@ -470,7 +562,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
       getRowHeight={() => 'auto'}
       getRowId={(row) => row.id}
       rows={rows}
-      columns={COLUMNS}
+      columns={columns}
       disableColumnSorting
       disableColumnFilter
       disableColumnMenu
@@ -498,7 +590,12 @@ export function AdditionalDatasheetEditor() {
     () =>
       filterMeasureTemplates(
         data,
-        new Set(ADDITIONAL_MEASURES.map((measure) => measure.uuid))
+        new Set(
+          data?.framework?.dataCollection?.descendants
+            .flatMap((section) => section.measureTemplates)
+            .filter((measure) => measure.includeInProgressTracker)
+            .map((measure) => measure.uuid)
+        )
       ),
     [data]
   );
@@ -518,8 +615,14 @@ export function AdditionalDatasheetEditor() {
     [filteredData, rootSectionUuid, baselineYear, targetYear]
   );
 
+  const visibleMeasures = useMemo(() => filterSections(measures), [measures]);
+
   if (loading) {
-    return <LoadingCard />;
+    return (
+      <div>
+        <LoadingCard />
+      </div>
+    );
   }
 
   if (error) {
@@ -535,11 +638,11 @@ export function AdditionalDatasheetEditor() {
 
   return (
     <div>
-      {measures.map((measure, index) => {
+      {visibleMeasures.map((section, index) => {
         return (
           <Accordion
             slotProps={{ transition: { unmountOnExit: true } }}
-            key={measure.id}
+            key={section.id}
             expanded={expanded === index}
             onChange={(_event, isExpanded) =>
               setExpanded(isExpanded ? index : null)
@@ -547,15 +650,18 @@ export function AdditionalDatasheetEditor() {
           >
             <MuiAccordionSummary
               expandIcon={<ChevronDown size={18} />}
-              aria-controls={`${measure.id}-content`}
-              id={`${measure.id}-header`}
+              aria-controls={`${section.id}-content`}
+              id={`${section.id}-header`}
             >
-              <Typography>{measure.name}</Typography>
+              <Typography>{section.name}</Typography>
+              {!!section.helpText && (
+                <HelpText text={section.helpText} size="sm" />
+              )}
             </MuiAccordionSummary>
             <AccordionDetails>
               <Box sx={{ height: 400 }}>
                 <DatasheetSection
-                  section={measure}
+                  section={section}
                   baselineYear={baselineYear}
                 />
               </Box>

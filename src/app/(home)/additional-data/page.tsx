@@ -41,37 +41,34 @@ export default function AdditionalDataPage() {
   return (
     <Fade in>
       <Container>
-        <Stack direction="row" alignItems="baseline" spacing={1}>
+        <Stack spacing={2}>
           <Typography component="h1" variant="h3">
             Additional Historical Data
           </Typography>
-          <Typography color="textSecondary">(Optional)</Typography>
+          <div>
+            <Tip
+              title="Estimate emissions for past years and track your progress"
+              text={
+                <>
+                  To understand trends and monitor year-over-year changes, you
+                  can enter historical data for previous years. We've
+                  streamlined this section to focus on 18 key drivers of
+                  emissions, making it easy to gather and review past data. This
+                  data will provide yearly estimates of your city's emissions
+                  and support tracking progress against your climate goals.
+                  <br />
+                  <br />
+                  Placeholder values reflect your expected or planned values. If
+                  you enter any observed values for a specific year, the
+                  dashboard will use them to calculate and plot actual emissions
+                  for that sector in that year.
+                </>
+              }
+              storageKey="additionalDataTip"
+            />
+          </div>
+          <AdditionalDatasheetEditor />
         </Stack>
-        <Box display="flex" alignItems="flex-start" mt={1}>
-          <Typography>Baseline {baselineYear}</Typography>
-          <Tooltip
-            placement="top"
-            arrow
-            title={
-              <Typography variant="body2">
-                The baseline year represents the starting point for measuring
-                your city's emissions. This year provides a reference for
-                tracking progress over time and should ideally be a recent year
-                for which accurate data is available.
-              </Typography>
-            }
-          >
-            <div style={{ marginLeft: 4, cursor: 'pointer' }}>
-              <QuestionCircle size={16} />
-            </div>
-          </Tooltip>
-        </Box>
-        <Tip
-          title="Estimate emissions for past years and track your progress"
-          text="To understand trends and monitor year-over-year changes, you can enter historical data for previous years. We've streamlined this section to focus on 18 key drivers of emissions, making it easy to gather and review past data. This data will provide yearly estimates of your city's emissions and support tracking progress against your climate goals."
-          storageKey="additionalDataTip"
-        />
-        <AdditionalDatasheetEditor />
       </Container>
     </Fade>
   );

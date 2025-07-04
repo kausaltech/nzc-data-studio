@@ -65,25 +65,27 @@ const processDataCollection = (
   }
 
   const processItems = (measureTemplates: MeasureTemplates) => {
-    measureTemplates.forEach((measureTemplate) => {
-      if (
-        !filterYearBoundMeasureTemplate(
-          measureTemplate,
-          baselineYear,
-          targetYear
-        )
-      ) {
-        return;
-      }
+    measureTemplates
+      .filter((measureTemplate) => measureTemplate.hidden !== true)
+      .forEach((measureTemplate) => {
+        if (
+          !filterYearBoundMeasureTemplate(
+            measureTemplate,
+            baselineYear,
+            targetYear
+          )
+        ) {
+          return;
+        }
 
-      if (measureTemplate.priority === Priority.High) {
-        tallyScore(result[Priority.High], measureTemplate);
-      } else if (measureTemplate.priority === Priority.Medium) {
-        tallyScore(result[Priority.Medium], measureTemplate);
-      } else if (measureTemplate.priority === Priority.Low) {
-        tallyScore(result[Priority.Low], measureTemplate);
-      }
-    });
+        if (measureTemplate.priority === Priority.High) {
+          tallyScore(result[Priority.High], measureTemplate);
+        } else if (measureTemplate.priority === Priority.Medium) {
+          tallyScore(result[Priority.Medium], measureTemplate);
+        } else if (measureTemplate.priority === Priority.Low) {
+          tallyScore(result[Priority.Low], measureTemplate);
+        }
+      });
   };
 
   const dataSections = measureTemplates.dataCollection
