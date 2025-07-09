@@ -1,12 +1,14 @@
-import type {
-  GetMeasureTemplatesQuery,
-  MainSectionMeasuresFragment,
-  MeasureTemplateFragmentFragment,
-} from '@/types/__generated__/graphql';
-import { createFilterByTypename } from './filter';
-import { DECIMAL_PRECISION_BY_UNIT, UNIT_LABELS } from '@/constants/units';
 import type { ReactNode } from 'react';
 import React from 'react';
+
+import { DECIMAL_PRECISION_BY_UNIT, UNIT_LABELS } from '@/constants/units';
+import type {
+  MainSectionMeasuresFragment,
+  MeasureFragmentFragment,
+  MeasureTemplateFragmentFragment,
+} from '@/types/__generated__/graphql';
+
+import { createFilterByTypename } from './filter';
 
 export type MeasureTemplates = NonNullable<
   MainSectionMeasuresFragment['descendants'][0]['measureTemplates']
@@ -63,10 +65,7 @@ export function mapMeasureTemplatesToRows(
   baselineYear: number | null,
   targetYear: number | null
 ) {
-  function createChildren(
-    sectionId: string,
-    sections: SectionOrMeasure[]
-  ): Section[] {
+  function createChildren(sectionId: string, sections: SectionOrMeasure[]): Section[] {
     return sections
       .filter((section) => section.parent?.uuid === sectionId)
       .reduce<Section[]>((previousSections, section) => {
@@ -74,21 +73,14 @@ export function mapMeasureTemplatesToRows(
           section.measureTemplates?.filter(
             (measureTemplate) =>
               filterMeasureTemplate(measureTemplate) &&
-              filterYearBoundMeasureTemplate(
-                measureTemplate,
-                baselineYear,
-                targetYear
-              )
+              filterYearBoundMeasureTemplate(measureTemplate, baselineYear, targetYear)
           );
 
         const nextSection: Section = {
           id: section.uuid,
           name: section.name,
           childSections: createChildren(section.uuid, sections),
-          type:
-            section.parent?.uuid === mainSection.uuid
-              ? 'ACCORDION_SECTION'
-              : 'SECTION',
+          type: section.parent?.uuid === mainSection.uuid ? 'ACCORDION_SECTION' : 'SECTION',
           maxTotal: section.maxTotal ?? null,
           helpText: section.helpText ?? null,
           measureTemplates,
@@ -157,7 +149,7 @@ export function getMeasureFallback(
   return null;
 }
 
-export type MeasureForDownload = {
+export type MeasureForDownloadV1 = {
   uuid: string;
   id: string;
   name: string;
@@ -165,31 +157,20 @@ export type MeasureForDownload = {
   value: number | null;
 };
 
-export function getMeasuresFromMeasureTemplates(
-  measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>,
-  baselineYear: number | null
-) {
-  const allMeasureTemplates = [
-    ...(measureTemplates.dataCollection?.descendants ?? []),
-    ...(measureTemplates.futureAssumptions?.descendants ?? []),
-  ];
+export type MeasureForDownloadV2 = MeasureFragmentFragment;
 
-  const measures = allMeasureTemplates.reduce<MeasureForDownload[]>(
-    (measures, descendant) => [
-      ...measures,
-      ...descendant.measureTemplates.map((template) => ({
-        uuid: template.uuid,
-        id: template.id,
-        name: template.name,
-        notes: template.measure?.internalNotes ?? null,
-        value: getMeasureValue(template, baselineYear),
-      })),
-    ],
-    []
-  );
+export type ExportedDataV1 = {
+  version: 1;
+  planName: string;
+  measures: MeasureForDownloadV1[];
+};
 
-  return measures;
-}
+export type ExportedDataV2 = {
+  version: 2;
+  planName: string;
+  baselineYear: number;
+  measures: MeasureForDownloadV2[];
+};
 
 /**
  * TODO: This logic should be moved to the backend
@@ -199,10 +180,7 @@ export function getMeasuresFromMeasureTemplates(
  * in the mapping, it returns undefined.
  */
 export function getDecimalPrecisionByUnit(unit: string): number | undefined {
-  return (
-    DECIMAL_PRECISION_BY_UNIT[unit as keyof typeof DECIMAL_PRECISION_BY_UNIT] ??
-    undefined
-  );
+  return DECIMAL_PRECISION_BY_UNIT[unit as keyof typeof DECIMAL_PRECISION_BY_UNIT] ?? undefined;
 }
 
 export function getUnitName(unit: string): ReactNode {
@@ -241,10 +219,7 @@ export function isYearMeasure(measureLabel: string, unit: string) {
   return false;
 }
 
-function getMinMaxErrorMessage(
-  minValue: number | null,
-  maxValue: number | null
-) {
+function getMinMaxErrorMessage(minValue: number | null, maxValue: number | null) {
   if (typeof minValue === 'number' && typeof maxValue === 'number') {
     return `Please enter a value between ${minValue} and ${maxValue}`;
   }
