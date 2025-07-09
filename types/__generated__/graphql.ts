@@ -2588,6 +2588,42 @@ export type MeasureTemplateFragmentFragment = (
   & { __typename?: 'MeasureTemplate' }
 );
 
+export type MeasureFragmentFragment = (
+  { id: string, internalNotes: string, measureTemplate: (
+    { uuid: any }
+    & { __typename?: 'MeasureTemplate' }
+  ), dataPoints: Array<(
+    { value?: number | null, year: number }
+    & { __typename?: 'MeasureDataPoint' }
+  )> }
+  & { __typename?: 'Measure' }
+);
+
+export type GetMeasuresQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetMeasuresQuery = (
+  { framework?: (
+    { config?: (
+      { measures: Array<(
+        { id: string, internalNotes: string, measureTemplate: (
+          { uuid: any }
+          & { __typename?: 'MeasureTemplate' }
+        ), dataPoints: Array<(
+          { value?: number | null, year: number }
+          & { __typename?: 'MeasureDataPoint' }
+        )> }
+        & { __typename?: 'Measure' }
+      )> }
+      & { __typename?: 'FrameworkConfig' }
+    ) | null }
+    & { __typename?: 'Framework' }
+  ) | null }
+  & { __typename?: 'Query' }
+);
+
 export type DataPointFragmentFragment = (
   { id: string, value?: number | null, year: number, defaultValue?: number | null }
   & { __typename: 'MeasureDataPoint' }

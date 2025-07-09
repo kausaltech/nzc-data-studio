@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { MeasureForDownload } from '@/utils/measures';
+import { ExportedDataV1, ExportedDataV2 } from '@/utils/measures';
 import {
   Alert,
   AlertTitle,
@@ -53,6 +53,32 @@ const UPDATE_MEASURES = gql`
   }
 `;
 
+function mapUploadToMeasures(
+  data: ExportedDataV1 | ExportedDataV2
+): MeasureInput[] {
+  if (data.version === 1) {
+    return data.measures.map((measure) => ({
+      measureTemplateId: measure.uuid,
+      internalNotes: measure.notes || undefined,
+      dataPoints:
+        measure.value === null || typeof measure.value === 'number'
+          ? [{ value: measure.value }]
+          : [],
+    }));
+  }
+
+  return data.measures
+    .filter((measure) => !!measure.dataPoints.length || !!measure.internalNotes)
+    .map((measure) => ({
+      measureTemplateId: measure.measureTemplate.uuid,
+      internalNotes: measure.internalNotes || undefined,
+      dataPoints: measure.dataPoints.map((dataPoint) => ({
+        value: dataPoint.value,
+        year: dataPoint.year,
+      })),
+    }));
+}
+
 type Props = {
   onClose: () => void;
 };
@@ -61,6 +87,7 @@ export function ImportPlanDialogContent({ onClose }: Props) {
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [confirmOverwrite, setConfirmOverwrite] = useState(false);
+  const [fileError, setFileError] = useState(false);
   const { setNotification } = useSnackbar();
 
   const plan = useSuspenseSelectedPlanConfig();
@@ -78,24 +105,27 @@ export function ImportPlanDialogContent({ onClose }: Props) {
   }, []);
 
   async function handleUpload() {
+    setFileError(false);
     if (!fileContent || !plan?.id) {
       console.log('Missing file or framework config ID for upload');
       return;
     }
 
     try {
-      const uploadData = JSON.parse(fileContent) as {
-        measures: MeasureForDownload[];
-      };
+      const uploadData = JSON.parse(fileContent) as
+        | ExportedDataV1
+        | ExportedDataV2;
 
-      const measures: MeasureInput[] = uploadData.measures.map((measure) => ({
-        measureTemplateId: measure.uuid,
-        internalNotes: measure.notes || undefined,
-        dataPoints:
-          measure.value === null || typeof measure.value === 'number'
-            ? [{ value: measure.value }]
-            : [],
-      }));
+      if (
+        (uploadData.version !== 1 && uploadData.version !== 2) ||
+        !uploadData.measures?.length
+      ) {
+        setFileError(true);
+
+        return;
+      }
+
+      const measures = mapUploadToMeasures(uploadData);
 
       setLoading(true);
 
@@ -175,10 +205,11 @@ export function ImportPlanDialogContent({ onClose }: Props) {
             </div>
           </FadeAndCollapse>
 
-          {error && (
+          {(error || fileError) && (
             <Alert severity="error">
               <AlertTitle>Failed to import data</AlertTitle>
-              {error.message}
+              {error?.message ??
+                'We were unable to process your file. Please ensure it is a valid JSON file exported from NetZeroPlanner.'}
             </Alert>
           )}
         </Box>
