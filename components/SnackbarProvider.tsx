@@ -15,7 +15,7 @@ import {
 } from 'react';
 import { Alert, AlertProps, AlertTitle, Snackbar } from '@mui/material';
 
-type Notification = {
+export type Notification = {
   message: ReactNode;
   extraDetails?: ReactNode;
   severity: AlertProps['severity'];

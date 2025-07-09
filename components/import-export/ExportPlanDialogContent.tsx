@@ -8,23 +8,29 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Skeleton,
   Typography,
 } from '@mui/material';
 import { kebabCase } from 'lodash';
 import { ChevronDown, Download } from 'react-bootstrap-icons';
 
-import { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
 import {
-  getMeasuresFromMeasureTemplates,
-  MeasureForDownload,
-} from '@/utils/measures';
-import { useSuspenseSelectedPlanConfig } from '../providers/SelectedPlanProvider';
+  GetMeasureTemplatesQuery,
+  MeasureFragmentFragment,
+} from '@/types/__generated__/graphql';
+import { ExportedDataV2 } from '@/utils/measures';
+import {
+  useSelectedPlanId,
+  useSuspenseSelectedPlanConfig,
+} from '../providers/SelectedPlanProvider';
+import { useQuery } from '@apollo/client';
+import { GET_MEASURES } from '@/queries/get-measures';
+import { captureException } from '@sentry/nextjs';
+import { useSession } from 'next-auth/react';
+import { useEffect, useMemo } from 'react';
+import { serializeError } from 'serialize-error';
 
-type ExportedData = {
-  version: number;
-  planName: string;
-  measures: MeasureForDownload[];
-};
+import { Notification, useSnackbar } from '@/components/SnackbarProvider';
 
 function getLocalISODateTime() {
   // Sweden uses a date format similar to ISO, hacky but works
@@ -33,13 +39,14 @@ function getLocalISODateTime() {
 
 function mapMeasureTemplatesToDownload(
   planName: string,
-  measureTemplates: Props['measureTemplates'],
-  baselineYear: number | null
-): ExportedData {
+  measures: MeasureFragmentFragment[],
+  baselineYear: number
+): ExportedDataV2 {
   return {
-    version: 1,
+    version: 2,
     planName,
-    measures: getMeasuresFromMeasureTemplates(measureTemplates, baselineYear),
+    baselineYear,
+    measures,
   };
 }
 
@@ -48,14 +55,64 @@ type Props = {
   onClose: () => void;
 };
 
-export function ExportPlanDialogContent({ measureTemplates, onClose }: Props) {
+export function ExportPlanDialogContent({ onClose }: Props) {
+  const { setNotification } = useSnackbar();
+  const { selectedPlanId } = useSelectedPlanId();
+  const session = useSession();
   const plan = useSuspenseSelectedPlanConfig();
   const planName = plan?.organizationName;
   const baselineYear = plan?.baselineYear;
+  const { data, loading, error } = useQuery(GET_MEASURES, {
+    variables: { id: selectedPlanId },
+  });
+  const hasError =
+    error || (!loading && !data?.framework?.config?.measures.length);
+
+  const extra = useMemo(
+    () => ({
+      planId: selectedPlanId,
+      planName,
+      user: JSON.stringify(session.data?.user),
+      error: error ? JSON.stringify(serializeError(error), null, 2) : null,
+    }),
+    [error, session.data?.user, selectedPlanId, planName]
+  );
+
+  useEffect(() => {
+    if (hasError) {
+      console.log('REPORT ERROR', error, extra);
+      captureException(
+        error || new Error('No measures found while exporting'),
+        {
+          extra,
+        }
+      );
+    }
+  }, [hasError, error, extra]);
 
   function handleDownload() {
+    const ERROR_NOTIFICATION: Notification = {
+      message: 'Something went wrong while exporting your plan.',
+      extraDetails:
+        "We've logged the error and our team will look into it shortly. Please try again later.",
+      severity: 'error',
+    };
+
     if (!planName) {
-      console.log('Missing plan name for download'); // TODO: Log error, this shouldn't occur
+      captureException(new Error('Missing plan name for download'), { extra });
+      setNotification(ERROR_NOTIFICATION);
+      return;
+    }
+
+    if (!baselineYear) {
+      captureException(new Error('Missing baseline for download'), { extra });
+      setNotification(ERROR_NOTIFICATION);
+      return;
+    }
+
+    if (!data?.framework?.config?.measures) {
+      captureException(new Error('Missing measures for download'), { extra });
+      setNotification(ERROR_NOTIFICATION);
       return;
     }
 
@@ -64,8 +121,8 @@ export function ExportPlanDialogContent({ measureTemplates, onClose }: Props) {
         JSON.stringify(
           mapMeasureTemplatesToDownload(
             planName,
-            measureTemplates,
-            baselineYear ?? null
+            data?.framework?.config?.measures ?? [],
+            baselineYear
           )
         ),
       ],
@@ -129,13 +186,19 @@ export function ExportPlanDialogContent({ measureTemplates, onClose }: Props) {
 
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button
-            variant="contained"
-            onClick={handleDownload}
-            endIcon={<Download size={18} />}
-          >
-            Export data
-          </Button>
+          {loading ? (
+            <Skeleton variant="rounded">
+              <Button endIcon={<Download size={18} />}>Export data</Button>
+            </Skeleton>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={handleDownload}
+              endIcon={<Download size={18} />}
+            >
+              Export data
+            </Button>
+          )}
         </DialogActions>
       </DialogContent>
     </>

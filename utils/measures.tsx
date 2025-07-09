@@ -1,6 +1,6 @@
 import {
-  GetMeasureTemplatesQuery,
   MainSectionMeasuresFragment,
+  MeasureFragmentFragment,
   MeasureTemplateFragmentFragment,
 } from '@/types/__generated__/graphql';
 import { createFilterByTypename } from './filter';
@@ -156,7 +156,7 @@ export function getMeasureFallback(
   return null;
 }
 
-export type MeasureForDownload = {
+export type MeasureForDownloadV1 = {
   uuid: string;
   id: string;
   name: string;
@@ -164,31 +164,20 @@ export type MeasureForDownload = {
   value: number | null;
 };
 
-export function getMeasuresFromMeasureTemplates(
-  measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>,
-  baselineYear: number | null
-) {
-  const allMeasureTemplates = [
-    ...(measureTemplates.dataCollection?.descendants ?? []),
-    ...(measureTemplates.futureAssumptions?.descendants ?? []),
-  ];
+export type MeasureForDownloadV2 = MeasureFragmentFragment;
 
-  const measures = allMeasureTemplates.reduce<MeasureForDownload[]>(
-    (measures, descendant) => [
-      ...measures,
-      ...descendant.measureTemplates.map((template) => ({
-        uuid: template.uuid,
-        id: template.id,
-        name: template.name,
-        notes: template.measure?.internalNotes ?? null,
-        value: getMeasureValue(template, baselineYear),
-      })),
-    ],
-    []
-  );
+export type ExportedDataV1 = {
+  version: 1;
+  planName: string;
+  measures: MeasureForDownloadV1[];
+};
 
-  return measures;
-}
+export type ExportedDataV2 = {
+  version: 2;
+  planName: string;
+  baselineYear: number;
+  measures: MeasureForDownloadV2[];
+};
 
 /**
  * TODO: This logic should be moved to the backend
