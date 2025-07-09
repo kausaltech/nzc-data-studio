@@ -1,3 +1,4 @@
+import type { Config as ConfigNS } from '@jest/types';
 import type { Config } from 'jest';
 import nextJest from 'next/jest.js';
 
@@ -5,12 +6,20 @@ const createJestConfig = nextJest({
   dir: './',
 });
 
-const config: Config = {
-  coverageProvider: 'v8',
+const baseConfig: ConfigNS.InitialProjectOptions = {
   testEnvironment: 'jsdom',
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@common/(.*)$': '<rootDir>/../kausal_common/src/$1',
   },
 };
 
-export default createJestConfig(config);
+async function createConfig() {
+  const config = await createJestConfig(baseConfig)();
+  return {
+    coverageProvider: 'v8',
+    ...config,
+  } satisfies Config;
+}
+
+export default createConfig();

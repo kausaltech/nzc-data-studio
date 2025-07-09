@@ -6,5 +6,5 @@ export const revalidate = 0;
 export const fetchCache = 'default-no-store';
 
 export async function POST(request: NextRequest) {
-  return proxyGraphQLRequest(request);
+  return proxyGraphQLRequest(request, 'paths');
 }

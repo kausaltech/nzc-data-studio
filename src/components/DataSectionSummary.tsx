@@ -1,11 +1,13 @@
-import type { GridValidRowModel } from '@mui/x-data-grid';
 import { Box } from '@mui/material';
-import { PRIORITY_TYPES, PriorityBadge } from './PriorityBadge';
+import type { GridValidRowModel } from '@mui/x-data-grid';
+
 import { measureTemplateHasValue } from '@/utils/measures';
-import type { MeasureRow } from './DatasheetEditor';
+
+import type { DatasheetEditorRow, MeasureRow } from './DatasheetEditor';
+import { PRIORITY_TYPES, PriorityBadge } from './PriorityBadge';
 
 interface DataSectionSummaryProps {
-  rows: GridValidRowModel;
+  rows: DatasheetEditorRow[];
 }
 
 export const DataSectionSummary = ({ rows }: DataSectionSummaryProps) => {
@@ -23,15 +25,11 @@ export const DataSectionSummary = ({ rows }: DataSectionSummaryProps) => {
           key={priority}
           variant="count"
           priority={priority}
-          totalCount={
-            rows.filter((row: GridValidRowModel) => row.priority === priority)
-              .length
-          }
+          totalCount={rows.filter((row: GridValidRowModel) => row.priority === priority).length}
           completedCount={
             rows.filter(
               (row: MeasureRow) =>
-                row.priority === priority &&
-                measureTemplateHasValue(row.originalMeasureTemplate)
+                row.priority === priority && measureTemplateHasValue(row.originalMeasureTemplate)
             ).length
           }
         />

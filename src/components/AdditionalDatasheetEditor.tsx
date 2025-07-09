@@ -1,17 +1,27 @@
 'use client';
 
-import { useCallback, useState, useMemo } from 'react';
-import { useQuery, useMutation } from '@apollo/client';
-import {
-  AccordionSummary as MuiAccordionSummary,
-  Box,
-  Typography,
-} from '@mui/material';
+import { useCallback, useMemo, useState } from 'react';
+
+import { useMutation, useSuspenseQuery } from '@apollo/client';
+import { Box, AccordionSummary as MuiAccordionSummary, Typography } from '@mui/material';
 import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { DataGrid } from '@mui/x-data-grid';
+import { captureException } from '@sentry/nextjs';
 import { ChevronDown } from 'react-bootstrap-icons';
+import { serializeError } from 'serialize-error';
+
+import { default as ErrorComponent } from '@/app/error';
+import { usePermissions } from '@/hooks/use-user-profile';
+import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
+import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
+import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
 import type {
-  Section} from '@/utils/measures';
+  GetMeasureTemplatesQuery,
+  MeasureTemplateFragmentFragment,
+  UpdateMeasureDataPointMutation,
+  UpdateMeasureDataPointMutationVariables,
+} from '@/types/__generated__/graphql';
+import type { Section } from '@/utils/measures';
 import {
   getMeasureValue,
   getUnitName,
@@ -19,43 +29,25 @@ import {
   validateMinMax,
 } from '@/utils/measures';
 
-import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
-import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
-import type {
-  UpdateMeasureDataPointMutation,
-  UpdateMeasureDataPointMutationVariables,
-  GetMeasureTemplatesQuery,
-  MeasureTemplateFragmentFragment,
-} from '@/types/__generated__/graphql';
-import { useSnackbar } from './SnackbarProvider';
 import CustomEditComponent, {
   Accordion,
   AccordionDetails,
   DATA_GRID_SX,
+  type MeasureRow,
+  type SectionRow,
+  TotalPercentage,
   filterSections,
   formatNumericValue,
   getRowClassName,
-  type MeasureRow,
   renderLabelCell,
-  type SectionRow,
-  TotalPercentage,
   useSingleClickEdit,
 } from './DatasheetEditor';
 import { CustomFooter } from './DatasheetEditor';
-import { usePermissions } from '@/hooks/use-user-profile';
-import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
-import { LoadingCard } from '@/app/loading';
-import { default as ErrorComponent } from '@/app/error';
-import { captureException } from '@sentry/nextjs';
-import {
-  usePlans,
-  useSuspenseSelectedPlanConfig,
-} from './providers/SelectedPlanProvider';
-import { serializeError } from 'serialize-error';
 import { HelpText } from './HelpText';
+import { useSnackbar } from './SnackbarProvider';
+import { usePlans, useSuspenseSelectedPlanConfig } from './providers/SelectedPlanProvider';
 
-interface MeasureDataPoint
-  extends Omit<MeasureRow, 'fallback' | 'priority' | 'notes' | 'value'> {
+interface MeasureDataPoint extends Omit<MeasureRow, 'fallback' | 'priority' | 'notes' | 'value'> {
   baselineValue: number | null;
   placeholderDataPoints: Record<number, null | number>;
   [year: number]: null | number;
@@ -73,14 +65,23 @@ type Row = MeasureDataPoint | SectionRow | SumPercentRow;
 const currentYear = new Date().getFullYear();
 
 function getPlaceholder(row: Row, year: number) {
-  if (
-    row.type === 'MEASURE' &&
-    typeof row.placeholderDataPoints[year] === 'number'
-  ) {
+  if (row.type === 'MEASURE' && typeof row.placeholderDataPoints[year] === 'number') {
     return formatNumericValue(row.placeholderDataPoints[year], row);
   }
 
   return undefined;
+}
+
+function isSectionRow(row: Row): row is SectionRow {
+  return row.type === 'SECTION';
+}
+
+function isMeasureRow(row: Row): row is MeasureDataPoint {
+  return row.type === 'MEASURE';
+}
+
+function isSumPercentRow(row: Row): row is SumPercentRow {
+  return row.type === 'SUM_PERCENT';
 }
 
 function getSumPercentRow(
@@ -172,12 +173,7 @@ function getRowsFromSection(
       })
     ),
     ...(sectionRow.sumTo100
-      ? [
-          getSumPercentRow(
-            { measureTemplates, childSections, ...section },
-            depth + 1
-          ),
-        ]
+      ? [getSumPercentRow({ measureTemplates, childSections, ...section }, depth + 1)]
       : []),
     ...childSections.flatMap((section) =>
       getRowsFromSection(section, depth + 1, false, baselineYear)
@@ -198,10 +194,7 @@ function filterMeasureTemplates(
   }
 
   const dataCollectionMap = new Map(
-    data.framework.dataCollection?.descendants.map((section) => [
-      section.uuid,
-      section,
-    ])
+    data.framework.dataCollection?.descendants.map((section) => [section.uuid, section])
   );
 
   function getAncestorUuids(parent: { uuid: string } | undefined): string[] {
@@ -217,14 +210,9 @@ function filterMeasureTemplates(
   const allowedSectionUuids = data.framework.dataCollection?.descendants
     .map((section) => {
       if (
-        section.measureTemplates.some((template) =>
-          allowedMeasureTemplateUuids.has(template.uuid)
-        )
+        section.measureTemplates.some((template) => allowedMeasureTemplateUuids.has(template.uuid))
       ) {
-        return [
-          section.uuid,
-          ...getAncestorUuids(section?.parent ?? undefined),
-        ];
+        return [section.uuid, ...getAncestorUuids(section?.parent ?? undefined)];
       }
 
       return undefined;
@@ -232,9 +220,7 @@ function filterMeasureTemplates(
     .flat()
     .filter(Boolean);
 
-  const allowedSectionUuidsSet = new Set(
-    allowedSectionUuids?.map((uuid) => uuid) ?? []
-  );
+  const allowedSectionUuidsSet = new Set(allowedSectionUuids?.map((uuid) => uuid) ?? []);
 
   const filteredSections = data.framework.dataCollection?.descendants
     .filter((section) => allowedSectionUuidsSet.has(section.uuid))
@@ -267,20 +253,14 @@ function isValidYear(yearString: string) {
 }
 
 function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
-  const [rowsFailedToSave, setRowsFailedToSave] = useState<
-    { year: string; uuid: string }[]
-  >([]);
+  const [rowsFailedToSave, setRowsFailedToSave] = useState<{ year: string; uuid: string }[]>([]);
   const { setNotification } = useSnackbar();
   const singleClickEditProps = useSingleClickEdit();
   const permissions = usePermissions();
   const { selectedPlanId } = usePlans();
 
   const additionalYears = useMemo(
-    () =>
-      Array.from(
-        { length: currentYear - baselineYear - 1 },
-        (_, i) => baselineYear + 1 + i
-      ),
+    () => Array.from({ length: currentYear - baselineYear - 1 }, (_, i) => baselineYear + 1 + i),
     [baselineYear]
   );
 
@@ -312,9 +292,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
       }
 
       const changedYearField = Object.keys(updatedRow).find(
-        (key) =>
-          isValidYear(key) &&
-          updatedRow[key as keyof Row] !== originalRow[key as keyof Row]
+        (key) => isValidYear(key) && updatedRow[key as keyof Row] !== originalRow[key as keyof Row]
       );
 
       if (changedYearField) {
@@ -331,16 +309,10 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
         }
 
         /** TODO: Validation will be migrated to the backend, pending task in Asana */
-        const { valid, error } = validateMinMax(
-          newValue,
-          updatedRow.originalMeasureTemplate
-        );
+        const { valid, error } = validateMinMax(newValue, updatedRow.originalMeasureTemplate);
 
         if (!valid) {
-          setRowsFailedToSave((rows) => [
-            ...rows,
-            { uuid: updatedRow.id, year: changedYearField },
-          ]);
+          setRowsFailedToSave((rows) => [...rows, { uuid: updatedRow.id, year: changedYearField }]);
           setNotification({
             message: 'Failed to save',
             extraDetails: error,
@@ -372,15 +344,10 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
           });
 
           if (rowsFailedToSave.find((row) => row.uuid === updatedRow.id)) {
-            setRowsFailedToSave((rows) => [
-              ...rows.filter((row) => row.uuid !== updatedRow.id),
-            ]);
+            setRowsFailedToSave((rows) => [...rows.filter((row) => row.uuid !== updatedRow.id)]);
           }
         } catch (error) {
-          setRowsFailedToSave((rows) => [
-            ...rows,
-            { uuid: updatedRow.id, year: changedYearField },
-          ]);
+          setRowsFailedToSave((rows) => [...rows, { uuid: updatedRow.id, year: changedYearField }]);
 
           // Rethrow the error to be caught by onProcessRowUpdateError and prevent exiting edit mode
           throw error;
@@ -430,11 +397,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
             return null;
           }
 
-          return (
-            <Typography variant="body2">
-              {formatNumericValue(value, row)}
-            </Typography>
-          );
+          return <Typography variant="body2">{formatNumericValue(value, row)}</Typography>;
         },
 
         renderHeader: () => (
@@ -448,10 +411,9 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
                 size="sm"
                 text={
                   <>
-                    The baseline year represents the starting point for
-                    measuring your city's emissions. This year provides a
-                    reference for tracking progress over time and should ideally
-                    be a recent year for which accurate data is available.
+                    The baseline year represents the starting point for measuring your city's
+                    emissions. This year provides a reference for tracking progress over time and
+                    should ideally be a recent year for which accurate data is available.
                   </>
                 }
               />
@@ -464,10 +426,8 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
         field: 'unit',
         flex: 1,
         display: 'flex',
-        valueFormatter: (
-          value: MeasureTemplateFragmentFragment['unit'],
-          row: MeasureDataPoint
-        ) => (row.type === 'MEASURE' ? value.long : undefined),
+        valueFormatter: (value: MeasureTemplateFragmentFragment['unit'], row: MeasureDataPoint) =>
+          row.type === 'MEASURE' ? value.long : undefined,
         renderCell: (params: GridRenderCellParams<Row>) => {
           if (params.row.type !== 'MEASURE') {
             return null;
@@ -492,26 +452,29 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
             align: 'left',
             editable: true,
             renderCell: (params: GridRenderCellParams<Row>) => {
-              if (params.row.type === 'SECTION') {
+              const { row, ...rest } = params;
+              if (isSectionRow(row)) {
                 return null;
               }
 
-              if (params.row.type === 'SUM_PERCENT') {
-                if (params.row.totals[year] == null) {
+              if (isSumPercentRow(row)) {
+                if (row.totals[year] == null) {
                   return null;
                 }
 
                 return (
                   <TotalPercentage
                     key={`${params.field}-${params.row.id}`}
-                    total={params.row.totals[year]}
+                    total={row.totals[year]}
                   />
                 );
               }
 
               return (
                 <CustomEditComponent
-                  {...params}
+                  // @ts-ignore
+                  row={row}
+                  {...rest}
                   sx={{ mx: 0, my: 1 }}
                   placeholder={getPlaceholder(params.row, year)}
                 />
@@ -523,10 +486,8 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
               }
 
               return (
-                <CustomEditComponent
-                  {...params}
-                  placeholder={getPlaceholder(params.row, year)}
-                />
+                // @ts-ignore
+                <CustomEditComponent {...params} placeholder={getPlaceholder(params.row, year)} />
               );
             },
           }) as GridColDef
@@ -545,17 +506,11 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
       }}
       sx={DATA_GRID_SX}
       isCellEditable={(params) =>
-        !!(
-          permissions.edit &&
-          params.colDef.editable &&
-          params.row.type !== 'SUM_PERCENT'
-        )
+        !!(permissions.edit && params.colDef.editable && params.row.type !== 'SUM_PERCENT')
       }
       getRowClassName={({ row }) => getRowClassName(row.type, row.depth)}
       getCellClassName={(params) =>
-        rowsFailedToSave.find(
-          (row) => row.uuid === params.row.id && row.year === params.field
-        )
+        rowsFailedToSave.find((row) => row.uuid === params.row.id && row.year === params.field)
           ? 'cell-error'
           : ''
       }
@@ -579,13 +534,9 @@ export function AdditionalDatasheetEditor() {
   const targetYear = plan?.targetYear ?? null;
   const [expanded, setExpanded] = useState<number | null>(0);
 
-  const { data, loading, error } = useQuery<GetMeasureTemplatesQuery>(
-    GET_MEASURE_TEMPLATES,
-    {
-      variables: { frameworkConfigId: plan?.id, includePlaceholders: true },
-    }
-  );
-
+  const { data, error } = useSuspenseQuery<GetMeasureTemplatesQuery>(GET_MEASURE_TEMPLATES, {
+    variables: { frameworkConfigId: plan?.id, includePlaceholders: true },
+  });
   const filteredData = useMemo(
     () =>
       filterMeasureTemplates(
@@ -617,14 +568,6 @@ export function AdditionalDatasheetEditor() {
 
   const visibleMeasures = useMemo(() => filterSections(measures), [measures]);
 
-  if (loading) {
-    return (
-      <div>
-        <LoadingCard />
-      </div>
-    );
-  }
-
   if (error) {
     captureException(error, {
       extra: {
@@ -644,9 +587,7 @@ export function AdditionalDatasheetEditor() {
             slotProps={{ transition: { unmountOnExit: true } }}
             key={section.id}
             expanded={expanded === index}
-            onChange={(_event, isExpanded) =>
-              setExpanded(isExpanded ? index : null)
-            }
+            onChange={(_event, isExpanded) => setExpanded(isExpanded ? index : null)}
           >
             <MuiAccordionSummary
               expandIcon={<ChevronDown size={18} />}
@@ -654,16 +595,11 @@ export function AdditionalDatasheetEditor() {
               id={`${section.id}-header`}
             >
               <Typography>{section.name}</Typography>
-              {!!section.helpText && (
-                <HelpText text={section.helpText} size="sm" />
-              )}
+              {!!section.helpText && <HelpText text={section.helpText} size="sm" />}
             </MuiAccordionSummary>
             <AccordionDetails>
               <Box sx={{ height: 400 }}>
-                <DatasheetSection
-                  section={section}
-                  baselineYear={baselineYear}
-                />
+                <DatasheetSection section={section} baselineYear={baselineYear} />
               </Box>
             </AccordionDetails>
           </Accordion>

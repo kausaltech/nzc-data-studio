@@ -23,6 +23,7 @@ import type {
   GridColDef,
   GridRenderCellParams,
   GridRenderEditCellParams,
+  GridRowClassNameParams,
   GridSlotsComponentsProps,
 } from '@mui/x-data-grid';
 import { DataGrid, GridCellModes, useGridApiContext } from '@mui/x-data-grid';
@@ -34,6 +35,7 @@ import { GET_MEASURE_TEMPLATE } from '@/queries/get-measure-template';
 import { UPDATE_MEASURE_DATAPOINT } from '@/queries/update-measure-datapoint';
 import { useDataCollectionStore } from '@/store/data-collection';
 import type {
+  FrameworksMeasureTemplatePriorityChoices,
   MeasureTemplateFragmentFragment,
   UpdateMeasureDataPointMutation,
   UpdateMeasureDataPointMutationVariables,
@@ -198,10 +200,21 @@ export function formatNumericValue(
   });
 }
 
-type CustomEditComponentProps = GridRenderEditCellParams & {
+type CustomEditComponentProps = GridRenderEditCellParams<MeasureRow | SectionRow> & {
   sx?: SxProps<Theme>;
   placeholder?: string;
-};
+} & (
+    | {
+        colDef: Omit<GridColDef<MeasureRow>, 'type'> & {
+          type: 'number';
+        };
+      }
+    | {
+        colDef: Omit<GridColDef<SectionRow>, 'type'> & {
+          type: 'string';
+        };
+      }
+  );
 
 /**
  * Since the sheet editor only has a few cells available to edit,
@@ -231,7 +244,9 @@ export default function CustomEditComponent({
     }
   }, [hasFocus, permissions.edit]);
 
-  async function handleValueChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleValueChange(
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
     const newValue = event.target.value;
 
     await apiRef.current.setEditCellValue({
@@ -274,7 +289,7 @@ export default function CustomEditComponent({
   };
 
   const inputComponent =
-    colDef.type === 'number' ? (
+    colDef.type === 'number' && row.type === 'MEASURE' ? (
       <NumberInput
         {...commonProps}
         key={key}
@@ -282,7 +297,9 @@ export default function CustomEditComponent({
         fullWidth
         placeholder={placeholder || undefined}
         onKeyDown={handleEscape}
-        onValueChange={permissions.edit ? handleNumberValueChange : undefined}
+        onValueChange={
+          permissions.edit ? (value) => void handleNumberValueChange(value) : undefined
+        }
         defaultValue={typeof initialValue.current === 'number' ? initialValue.current : ''}
         disabled={!permissions.edit}
         inputProps={{
@@ -298,7 +315,7 @@ export default function CustomEditComponent({
         autoComplete="off"
         disabled={!permissions.edit}
         onKeyDown={handleEscape}
-        onChange={permissions.edit ? handleValueChange : undefined}
+        onChange={permissions.edit ? (value) => void handleValueChange(value) : undefined}
         fullWidth
         multiline
         maxRows={6}
@@ -454,26 +471,30 @@ export function TotalPercentage({ total, overrideIsValid = false }: TotalPercent
   return <Fade in>{percentageLabel}</Fade>;
 }
 
-const EDITABLE_COL: Partial<GridColDef> = {
+const EDITABLE_COL: Partial<GridColDef<DatasheetEditorRow>> = {
   editable: true,
-  renderCell: (params: GridRenderCellParams<Row>) => {
-    if (params.row.type === 'SUM_PERCENT') {
+  renderCell: (params) => {
+    const { row, ...rest } = params;
+    if (row.type === 'SUM_PERCENT') {
       if (params.field === 'notes') {
         return null;
       }
 
-      return <TotalPercentage key={`${params.field}-${params.row.id}`} total={params.row.total} />;
+      return <TotalPercentage key={`${params.field}-${params.row.id}`} total={row.total} />;
     }
 
     return (
+      // @ts-ignore
       <CustomEditComponent
-        key={`${params.field}-${params.row.id}`}
-        {...params}
+        key={`${params.field}-${row.id}`}
+        row={row}
+        {...rest}
         sx={{ mx: 0, my: 1 }}
       />
     );
   },
-  renderEditCell: (params: GridRenderCellParams<Row>) => (
+  renderEditCell: (params: GridRenderEditCellParams<MeasureRow | SectionRow>) => (
+    // @ts-ignore
     <CustomEditComponent key={`${params.field}-${params.id}`} {...params} />
   ),
 };
@@ -494,7 +515,7 @@ function HeaderWithHelpText({ headerName, helpText }: { headerName: string; help
 }
 
 export function renderLabelCell(
-  type: Row['type'],
+  type: DatasheetEditorRow['type'],
   id: string,
   depth: number,
   helpText: string | null,
@@ -523,13 +544,13 @@ export function renderLabelCell(
   );
 }
 
-const GRID_COL_DEFS: GridColDef[] = [
+const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
   {
     display: 'flex',
     headerName: 'Label',
     field: 'label',
     flex: 2,
-    renderCell: (params: GridRenderCellParams<Row>) =>
+    renderCell: (params: GridRenderCellParams<DatasheetEditorRow>) =>
       renderLabelCell(
         params.row.type,
         params.row.id,
@@ -537,7 +558,7 @@ const GRID_COL_DEFS: GridColDef[] = [
         'helpText' in params.row ? params.row.helpText : null,
         params.value
       ),
-    colSpan: (value, row: Row) => {
+    colSpan: (value, row: DatasheetEditorRow) => {
       if (row.type === 'SECTION') {
         return GRID_COL_DEFS.length;
       }
@@ -562,7 +583,7 @@ const GRID_COL_DEFS: GridColDef[] = [
     flex: 1,
     valueFormatter: (value: UnitFragment, row: MeasureRow | SumPercentRow) =>
       row.type === 'MEASURE' ? value.long : undefined,
-    renderCell: (params: GridRenderCellParams<Row>) => {
+    renderCell: (params: GridRenderCellParams<DatasheetEditorRow>) => {
       if (params.row.type === 'SUM_PERCENT') {
         return null;
       }
@@ -585,7 +606,7 @@ const GRID_COL_DEFS: GridColDef[] = [
       'Comparable City Values are developed based on the 3 questions you answered when you created your plan. 1) Population, 2) Climate 3) % Zero Carbon Electricity. The system averages the data for European cities that have similar Climate and % Zero Carbon Electricity and then adjusts for the exact population of your city. Comparable City Values can be used to validate your own data inputs. If you have no information for a given cell, you can leave that cell blank, and the system will default to the Comparable City Value.',
     field: 'fallback',
     flex: 1,
-    renderCell: (params: GridRenderCellParams<Row>) => {
+    renderCell: (params: GridRenderCellParams<DatasheetEditorRow>) => {
       if (params.row.type === 'SUM_PERCENT') {
         return (
           <TotalPercentage
@@ -653,7 +674,7 @@ export type MeasureRow = {
   unit: MeasureTemplateFragmentFragment['unit'];
   originalId: string;
   fallback: number | null;
-  priority: string;
+  priority: FrameworksMeasureTemplatePriorityChoices;
   notes: string | null;
   depth: number;
   helpText: string | null;
@@ -678,7 +699,7 @@ type SumPercentRow = {
   depth: number;
 };
 
-type Row = MeasureRow | SectionRow | SumPercentRow;
+export type DatasheetEditorRow = MeasureRow | SectionRow | SumPercentRow;
 
 export const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -742,7 +763,7 @@ function getRowsFromSection(
   depth = 0,
   isRoot: boolean = false,
   baselineYear: number | null = null
-): Row[] {
+): DatasheetEditorRow[] {
   const sectionRow: SectionRow = {
     type: 'SECTION',
     sumTo100: section.maxTotal === 100,
@@ -781,7 +802,7 @@ function getRowsFromSection(
   ];
 }
 
-export function getRowClassName(type: Row['type'], depth: number) {
+export function getRowClassName(type: DatasheetEditorRow['type'], depth: number) {
   if (type === 'SECTION') {
     return `row-title ${depth > 1 ? 'row-title--subtitle' : ''}`;
   }
@@ -836,7 +857,10 @@ function AccordionContentWrapper({
   }, [rows]);
 
   const processRowUpdate = useCallback(
-    async (updatedRow: Row, originalRow: Row): Promise<Row> => {
+    async (
+      updatedRow: DatasheetEditorRow,
+      originalRow: DatasheetEditorRow
+    ): Promise<DatasheetEditorRow> => {
       if (updatedRow.type !== 'MEASURE' || originalRow.type !== 'MEASURE') {
         return originalRow;
       }
@@ -930,12 +954,12 @@ function AccordionContentWrapper({
         aria-controls="panel2-content"
         id="panel2-header"
       >
-        <Grid container>
+        <Grid container sx={{ flexGrow: 1 }}>
           <Grid size={{ xs: 6 }}>
             {withIndexes && `${index + 1}.`} {section.name}
             {!!section.helpText && <HelpText text={section.helpText} size="sm" />}
           </Grid>
-          <Grid size={{ xs: 6 }}>
+          <Grid size="grow">
             <DataSectionSummary rows={rows} />
           </Grid>
         </Grid>
@@ -948,17 +972,19 @@ function AccordionContentWrapper({
             slots={{ footer: CustomFooter }}
             slotProps={{ footer: { count: measureCount } }}
             sx={DATA_GRID_SX}
-            isCellEditable={(params) =>
+            isCellEditable={(params: GridCellParams<DatasheetEditorRow>) =>
               !!(permissions.edit && params.colDef.editable && params.row.type !== 'SUM_PERCENT')
             }
-            getRowClassName={(params) => getRowClassName(params.row.type, params.row.depth)}
-            getCellClassName={(params) =>
+            getRowClassName={(params: GridRowClassNameParams<DatasheetEditorRow>) =>
+              getRowClassName(params.row.type, params.row.depth)
+            }
+            getCellClassName={(params: GridCellParams<DatasheetEditorRow>) =>
               params.field === 'value' && rowsFailedToSave.includes(params.row.id)
                 ? 'cell-error'
                 : ''
             }
             getRowHeight={() => 'auto'}
-            getRowId={(row) => row.id}
+            getRowId={(row: DatasheetEditorRow) => row.id}
             rows={rows}
             columns={GRID_COL_DEFS}
             disableColumnSorting

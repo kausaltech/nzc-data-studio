@@ -1,21 +1,16 @@
+'use client';
+
+import type { ReactNode, SyntheticEvent } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+
+import type { AlertProps } from '@mui/material';
+import { Alert, AlertTitle, Snackbar } from '@mui/material';
+
 /**
  * NOTE:    This only currently supports a single snackbar at a time,
  *          fine for current use cases but we might need to handle multiple
  *          snackbars in future.
  */
-'use client';
-
-import type {
-  ReactNode,
-  SyntheticEvent} from 'react';
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
-import type { AlertProps} from '@mui/material';
-import { Alert, AlertTitle, Snackbar } from '@mui/material';
 
 type Notification = {
   message: ReactNode;

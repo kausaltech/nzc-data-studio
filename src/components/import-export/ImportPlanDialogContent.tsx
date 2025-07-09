@@ -187,7 +187,7 @@ export function ImportPlanDialogContent({ onClose }: Props) {
           <Button onClick={onClose}>Cancel</Button>
           <Button
             variant="contained"
-            onClick={handleUpload}
+            onClick={() => void handleUpload()}
             endIcon={
               loading ? (
                 <CircularProgress size={18} color="inherit" />

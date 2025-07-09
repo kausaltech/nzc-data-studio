@@ -1,27 +1,19 @@
 'use client';
 
-import type { RefObject, ReactNode} from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { useEffect, useRef } from 'react';
 
+import * as Sentry from '@sentry/nextjs';
 import type { Session } from 'next-auth';
-import type {
-  UpdateSession} from 'next-auth/react';
-import {
-  __NEXTAUTH,
-  SessionProvider,
-  signIn,
-  useSession,
-} from 'next-auth/react';
+import type { UpdateSession } from 'next-auth/react';
+import { SessionProvider, __NEXTAUTH, signIn, useSession } from 'next-auth/react';
+
+import { getLogger } from '@common/logging';
 
 import Loading from '@/app/loading';
 import { AUTH_PROVIDER_NAME } from '@/config/auth';
-import { getLogger } from '@common/logging';
 
-
-async function refreshAccessToken(
-  update: UpdateSession,
-  isRefreshing: RefObject<boolean>
-) {
+async function refreshAccessToken(update: UpdateSession, isRefreshing: RefObject<boolean>) {
   const logger = getLogger('refreshAccessToken');
   logger.info('Refreshing the token by updating the session');
   const newSession = await update({ performRefresh: true });
@@ -71,9 +63,7 @@ function TokenRefresher({ children }: { children: ReactNode }) {
     // tabs trying to refresh at once.
     // The session update event will be broadcast through a BroadcastChannel
     // to other tabs.
-    const timeLeft =
-      Math.max(session.accessTokenExpiresAt - now - 600, 60) +
-      Math.random() * 60;
+    const timeLeft = Math.max(session.accessTokenExpiresAt - now - 600, 60) + Math.random() * 60;
     logger.info(`Refreshing token after ${timeLeft}s`);
     const refetchTimer = setTimeout(() => {
       logger.info('Refresh timer fired');
@@ -100,12 +90,17 @@ type Props = {
 };
 
 export function AuthProvider({ session, children }: Props) {
+  if (session && session.user) {
+    Sentry.setUser({
+      email: session.user.email ?? undefined,
+      id: session.user.id ?? undefined,
+      name: session.user.name,
+    });
+  } else {
+    Sentry.setUser(null);
+  }
   return (
-    <SessionProvider
-      session={session}
-      refetchInterval={7200}
-      refetchWhenOffline={false}
-    >
+    <SessionProvider session={session} refetchInterval={7200} refetchWhenOffline={false}>
       <TokenRefresher>{children}</TokenRefresher>
     </SessionProvider>
   );

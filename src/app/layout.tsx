@@ -1,26 +1,29 @@
-import './globals.css';
+import { type ReactNode, Suspense } from 'react';
 
-import type { ReactNode } from 'react';
 import { cookies, headers } from 'next/headers';
 
 import { Box, Container } from '@mui/material';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import * as Sentry from '@sentry/nextjs';
 import type { Metadata } from 'next';
+import type { Session } from 'next-auth';
+
+import { getPublicEnvAsMeta } from '@common/env';
 
 import { AppBar } from '@/components/AppBar';
 import { Logo } from '@/components/Logo';
+import { SnackbarProvider } from '@/components/SnackbarProvider';
 import { ApolloWrapper } from '@/components/providers/ApolloWrapper';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { PreferredLocaleProvider } from '@/components/providers/PreferredLocaleProvider';
-import { SnackbarProvider } from '@/components/SnackbarProvider';
-import { auth } from '@/config/auth';
-import { ThemeProvider } from '@/theme';
 import { SelectedPlanProvider } from '@/components/providers/SelectedPlanProvider';
+import { auth } from '@/config/auth';
 import { PLAN_COOKIE_KEY } from '@/constants/plan';
-import type { Session } from 'next-auth';
-import { getPublicEnvAsMeta } from '@common/env';
 import { UserProfileProvider } from '@/hooks/use-user-profile';
+import { ThemeProvider } from '@/theme';
+
+import './globals.css';
+import Loading from './loading';
 
 export const revalidate = 0;
 
@@ -41,30 +44,31 @@ type Props = {
   children: ReactNode;
 };
 
-function CommonProviders(props: React.PropsWithChildren<{
-  session: Session | null;
-  preferredLanguage: string;
-  selectedPlan: string | undefined;
-}>) {
+function CommonProviders(
+  props: React.PropsWithChildren<{
+    session: Session | null;
+    preferredLanguage: string;
+    selectedPlan: string | undefined;
+  }>
+) {
   const { session, children, preferredLanguage, selectedPlan } = props;
-
   return (
     <PreferredLocaleProvider locale={preferredLanguage}>
-      <AuthProvider session={session}>
-        <ApolloWrapper>
-          <AppRouterCacheProvider>
-            <ThemeProvider>
-              <SelectedPlanProvider plan={selectedPlan}>
+      <AppRouterCacheProvider>
+        <ThemeProvider>
+          <AuthProvider session={session}>
+            <Suspense fallback={<Loading />}>
+              <ApolloWrapper>
                 <SnackbarProvider>
-                  <UserProfileProvider>
-                    {children}
-                  </UserProfileProvider>
+                  <SelectedPlanProvider plan={selectedPlan}>
+                    <UserProfileProvider>{children}</UserProfileProvider>
+                  </SelectedPlanProvider>
                 </SnackbarProvider>
-              </SelectedPlanProvider>
-            </ThemeProvider>
-          </AppRouterCacheProvider>
-        </ApolloWrapper>
-      </AuthProvider>
+              </ApolloWrapper>
+            </Suspense>
+          </AuthProvider>
+        </ThemeProvider>
+      </AppRouterCacheProvider>
     </PreferredLocaleProvider>
   );
 }

@@ -6,7 +6,7 @@ import Loading from '../loading';
 
 export default function SSORedirect() {
   useEffect(() => {
-    signIn('paths-oidc-provider', { callbackUrl: '/' });
+    void signIn('paths-oidc-provider', { callbackUrl: '/' });
   }, []);
 
   return <Loading />;

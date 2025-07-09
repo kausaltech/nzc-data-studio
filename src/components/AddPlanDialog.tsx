@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+
 import {
   Alert,
   AlertTitle,
@@ -24,12 +25,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { captureException } from '@sentry/nextjs';
 import { ExclamationTriangle, FileEarmarkPlus, X } from 'react-bootstrap-icons';
 import type { NumberFormatValues } from 'react-number-format';
 
-import NumberInput from './NumberInput';
 import { useSuspenseFrameworkSettings } from '@/hooks/use-framework-settings';
-import { captureException } from '@sentry/nextjs';
+
+import NumberInput from './NumberInput';
 import { useSnackbar } from './SnackbarProvider';
 
 type ClimateOption = 'warm' | 'cold';
@@ -88,12 +90,7 @@ function isSubmitEnabled(data: NewPlanData, onlyStepOne = false): boolean {
     return validFirstStep;
   }
 
-  return !!(
-    validFirstStep &&
-    data.population &&
-    data.renewableElectricityMix &&
-    data.climate
-  );
+  return !!(validFirstStep && data.population && data.renewableElectricityMix && data.climate);
 }
 
 type Props = {
@@ -106,8 +103,7 @@ type Props = {
 
 function useFrameworkSettings() {
   const { setNotification } = useSnackbar();
-  const { data: frameworkSettings, error: frameworkSettingsError } =
-    useSuspenseFrameworkSettings();
+  const { data: frameworkSettings, error: frameworkSettingsError } = useSuspenseFrameworkSettings();
 
   const minTargetYear = frameworkSettings.framework?.defaults.targetYear.min;
   const maxTargetYear = frameworkSettings.framework?.defaults.targetYear.max;
@@ -169,19 +165,11 @@ function useFrameworkSettings() {
   };
 }
 
-export function AddPlanDialog({
-  open,
-  onClose,
-  onSubmit,
-  loading,
-  error,
-}: Props) {
+export function AddPlanDialog({ open, onClose, onSubmit, loading, error }: Props) {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<NewPlanData>(INITIAL_DATA);
   const [targetYearError, setTargetYearError] = useState<string | null>(null);
-  const { minTargetYear, maxTargetYear, baselineYears } =
-    useFrameworkSettings();
-
+  const { minTargetYear, maxTargetYear, baselineYears } = useFrameworkSettings();
   function resetForm() {
     setStep(0);
     setData(INITIAL_DATA);
@@ -189,9 +177,7 @@ export function AddPlanDialog({
 
   function isTargetYearValid(targetYear: number | ''): boolean {
     return (
-      typeof targetYear === 'number' &&
-      targetYear >= minTargetYear &&
-      targetYear <= maxTargetYear
+      typeof targetYear === 'number' && targetYear >= minTargetYear && targetYear <= maxTargetYear
     );
   }
 
@@ -200,10 +186,7 @@ export function AddPlanDialog({
     setTimeout(resetForm, 400);
   }
 
-  function handleChange(
-    field: keyof NewPlanData,
-    value: NewPlanData[typeof field]
-  ) {
+  function handleChange(field: keyof NewPlanData, value: NewPlanData[typeof field]) {
     setData((prev) => ({ ...prev, [field]: value }));
   }
 
@@ -214,9 +197,7 @@ export function AddPlanDialog({
 
   function handleNext() {
     if (!isTargetYearValid(data.targetYear)) {
-      setTargetYearError(
-        `Target year must be between ${minTargetYear} and ${maxTargetYear}`
-      );
+      setTargetYearError(`Target year must be between ${minTargetYear} and ${maxTargetYear}`);
 
       return;
     }
@@ -241,12 +222,7 @@ export function AddPlanDialog({
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ pb: 1 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          spacing={1}
-        >
+        <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
           <Box sx={{ fontSize: 0 }}>
             <FileEarmarkPlus size={24} />
           </Box>
@@ -264,9 +240,8 @@ export function AddPlanDialog({
             <Box sx={{ mb: 4 }}>
               {step === 0 ? (
                 <Typography variant="body1" color="text.secondary">
-                  Create a new climate action plan to track and manage your
-                  city&apos;s emissions data. Create multiple plans to envision
-                  various scenarios.
+                  Create a new climate action plan to track and manage your city&apos;s emissions
+                  data. Create multiple plans to envision various scenarios.
                 </Typography>
               ) : (
                 <Typography variant="body1" color="text.secondary">
@@ -277,7 +252,7 @@ export function AddPlanDialog({
 
             {step === 0 ? (
               <Grid container spacing={2}>
-                <Grid size={{xs: 12}}>
+                <Grid size={{ xs: 12 }}>
                   <TextField
                     fullWidth
                     label="Plan or city name"
@@ -285,7 +260,7 @@ export function AddPlanDialog({
                     onChange={(e) => handleChange('planName', e.target.value)}
                   />
                 </Grid>
-                <Grid size={{xs: 6}}>
+                <Grid size={{ xs: 6 }}>
                   <FormControl fullWidth>
                     <InputLabel id="baseline-select">Baseline year</InputLabel>
                     <Select
@@ -294,9 +269,7 @@ export function AddPlanDialog({
                       id="baseline-select-component"
                       renderValue={(value) => value}
                       value={data.baselineYear}
-                      onChange={(e) =>
-                        handleChange('baselineYear', Number(e.target.value))
-                      }
+                      onChange={(e) => handleChange('baselineYear', Number(e.target.value))}
                     >
                       {baselineYears.map((year) => (
                         <MenuItem key={year} value={year}>
@@ -322,8 +295,7 @@ export function AddPlanDialog({
                       ))}
                     </Select>
 
-                    {data.baselineYear &&
-                    PANDEMIC_YEARS.includes(data.baselineYear) ? (
+                    {data.baselineYear && PANDEMIC_YEARS.includes(data.baselineYear) ? (
                       <FormHelperText
                         component={Stack}
                         sx={{ color: 'warning.dark', pt: 1 }}
@@ -335,19 +307,19 @@ export function AddPlanDialog({
                           <ExclamationTriangle size={18} />
                         </Box>
                         <Typography variant="caption">
-                          COVID-19 may have skewed data for this year. Consider
-                          another baseline year for more typical results.
+                          COVID-19 may have skewed data for this year. Consider another baseline
+                          year for more typical results.
                         </Typography>
                       </FormHelperText>
                     ) : (
                       <FormHelperText>
-                        All data you enter will refer to this year, which serves
-                        as the starting point for tracking your city's emissions
+                        All data you enter will refer to this year, which serves as the starting
+                        point for tracking your city's emissions
                       </FormHelperText>
                     )}
                   </FormControl>
                 </Grid>
-                <Grid size={{xs: 6}}>
+                <Grid size={{ xs: 6 }}>
                   <NumberInput
                     fullWidth
                     label="Target year"
@@ -383,9 +355,7 @@ export function AddPlanDialog({
                       max: 50000000,
                     }}
                     value={data.population}
-                    onValueChange={(values) =>
-                      handleChange('population', values.floatValue ?? '')
-                    }
+                    onValueChange={(values) => handleChange('population', values.floatValue ?? '')}
                   />
                 </FormControl>
 
@@ -413,7 +383,9 @@ export function AddPlanDialog({
                 <FormControl>
                   <FormLabel id="electricity-select" sx={{ mb: 0.5 }}>
                     <Typography component="span" variant="body2">
-                      {"What's the percentage of renewable plus nuclear energy in your electricity mix?"}
+                      {
+                        "What's the percentage of renewable plus nuclear energy in your electricity mix?"
+                      }
                     </Typography>
                   </FormLabel>
                   <Select
@@ -421,9 +393,7 @@ export function AddPlanDialog({
                     labelId="electricity-select"
                     id="electricity-select-component"
                     value={data.renewableElectricityMix ?? ''}
-                    onChange={(e) =>
-                      handleChange('renewableElectricityMix', e.target.value)
-                    }
+                    onChange={(e) => handleChange('renewableElectricityMix', e.target.value)}
                   >
                     {RENEWABLE_ELECTRICITY_OPTIONS.map(({ value, label }) => (
                       <MenuItem key={value} value={value}>
@@ -474,11 +444,7 @@ export function AddPlanDialog({
                 variant="contained"
                 type="submit"
                 disabled={loading || !isSubmitEnabled(data)}
-                endIcon={
-                  loading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null
-                }
+                endIcon={loading ? <CircularProgress color="inherit" size={20} /> : null}
               >
                 {loading ? 'Adding...' : 'Add plan'}
               </Button>

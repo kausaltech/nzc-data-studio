@@ -59,8 +59,8 @@ export function parseMeasuresCsv(csvData: string): ParsedCsvResponse {
   let currentSection: string | null = null;
   // In cases where measures have the same name and are in the same section, keep track of the previous row for context
   let previousRow: string | null = null;
-  let measuresNotFound: ImportedMeasure[] = [];
-  let measureValueMap = new Map<string, ImportedMeasure>();
+  const measuresNotFound: ImportedMeasure[] = [];
+  const measureValueMap = new Map<string, ImportedMeasure>();
 
   parsedCsv.data.forEach((rowValues) => {
     if (!rowValues) {

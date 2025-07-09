@@ -12,11 +12,11 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  DateTime: { input: any; output: any; }
-  JSONString: { input: any; output: any; }
-  PositiveInt: { input: any; output: any; }
-  RichText: { input: any; output: any; }
-  UUID: { input: any; output: any; }
+  DateTime: { input: string; output: string; }
+  JSONString: { input: string; output: string; }
+  PositiveInt: { input: number; output: number; }
+  RichText: { input: string; output: string; }
+  UUID: { input: string; output: string; }
   _Any: { input: any; output: any; }
 };
 
@@ -2428,7 +2428,7 @@ export type GetMeasureTemplateQueryVariables = Exact<{
 export type GetMeasureTemplateQuery = (
   { framework?: (
     { id: string, measureTemplate?: (
-      { id: string, uuid: any, name: string, measure?: (
+      { id: string, uuid: string, name: string, measure?: (
         { id: string, internalNotes: string, dataPoints: Array<(
           { id: string, value?: number | null, year: number, defaultValue?: number | null }
           & { __typename?: 'MeasureDataPoint' }
@@ -2451,12 +2451,12 @@ export type GetMeasureTemplatesQueryVariables = Exact<{
 export type GetMeasureTemplatesQuery = (
   { framework?: (
     { id: string, dataCollection?: (
-      { uuid: any, descendants: Array<(
-        { uuid: any, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
-          { uuid: any }
+      { uuid: string, descendants: Array<(
+        { uuid: string, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
+          { uuid: string }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
-          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
+          { id: string, uuid: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
             { htmlShort: string, htmlLong: string, short: string, long: string }
             & { __typename?: 'UnitType' }
           ), defaultDataPoints: Array<(
@@ -2478,12 +2478,12 @@ export type GetMeasureTemplatesQuery = (
       )> }
       & { __typename?: 'Section' }
     ) | null, futureAssumptions?: (
-      { uuid: any, descendants: Array<(
-        { uuid: any, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
-          { uuid: any }
+      { uuid: string, descendants: Array<(
+        { uuid: string, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
+          { uuid: string }
           & { __typename?: 'Section' }
         ) | null, measureTemplates: Array<(
-          { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
+          { id: string, uuid: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
             { htmlShort: string, htmlLong: string, short: string, long: string }
             & { __typename?: 'UnitType' }
           ), defaultDataPoints: Array<(
@@ -2514,12 +2514,12 @@ export type GetMeasureTemplatesQuery = (
 );
 
 export type MainSectionMeasuresFragment = (
-  { uuid: any, descendants: Array<(
-    { uuid: any, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
-      { uuid: any }
+  { uuid: string, descendants: Array<(
+    { uuid: string, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
+      { uuid: string }
       & { __typename?: 'Section' }
     ) | null, measureTemplates: Array<(
-      { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
+      { id: string, uuid: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
         { htmlShort: string, htmlLong: string, short: string, long: string }
         & { __typename?: 'UnitType' }
       ), defaultDataPoints: Array<(
@@ -2543,11 +2543,11 @@ export type MainSectionMeasuresFragment = (
 );
 
 export type SectionFragmentFragment = (
-  { uuid: any, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
-    { uuid: any }
+  { uuid: string, name: string, maxTotal?: number | null, helpText: string, path: string, parent?: (
+    { uuid: string }
     & { __typename?: 'Section' }
   ) | null, measureTemplates: Array<(
-    { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
+    { id: string, uuid: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
       { htmlShort: string, htmlLong: string, short: string, long: string }
       & { __typename?: 'UnitType' }
     ), defaultDataPoints: Array<(
@@ -2569,7 +2569,7 @@ export type SectionFragmentFragment = (
 );
 
 export type MeasureTemplateFragmentFragment = (
-  { id: string, uuid: any, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
+  { id: string, uuid: string, priority: FrameworksMeasureTemplatePriorityChoices, name: string, hidden: boolean, yearBound: boolean, helpText: string, minValue?: number | null, maxValue?: number | null, includeInProgressTracker: boolean, defaultValueSource: string, unit: (
     { htmlShort: string, htmlLong: string, short: string, long: string }
     & { __typename?: 'UnitType' }
   ), defaultDataPoints: Array<(
