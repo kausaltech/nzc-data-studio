@@ -200,21 +200,11 @@ export function formatNumericValue(
   });
 }
 
-type CustomEditComponentProps = GridRenderEditCellParams<MeasureRow | SectionRow> & {
-  sx?: SxProps<Theme>;
-  placeholder?: string;
-} & (
-    | {
-        colDef: Omit<GridColDef<MeasureRow>, 'type'> & {
-          type: 'number';
-        };
-      }
-    | {
-        colDef: Omit<GridColDef<SectionRow>, 'type'> & {
-          type: 'string';
-        };
-      }
-  );
+type CustomEditComponentProps<TMeasureRow extends BaseMeasureRow = MeasureRow> =
+  GridRenderEditCellParams<TMeasureRow | SectionRow> & {
+    sx?: SxProps<Theme>;
+    placeholder?: string;
+  };
 
 /**
  * Since the sheet editor only has a few cells available to edit,
@@ -222,7 +212,7 @@ type CustomEditComponentProps = GridRenderEditCellParams<MeasureRow | SectionRow
  * interactivity. This component allows us to keep consistent input
  * styles when the cell is in edit or read mode.
  */
-export default function CustomEditComponent({
+export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow = MeasureRow>({
   id,
   value,
   field,
@@ -231,7 +221,7 @@ export default function CustomEditComponent({
   colDef,
   row,
   placeholder,
-}: CustomEditComponentProps) {
+}: CustomEditComponentProps<TMeasureRow>) {
   const permissions = usePermissions();
   const apiRef = useGridApiContext();
   const ref = useRef<HTMLInputElement | null>(null);
@@ -473,20 +463,18 @@ export function TotalPercentage({ total, overrideIsValid = false }: TotalPercent
 
 const EDITABLE_COL: Partial<GridColDef<DatasheetEditorRow>> = {
   editable: true,
-  renderCell: (params) => {
-    const { row, ...rest } = params;
+  renderCell: ({ row, ...rest }) => {
     if (row.type === 'SUM_PERCENT') {
-      if (params.field === 'notes') {
+      if (rest.field === 'notes') {
         return null;
       }
 
-      return <TotalPercentage key={`${params.field}-${params.row.id}`} total={row.total} />;
+      return <TotalPercentage key={`${rest.field}-${row.id}`} total={row.total} />;
     }
 
     return (
-      // @ts-ignore
       <CustomEditComponent
-        key={`${params.field}-${row.id}`}
+        key={`${rest.field}-${row.id}`}
         row={row}
         {...rest}
         sx={{ mx: 0, my: 1 }}
@@ -494,7 +482,6 @@ const EDITABLE_COL: Partial<GridColDef<DatasheetEditorRow>> = {
     );
   },
   renderEditCell: (params: GridRenderEditCellParams<MeasureRow | SectionRow>) => (
-    // @ts-ignore
     <CustomEditComponent key={`${params.field}-${params.id}`} {...params} />
   ),
 };
@@ -665,20 +652,23 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
   },
 ];
 
-export type MeasureRow = {
+export type BaseMeasureRow = {
   type: 'MEASURE';
   id: string;
   isTitle: false;
   label: string;
-  value: number | null;
   unit: MeasureTemplateFragmentFragment['unit'];
   originalId: string;
-  fallback: number | null;
-  priority: FrameworksMeasureTemplatePriorityChoices;
-  notes: string | null;
   depth: number;
   helpText: string | null;
   originalMeasureTemplate: MeasureTemplateFragmentFragment;
+};
+
+export type MeasureRow = BaseMeasureRow & {
+  value: number | null;
+  fallback: number | null;
+  priority: FrameworksMeasureTemplatePriorityChoices;
+  notes: string | null;
 };
 
 export type SectionRow = {

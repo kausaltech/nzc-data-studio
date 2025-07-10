@@ -32,8 +32,8 @@ import {
 import CustomEditComponent, {
   Accordion,
   AccordionDetails,
+  type BaseMeasureRow,
   DATA_GRID_SX,
-  type MeasureRow,
   type SectionRow,
   TotalPercentage,
   filterSections,
@@ -47,11 +47,11 @@ import { HelpText } from './HelpText';
 import { useSnackbar } from './SnackbarProvider';
 import { usePlans, useSuspenseSelectedPlanConfig } from './providers/SelectedPlanProvider';
 
-interface MeasureDataPoint extends Omit<MeasureRow, 'fallback' | 'priority' | 'notes' | 'value'> {
+type AdditionalDatasheetMeasureRow = BaseMeasureRow & {
   baselineValue: number | null;
   placeholderDataPoints: Record<number, null | number>;
   [year: number]: null | number;
-}
+};
 
 export type SumPercentRow = {
   type: 'SUM_PERCENT';
@@ -60,7 +60,7 @@ export type SumPercentRow = {
   depth: number;
 };
 
-type Row = MeasureDataPoint | SectionRow | SumPercentRow;
+type Row = AdditionalDatasheetMeasureRow | SectionRow | SumPercentRow;
 
 const currentYear = new Date().getFullYear();
 
@@ -76,7 +76,7 @@ function isSectionRow(row: Row): row is SectionRow {
   return row.type === 'SECTION';
 }
 
-function isMeasureRow(row: Row): row is MeasureDataPoint {
+function isMeasureRow(row: Row): row is AdditionalDatasheetMeasureRow {
   return row.type === 'MEASURE';
 }
 
@@ -150,7 +150,7 @@ function getRowsFromSection(
   return [
     ...(isRoot ? [] : [sectionRow]),
     ...measureTemplates.flatMap(
-      (measure): MeasureDataPoint => ({
+      (measure): AdditionalDatasheetMeasureRow => ({
         isTitle: false,
         type: 'MEASURE',
         id: measure.uuid,
@@ -357,10 +357,10 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
       }
       return updatedRow;
     },
-    [updateMeasureDataPoint, selectedPlanId, rowsFailedToSave]
+    [updateMeasureDataPoint, selectedPlanId, rowsFailedToSave, setNotification]
   );
 
-  const columns: GridColDef[] = useMemo(
+  const columns: GridColDef<Row>[] = useMemo(
     () => [
       {
         display: 'flex',
@@ -426,8 +426,10 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
         field: 'unit',
         flex: 1,
         display: 'flex',
-        valueFormatter: (value: MeasureTemplateFragmentFragment['unit'], row: MeasureDataPoint) =>
-          row.type === 'MEASURE' ? value.long : undefined,
+        valueFormatter: (
+          value: MeasureTemplateFragmentFragment['unit'],
+          row: AdditionalDatasheetMeasureRow
+        ) => (row.type === 'MEASURE' ? value.long : undefined),
         renderCell: (params: GridRenderCellParams<Row>) => {
           if (params.row.type !== 'MEASURE') {
             return null;
@@ -453,6 +455,7 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
             editable: true,
             renderCell: (params: GridRenderCellParams<Row>) => {
               const { row, ...rest } = params;
+
               if (isSectionRow(row)) {
                 return null;
               }
@@ -471,26 +474,28 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
               }
 
               return (
-                <CustomEditComponent
-                  // @ts-ignore
-                  row={row}
+                <CustomEditComponent<AdditionalDatasheetMeasureRow>
                   {...rest}
+                  row={row}
                   sx={{ mx: 0, my: 1 }}
                   placeholder={getPlaceholder(params.row, year)}
                 />
               );
             },
-            renderEditCell: (params: GridRenderCellParams<Row>) => {
-              if (params.row.type !== 'MEASURE') {
+            renderEditCell: ({ row, ...rest }: GridRenderCellParams<Row>) => {
+              if (row.type !== 'MEASURE') {
                 return null;
               }
 
               return (
-                // @ts-ignore
-                <CustomEditComponent {...params} placeholder={getPlaceholder(params.row, year)} />
+                <CustomEditComponent<AdditionalDatasheetMeasureRow>
+                  {...rest}
+                  row={row}
+                  placeholder={getPlaceholder(row, year)}
+                />
               );
             },
-          }) as GridColDef
+          }) as GridColDef<Row>
       ),
     ],
     [baselineYear, additionalYears]
