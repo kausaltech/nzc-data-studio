@@ -594,7 +594,7 @@ export function AdditionalDatasheetEditor() {
               aria-controls={`${section.id}-content`}
               id={`${section.id}-header`}
             >
-              <Typography>{section.name}</Typography>
+              <Typography component="span">{section.name}</Typography>
               {!!section.helpText && <HelpText text={section.helpText} size="sm" />}
             </MuiAccordionSummary>
             <AccordionDetails>

@@ -956,7 +956,9 @@ function AccordionContentWrapper({
       >
         <Grid container sx={{ flexGrow: 1 }}>
           <Grid size={{ xs: 6 }}>
-            {withIndexes && `${index + 1}.`} {section.name}
+            <Typography component="span">
+              {withIndexes && `${index + 1}.`} {section.name}
+            </Typography>
             {!!section.helpText && <HelpText text={section.helpText} size="sm" />}
           </Grid>
           <Grid size="grow">
