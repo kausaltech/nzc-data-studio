@@ -1,18 +1,13 @@
 import { gql } from '@apollo/client';
 
-export const GET_FRAMEWORK_CONFIG = gql`
-  query GetFrameworkConfig($id: ID!) {
-    framework(identifier: "nzc") {
-      id
-      config(id: $id) {
-        id
-        organizationName
-        baselineYear
-        targetYear
-        viewUrl
-        resultsDownloadUrl
-      }
-    }
+export const FrameworkConfigFragment = gql`
+  fragment FrameworkConfig on FrameworkConfig {
+    id
+    organizationName
+    baselineYear
+    targetYear
+    viewUrl
+    resultsDownloadUrl
   }
 `;
 
@@ -21,13 +16,10 @@ export const GET_FRAMEWORK_CONFIGS = gql`
     framework(identifier: "nzc") {
       id
       configs {
-        id
-        organizationName
-        baselineYear
-        targetYear
-        viewUrl
-        resultsDownloadUrl
+        ...FrameworkConfig
       }
     }
   }
+
+  ${FrameworkConfigFragment}
 `;

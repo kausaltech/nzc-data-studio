@@ -2301,7 +2301,9 @@ export type UpdateMeasuresMutation = (
   & { __typename?: 'Mutation' }
 );
 
-export type ProfileQueryVariables = Exact<{ [key: string]: never; }>;
+export type ProfileQueryVariables = Exact<{
+  selectedPlanId: Scalars['ID']['input'];
+}>;
 
 
 export type ProfileQuery = (
@@ -2315,13 +2317,13 @@ export type ProfileQuery = (
     { id: string, userRoles?: Array<string> | null, userPermissions?: (
       { change: boolean, creatableRelatedModels: Array<string | null> }
       & { __typename?: 'UserPermissions' }
-    ) | null, configs: Array<(
-      { id: string, userPermissions?: (
+    ) | null, config?: (
+      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null, userPermissions?: (
         { view: boolean, change: boolean, delete: boolean, actions: Array<ModelAction | null>, creatableRelatedModels: Array<string | null>, otherPermissions: Array<string | null> }
         & { __typename?: 'UserPermissions' }
       ) | null }
-      & { __typename: 'FrameworkConfig' }
-    )> }
+      & { __typename?: 'FrameworkConfig' }
+    ) | null }
     & { __typename?: 'Framework' }
   ) | null }
   & { __typename?: 'Query' }
@@ -2344,7 +2346,7 @@ export type CreateNzcFrameworkMutation = (
     { ok: boolean, frameworkConfig?: (
       { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null, framework: (
         { id: string, configs: Array<(
-          { id: string, viewUrl?: string | null, resultsDownloadUrl?: string | null, organizationName?: string | null, baselineYear: number, targetYear?: number | null }
+          { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null }
           & { __typename?: 'FrameworkConfig' }
         )> }
         & { __typename?: 'Framework' }
@@ -2369,20 +2371,9 @@ export type DeleteFrameworkMutation = (
   & { __typename?: 'Mutation' }
 );
 
-export type GetFrameworkConfigQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type GetFrameworkConfigQuery = (
-  { framework?: (
-    { id: string, config?: (
-      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null }
-      & { __typename?: 'FrameworkConfig' }
-    ) | null }
-    & { __typename?: 'Framework' }
-  ) | null }
-  & { __typename?: 'Query' }
+export type FrameworkConfigFragment = (
+  { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null }
+  & { __typename?: 'FrameworkConfig' }
 );
 
 export type GetFrameworkConfigsQueryVariables = Exact<{ [key: string]: never; }>;

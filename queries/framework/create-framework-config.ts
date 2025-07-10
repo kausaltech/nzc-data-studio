@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { FrameworkConfigFragment } from './get-framework-config';
 
 export const CREATE_NZC_FRAMEWORK_CONFIG = gql`
   mutation CreateNZCFramework(
@@ -27,25 +28,17 @@ export const CREATE_NZC_FRAMEWORK_CONFIG = gql`
     ) {
       ok
       frameworkConfig {
-        id
-        organizationName
-        baselineYear
-        targetYear
-        viewUrl
-        resultsDownloadUrl
+        ...FrameworkConfig
         # Return the updated full list of framework configs to automatically update the cache
         framework {
           id
           configs {
-            id
-            viewUrl
-            resultsDownloadUrl
-            organizationName
-            baselineYear
-            targetYear
+            ...FrameworkConfig
           }
         }
       }
     }
   }
+
+  ${FrameworkConfigFragment}
 `;
