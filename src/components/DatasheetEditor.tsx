@@ -104,6 +104,10 @@ const rowSummarySx: SxProps<Theme> = (theme) => ({
 
 // Override styles colors of title sections
 export const DATA_GRID_SX: SxProps<Theme> = (theme) => ({
+  '&.MuiDataGrid-root': {
+    '--DataGrid-t-color-background-base': theme.palette.grey[50],
+    '--DataGrid-t-header-background-base': theme.palette.grey[100],
+  },
   '& .MuiDataGrid-columnHeaderTitle': {
     fontSize: theme.typography.caption.fontSize,
     whiteSpace: 'normal',
