@@ -497,7 +497,8 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
   );
 
   return (
-    <DataGrid
+    <DataGrid<Row>
+      key={selectedPlanId} // Force full re-render when the plan changes
       {...(permissions.edit ? singleClickEditProps : {})}
       loading={loading}
       slots={{ footer: CustomFooter }}
