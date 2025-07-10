@@ -518,20 +518,23 @@ export function renderLabelCell(
   const label = type === 'SUM_PERCENT' ? 'Total' : value;
 
   return (
-    <Typography
-      key={`label-${id}`}
-      sx={{
-        my: 1,
-        ml: depth,
-        fontWeight: isSmallText ? 'fontWeightMedium' : undefined,
-        fontStyle: isSectionSummary ? 'italic' : undefined,
-        color: isSectionSummary ? 'text.secondary' : undefined,
-      }}
-      variant={isSmallText ? 'caption' : 'body2'}
-    >
-      {label}
+    <>
+      <Typography
+        key={`label-${id}`}
+        sx={{
+          my: 1,
+          ml: depth,
+          fontWeight: isSmallText ? 'fontWeightMedium' : undefined,
+          fontStyle: isSectionSummary ? 'italic' : undefined,
+          color: isSectionSummary ? 'text.secondary' : undefined,
+        }}
+        variant={isSmallText ? 'caption' : 'body2'}
+        component="span"
+      >
+        {label}
+      </Typography>
       {!!helpText && <HelpText text={helpText} size={isSmallText ? 'sm' : 'md'} />}
-    </Typography>
+    </>
   );
 }
 
