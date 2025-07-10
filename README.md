@@ -72,6 +72,14 @@ npm run dev
 
 This command will start the Next.js development server on [http://localhost:3000](http://localhost:3000).
 
+### Troubleshooting 
+
+If you see the error `Cannot find module './kausal_common...`, ensure submodules are installed by running:
+
+```sh
+git submodule update --init --recursive
+```
+
 ### Building for Production
 
 To build the project for production:
