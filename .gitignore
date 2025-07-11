@@ -41,3 +41,4 @@ next-env.d.ts
 /.*token
 /.secrets/
 /.eslintcache
+/public/static/sbom/
