@@ -1,0 +1,40 @@
+name: CI
+on: push
+
+jobs:
+  build:
+    uses: kausaltech/github-actions/.github/workflows/build.yaml@main
+    with:
+      project_id: nzc-data-studio
+      project_type: nextjs
+    secrets:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      NPM_USER: ${{ secrets.NPM_USER }}
+      NPM_PASSWORD: ${{ secrets.NPM_PASSWORD }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+  # test:
+  #   needs: [build]
+  #   uses: ./.github/workflows/e2e-image.yaml
+  #   with:
+  #     image: ${{ needs.build.outputs.image }}:${{ needs.build.outputs.image_tag }}
+  #     backend_base_url: https://api.paths.kausal.dev
+  #     build_id: ${{ needs.build.outputs.build_id }}
+  #     s3_endpoint: ${{ vars.BUILD_S3_ENDPOINT }}
+  #     s3_bucket: ${{ vars.BUILD_S3_BUCKET }}
+  #   secrets: inherit
+
+  deploy:
+    needs: [build]
+    uses: kausaltech/github-actions/.github/workflows/deploy.yaml@main
+    secrets:
+      gitops_ssh_key: ${{ secrets.GITOPS_SSH_KEY }}
+    if: needs.build.outputs.deployment_env
+    with:
+      docker_image_repo: ${{ needs.build.outputs.image }}
+      docker_image_tag: ${{ needs.build.outputs.image_tag }}
+      project_id: nzc-data-studio
+      build_id: ${{ needs.build.outputs.build_id }}
+      deployment_env: ${{ needs.build.outputs.deployment_env }}
