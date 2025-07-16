@@ -12,7 +12,7 @@ import { Alert, AlertTitle, Snackbar } from '@mui/material';
  *          snackbars in future.
  */
 
-type Notification = {
+export type Notification = {
   message: ReactNode;
   extraDetails?: ReactNode;
   severity: AlertProps['severity'];

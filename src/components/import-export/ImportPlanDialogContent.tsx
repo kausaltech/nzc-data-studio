@@ -1,7 +1,9 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import type { MeasureForDownload } from '@/utils/measures';
+
+import { useApolloClient, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import {
   Alert,
   AlertTitle,
@@ -16,27 +18,22 @@ import {
   Typography,
 } from '@mui/material';
 import { Upload } from 'react-bootstrap-icons';
-import { useApolloClient, useMutation } from '@apollo/client';
-import { gql } from '@apollo/client';
+
 import type {
   MeasureInput,
   UpdateMeasuresMutation,
   UpdateMeasuresMutationVariables,
 } from '@/types/__generated__/graphql';
-import { FileUpload } from '../FileUpload';
+import type { ExportedDataV1, ExportedDataV2 } from '@/utils/measures';
+
 import { FadeAndCollapse } from '../FadeAndCollapse';
+import { FileUpload } from '../FileUpload';
 import { useSnackbar } from '../SnackbarProvider';
 import { useSuspenseSelectedPlanConfig } from '../providers/SelectedPlanProvider';
 
 const UPDATE_MEASURES = gql`
-  mutation UpdateMeasures(
-    $frameworkConfigId: ID!
-    $measures: [MeasureInput!]!
-  ) {
-    updateMeasureDataPoints(
-      frameworkConfigId: $frameworkConfigId
-      measures: $measures
-    ) {
+  mutation UpdateMeasures($frameworkConfigId: ID!, $measures: [MeasureInput!]!) {
+    updateMeasureDataPoints(frameworkConfigId: $frameworkConfigId, measures: $measures) {
       ok
       updatedDataPoints {
         id
@@ -53,6 +50,30 @@ const UPDATE_MEASURES = gql`
   }
 `;
 
+function mapUploadToMeasures(data: ExportedDataV1 | ExportedDataV2): MeasureInput[] {
+  if (data.version === 1) {
+    return data.measures.map((measure) => ({
+      measureTemplateId: measure.uuid,
+      internalNotes: measure.notes || undefined,
+      dataPoints:
+        measure.value === null || typeof measure.value === 'number'
+          ? [{ value: measure.value }]
+          : [],
+    }));
+  }
+
+  return data.measures
+    .filter((measure) => !!measure.dataPoints.length || !!measure.internalNotes)
+    .map((measure) => ({
+      measureTemplateId: measure.measureTemplate.uuid,
+      internalNotes: measure.internalNotes || undefined,
+      dataPoints: measure.dataPoints.map((dataPoint) => ({
+        value: dataPoint.value,
+        year: dataPoint.year,
+      })),
+    }));
+}
+
 type Props = {
   onClose: () => void;
 };
@@ -61,6 +82,7 @@ export function ImportPlanDialogContent({ onClose }: Props) {
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [confirmOverwrite, setConfirmOverwrite] = useState(false);
+  const [fileError, setFileError] = useState(false);
   const { setNotification } = useSnackbar();
 
   const plan = useSuspenseSelectedPlanConfig();
@@ -78,24 +100,22 @@ export function ImportPlanDialogContent({ onClose }: Props) {
   }, []);
 
   async function handleUpload() {
+    setFileError(false);
     if (!fileContent || !plan?.id) {
       console.log('Missing file or framework config ID for upload');
       return;
     }
 
     try {
-      const uploadData = JSON.parse(fileContent) as {
-        measures: MeasureForDownload[];
-      };
+      const uploadData = JSON.parse(fileContent) as ExportedDataV1 | ExportedDataV2;
 
-      const measures: MeasureInput[] = uploadData.measures.map((measure) => ({
-        measureTemplateId: measure.uuid,
-        internalNotes: measure.notes || undefined,
-        dataPoints:
-          measure.value === null || typeof measure.value === 'number'
-            ? [{ value: measure.value }]
-            : [],
-      }));
+      if ((uploadData.version !== 1 && uploadData.version !== 2) || !uploadData.measures?.length) {
+        setFileError(true);
+
+        return;
+      }
+
+      const measures = mapUploadToMeasures(uploadData);
 
       setLoading(true);
 
@@ -155,12 +175,9 @@ export function ImportPlanDialogContent({ onClose }: Props) {
           <FadeAndCollapse in={!!(fileContent && !error)}>
             <div>
               <Alert severity="warning" sx={{ mt: 2 }}>
-                <AlertTitle>
-                  Warning: Your current plan will be overwritten
-                </AlertTitle>
-                Uploading this file will replace all existing data in your
-                current plan. This action cannot be undone. Make sure you have a
-                backup if needed.
+                <AlertTitle>Warning: Your current plan will be overwritten</AlertTitle>
+                Uploading this file will replace all existing data in your current plan. This action
+                cannot be undone. Make sure you have a backup if needed.
               </Alert>
 
               <FormControlLabel
@@ -175,10 +192,11 @@ export function ImportPlanDialogContent({ onClose }: Props) {
             </div>
           </FadeAndCollapse>
 
-          {error && (
+          {(error || fileError) && (
             <Alert severity="error">
               <AlertTitle>Failed to import data</AlertTitle>
-              {error.message}
+              {error?.message ??
+                'We were unable to process your file. Please ensure it is a valid JSON file exported from NetZeroPlanner.'}
             </Alert>
           )}
         </Box>
@@ -189,11 +207,7 @@ export function ImportPlanDialogContent({ onClose }: Props) {
             variant="contained"
             onClick={() => void handleUpload()}
             endIcon={
-              loading ? (
-                <CircularProgress size={18} color="inherit" />
-              ) : (
-                <Upload size={18} />
-              )
+              loading ? <CircularProgress size={18} color="inherit" /> : <Upload size={18} />
             }
             disabled={!fileContent || loading || !confirmOverwrite}
           >
