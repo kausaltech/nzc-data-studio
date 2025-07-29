@@ -32,4 +32,7 @@ export const UNIT_LABELS = {
   'EUR/megawatt_hour': 'EUR/megawatt hour',
   // Note: This is a backend bug which needs hotfixing, this can be removed when the "Average passengers per bus" unit is fixed.
   'pkm/vkm': 'passenger/vehicle',
+  mpkm: 'million passenger-kilometers',
+  'Mpkm/year': 'million passenger-km/year',
+  'kilowatt hour/kilowatt/year': 'kilowatt hours/year',
 };
