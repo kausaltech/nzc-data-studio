@@ -1,14 +1,13 @@
-import { FrameworksMeasureTemplatePriorityChoices as Priority } from '@/types/__generated__/graphql';
 import { Stack, Tooltip, Typography } from '@mui/material';
-import type {
-  IconProps} from 'react-bootstrap-icons';
+import type { IconProps } from 'react-bootstrap-icons';
 import {
-  Icon3CircleFill as LowPriorityIcon,
+  Icon1CircleFill as HighPriorityIcon,
   Icon2CircleFill as MedPriorityIcon,
-  Icon1CircleFill as HighPriorityIcon
 } from 'react-bootstrap-icons';
 
-export const PRIORITY_TYPES = [Priority.High, Priority.Medium, Priority.Low];
+import { FrameworksMeasureTemplatePriorityChoices as Priority } from '@/types/__generated__/graphql';
+
+export const PRIORITY_TYPES = [Priority.High, Priority.Medium];
 
 interface PriorityIconProps extends IconProps {
   priorityType: Priority;
@@ -17,8 +16,6 @@ interface PriorityIconProps extends IconProps {
 export const PriorityIcon = ({ priorityType, ...rest }: PriorityIconProps) => {
   // TODO: Move these colours to the theme
   switch (priorityType) {
-    case Priority.Low:
-      return <LowPriorityIcon color={'#48cae4'} {...rest} />;
     case Priority.Medium:
       return <MedPriorityIcon color={'#00b4d8'} {...rest} />;
     case Priority.High:
@@ -46,8 +43,6 @@ type PriorityBadgeProps = BadgePriorityBadgeProps | CountPriorityBadgeProps;
 
 export function getPriorityLabel(priority: Priority) {
   switch (priority) {
-    case Priority.Low:
-      return 'Low';
     case Priority.Medium:
       return 'Moderate';
     case Priority.High:
@@ -57,11 +52,7 @@ export function getPriorityLabel(priority: Priority) {
   }
 }
 
-export function PriorityBadge({
-  variant = 'count',
-  priority,
-  ...rest
-}: PriorityBadgeProps) {
+export function PriorityBadge({ variant = 'count', priority, ...rest }: PriorityBadgeProps) {
   if (variant === 'badge') {
     return (
       <Stack spacing={1} direction="row" alignItems="center">

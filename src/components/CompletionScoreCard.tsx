@@ -1,19 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { Box, Typography, Chip, useTheme, Stack } from '@mui/material';
-import type {
-  GetMeasureTemplatesQuery} from '@/types/__generated__/graphql';
-import {
-  FrameworksMeasureTemplatePriorityChoices as Priority
-} from '@/types/__generated__/graphql';
-import type {
-  MeasureTemplates} from '@/utils/measures';
-import {
-  filterYearBoundMeasureTemplate,
-  measureTemplateHasValue
-} from '@/utils/measures';
-import { getPriorityLabel, PriorityIcon } from './PriorityBadge';
+
+import { Box, Chip, Stack, Typography } from '@mui/material';
+
+import type { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
+import { FrameworksMeasureTemplatePriorityChoices as Priority } from '@/types/__generated__/graphql';
+import type { MeasureTemplates } from '@/utils/measures';
+import { filterYearBoundMeasureTemplate, measureTemplateHasValue } from '@/utils/measures';
+
+import { PriorityIcon, getPriorityLabel } from './PriorityBadge';
 import { useSuspenseSelectedPlanConfig } from './providers/SelectedPlanProvider';
 
 interface Props {
@@ -27,7 +23,8 @@ interface ScoreData {
 }
 
 type Totals = {
-  [K in Priority]: ScoreData;
+  [Priority.High]: ScoreData;
+  [Priority.Medium]: ScoreData;
 };
 
 const processDataCollection = (
@@ -46,17 +43,9 @@ const processDataCollection = (
       total: 0,
       completed: 0,
     },
-    [Priority.Low]: {
-      priority: Priority.Low,
-      total: 0,
-      completed: 0,
-    },
   };
 
-  function tallyScore(
-    scoreData: ScoreData,
-    measureTemplate: MeasureTemplates[0]
-  ) {
+  function tallyScore(scoreData: ScoreData, measureTemplate: MeasureTemplates[0]) {
     if (measureTemplateHasValue(measureTemplate)) {
       scoreData.completed += 1;
     }
@@ -68,13 +57,7 @@ const processDataCollection = (
     measureTemplates
       .filter((measureTemplate) => measureTemplate.hidden !== true)
       .forEach((measureTemplate) => {
-        if (
-          !filterYearBoundMeasureTemplate(
-            measureTemplate,
-            baselineYear,
-            targetYear
-          )
-        ) {
+        if (!filterYearBoundMeasureTemplate(measureTemplate, baselineYear, targetYear)) {
           return;
         }
 
@@ -82,22 +65,16 @@ const processDataCollection = (
           tallyScore(result[Priority.High], measureTemplate);
         } else if (measureTemplate.priority === Priority.Medium) {
           tallyScore(result[Priority.Medium], measureTemplate);
-        } else if (measureTemplate.priority === Priority.Low) {
-          tallyScore(result[Priority.Low], measureTemplate);
         }
       });
   };
 
   const dataSections = measureTemplates.dataCollection
-    ? measureTemplates.dataCollection.descendants.flatMap(
-        (section) => section.measureTemplates
-      )
+    ? measureTemplates.dataCollection.descendants.flatMap((section) => section.measureTemplates)
     : [];
 
   const futureAssumptionSections = measureTemplates.futureAssumptions
-    ? measureTemplates.futureAssumptions.descendants.flatMap(
-        (section) => section.measureTemplates
-      )
+    ? measureTemplates.futureAssumptions.descendants.flatMap((section) => section.measureTemplates)
     : [];
 
   processItems([...dataSections, ...futureAssumptionSections]);
@@ -113,15 +90,16 @@ const calculateScores = (scoreData: ScoreData[]) => {
 };
 
 const calculatePercentage = (scoreData: ScoreData[]) => {
-  const coeff: { [key in Priority]: number } = {
+  const coeff: {
+    [Priority.High]: number;
+    [Priority.Medium]: number;
+  } = {
     [Priority.High]: 0.6,
-    [Priority.Medium]: 0.3,
-    [Priority.Low]: 0.1,
+    [Priority.Medium]: 0.4,
   };
 
   const totalPercentage = scoreData.reduce((acc, data) => {
-    const completionPercentage =
-      data.total > 0 ? data.completed / data.total : 0;
+    const completionPercentage = data.total > 0 ? data.completed / data.total : 0;
 
     return acc + completionPercentage * (coeff[data.priority] || 0);
   }, 0);
@@ -134,11 +112,7 @@ export const CompletionScoreCard = ({ measureTemplates }: Props) => {
   const baselineYear = plan?.baselineYear ?? null;
   const targetYear = plan?.targetYear ?? null;
 
-  const scoreData = processDataCollection(
-    measureTemplates,
-    baselineYear,
-    targetYear
-  );
+  const scoreData = processDataCollection(measureTemplates, baselineYear, targetYear);
   const scores = calculateScores(Object.values(scoreData));
   const completionPercentage = calculatePercentage(Object.values(scoreData));
 
@@ -156,22 +130,15 @@ export const CompletionScoreCard = ({ measureTemplates }: Props) => {
         Data completion score: {completionPercentage.toFixed(0)}%
       </Typography>
       <Typography variant="body1" paragraph>
-        Your score rates how complete city data is, weighing important local
-        values for accurate predictions. Enter city data to improve your score
-        and get better projections.
+        Your score rates how complete city data is, weighing important local values for accurate
+        predictions. Enter city data to improve your score and get better projections.
       </Typography>
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={1}
-        alignItems="flex-start"
-      >
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="flex-start">
         {scores.map((score, index) => (
           <Chip
             key={`${score.priority}-${index}`}
             icon={<PriorityIcon priorityType={score.priority} size={16} />}
-            label={`${getPriorityLabel(score.priority)} priority: ${
-              score.score
-            }`}
+            label={`${getPriorityLabel(score.priority)} priority: ${score.score}`}
           />
         ))}
       </Stack>
