@@ -2,42 +2,37 @@ import { Link } from '@mui/material';
 
 export const FAQS = [
   {
-    title:
-      'What is the purpose of an economic case, and what value does it have for me?',
+    title: 'What is the purpose of an economic case, and what value does it have for me?',
     description: (
       <ul>
         <li>
-          The economic case allows cities to analyze the costs and benefits of
-          the Actions in their Climate Action Plan to maximize decarbonization
-          benefits for Euros invested.
+          The economic case allows cities to analyze the costs and benefits of the Actions in their
+          Climate Action Plan to maximize decarbonization benefits for Euros invested.
         </li>
 
         <li>
-          The NetZeroPlanner model breaks down the decarbonization impacts along
-          with the costs and benefits of the Climate Action Plan by sub-sector
-          and stakeholder group to allow for assessment and prioritization of
-          projects so that limited city budgets can be directed to projects with
-          the highest monetary and carbon Return on Investment (ROI).
+          The NetZeroPlanner model breaks down the decarbonization impacts along with the costs and
+          benefits of the Climate Action Plan by sub-sector and stakeholder group to allow for
+          assessment and prioritization of projects so that limited city budgets can be directed to
+          projects with the highest monetary and carbon Return on Investment (ROI).
         </li>
 
         <li>
-          Calculating ROI including co-benefits helps to make the case to city
-          leaders for allocations of limited budget resources to decarbonization
-          projects. It can also help citizens and businesses better understand
-          the positive returns they can expect from the investments they will
-          need to make to decarbonize.
+          Calculating ROI including co-benefits helps to make the case to city leaders for
+          allocations of limited budget resources to decarbonization projects. It can also help
+          citizens and businesses better understand the positive returns they can expect from the
+          investments they will need to make to decarbonize.
         </li>
 
         <li>
-          The economic case provides high level backup to support any
-          incremental financing that might be necessary to fill budget
-          shortfalls.
+          The economic case provides high level backup to support any incremental financing that
+          might be necessary to fill budget shortfalls.
         </li>
 
         <li>
-          It can also serve to bridge the communication gap between city climate
-          teams and city finance departments so they can work together to make
-          sure the Climate Action Plan is properly funded and implemented.
+          It can also serve to bridge the communication gap between city climate teams and city
+          finance departments so they can work together to make sure the Climate Action Plan is
+          properly funded and implemented.
         </li>
       </ul>
     ),
@@ -86,9 +81,9 @@ export const FAQS = [
       'How does the model handle co-benefits and where can I find additional information on the research that backs up the model methodology?',
     description: (
       <>
-        The model monetizes the co-benefits related to Health and includes those
-        benefits in the cost / benefit analysis. Additional information on
-        co-benefits can be found on the NetZeroCities portal at:
+        The model monetizes the co-benefits related to Health and includes those benefits in the
+        cost / benefit analysis. Additional information on co-benefits can be found on the
+        NetZeroCities portal at:
         <Link
           rel="noopener noreferrer"
           target="_blank"
@@ -118,7 +113,7 @@ export const FAQS = [
     title:
       'Do I have to fill in every one of the fields in the Data Collection and Future Assumptions tabs?  What if I am missing data for some of those fields? ',
     description:
-      'You do not have to fill in every input field. All fields include a Comparable City Value that is based on an average of European cities that are similar to yours.  If you do not input a number in any field, the system will default to the Comparable City Value.  The Comparable City Value can also be used to validate the inputs you do have.  If you decide to use the Comparable City Value, please be sure to review the number to ensure that it well represents your city.  All input fields are also marked as High, Moderate, or Low priority to make it easier for you to know which fields to focus on, and which ones where you might decide to just use the Comparable City Value.',
+      'You do not have to fill in every input field. All fields include a Comparable City Value that is based on an average of European cities that are similar to yours.  If you do not input a number in any field, the system will default to the Comparable City Value.  The Comparable City Value can also be used to validate the inputs you do have.  If you decide to use the Comparable City Value, please be sure to review the number to ensure that it well represents your city.  All input fields are also marked as High or Moderate priority to make it easier for you to know which fields to focus on, and which ones where you might decide to just use the Comparable City Value.',
   },
 
   {
@@ -137,8 +132,7 @@ export const FAQS = [
 
   {
     title: 'How should I handle carbon sinks such as forestation in the model?',
-    description:
-      'The model does not calculate the carbon benefits of carbon sinks. ',
+    description: 'The model does not calculate the carbon benefits of carbon sinks. ',
   },
 
   {
@@ -161,19 +155,17 @@ export const FAQS = [
     description: (
       <ul>
         <li>
-          One of the main reasons the numbers will likely not match is because
-          the model calculates Incremental Cost, while your city likely budgets
-          Total Cost. As an example, the model only includes the additional cost
-          of an electric bus over an above the cost of a replacement diesel bus.
-          Since your budget likely includes the total cost of the electric bus,
-          your budget may be higher than what the model shows.
+          One of the main reasons the numbers will likely not match is because the model calculates
+          Incremental Cost, while your city likely budgets Total Cost. As an example, the model only
+          includes the additional cost of an electric bus over an above the cost of a replacement
+          diesel bus. Since your budget likely includes the total cost of the electric bus, your
+          budget may be higher than what the model shows.
         </li>
         <li>
-          Another reason is that the model only includes the Direct Cost of each
-          sub-sector or lever, not the Indirect Cost. In our bus example, it
-          would calculate the incremental cost of the electric bus plus charging
-          infrastructure, but it would not include the cost of a dedicated bus
-          lane for those electric buses.
+          Another reason is that the model only includes the Direct Cost of each sub-sector or
+          lever, not the Indirect Cost. In our bus example, it would calculate the incremental cost
+          of the electric bus plus charging infrastructure, but it would not include the cost of a
+          dedicated bus lane for those electric buses.
         </li>
       </ul>
     ),

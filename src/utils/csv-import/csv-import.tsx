@@ -6,15 +6,14 @@
  * collection Excel, along with the parent section name and corresponding UUID
  * of the measure in the database.
  */
-
 import Papa from 'papaparse';
 
-import legacyMeasureMap from './legacy-measure-map.json';
 import { convertStringToNumber, isStringNumber } from '../numbers';
+import legacyMeasureMap from './legacy-measure-map.json';
 
 const NOT_FOUND_ERROR = 'Unable to parse the row.';
 const GENERAL_ERROR = 'Unable to parse the file.';
-const SPREADSHEET_PRIORITIES = ['High', 'Moderate', 'Low'];
+const SPREADSHEET_PRIORITIES = ['High', 'Moderate'];
 const EXCLUDED_ROWS_BY_LABEL = [
   /^(Total)$/,
   /^(Legend for cell colour coding)$/,
@@ -27,8 +26,7 @@ const EXPECTED_INVALID_PRIORITY = [
   'Reduction of total distance travelled through route optimisation',
 ];
 
-const isValidPriority = (priority: string) =>
-  SPREADSHEET_PRIORITIES.includes(priority);
+const isValidPriority = (priority: string) => SPREADSHEET_PRIORITIES.includes(priority);
 
 type ImportedMeasure = {
   label: string;
@@ -72,22 +70,15 @@ export function parseMeasuresCsv(csvData: string): ParsedCsvResponse {
     const strValue = rowValues[3]?.trim();
     const priority = rowValues[7]?.trim();
     const comment = rowValues[8]?.trim();
-    const value = isStringNumber(strValue)
-      ? convertStringToNumber(strValue)
-      : null;
+    const value = isStringNumber(strValue) ? convertStringToNumber(strValue) : null;
 
-    if (
-      !label ||
-      EXCLUDED_ROWS_BY_LABEL.some((excludedLabel) => label.match(excludedLabel))
-    ) {
+    if (!label || EXCLUDED_ROWS_BY_LABEL.some((excludedLabel) => label.match(excludedLabel))) {
       previousRow = label;
       return;
     }
 
     const isSection =
-      unit === '' ||
-      (!isValidPriority(priority) &&
-        !EXPECTED_INVALID_PRIORITY.includes(label));
+      unit === '' || (!isValidPriority(priority) && !EXPECTED_INVALID_PRIORITY.includes(label));
 
     if (isSection) {
       currentSection = label;
@@ -95,9 +86,7 @@ export function parseMeasuresCsv(csvData: string): ParsedCsvResponse {
       return;
     }
 
-    const matchesByName = legacyMeasureMap.filter(
-      (measure) => measure.name === label
-    );
+    const matchesByName = legacyMeasureMap.filter((measure) => measure.name === label);
 
     const importedMeasure = { label, value, comment };
 
@@ -107,9 +96,7 @@ export function parseMeasuresCsv(csvData: string): ParsedCsvResponse {
       measuresNotFound.push(importedMeasure);
     } else {
       // Multiple measures found with the same name, filter by parent section
-      const measures = matchesByName.filter(
-        (measure) => measure.parentSection === currentSection
-      );
+      const measures = matchesByName.filter((measure) => measure.parentSection === currentSection);
 
       /**
        * Some freight transportation measures have the same name and parent section,
@@ -144,9 +131,6 @@ export function parseMeasuresCsv(csvData: string): ParsedCsvResponse {
 
   return {
     measures: measureValueMap,
-    errors: [
-      ...(measureValueMap.size === 0 ? [generalError] : []),
-      ...measureErrors,
-    ],
+    errors: [...(measureValueMap.size === 0 ? [generalError] : []), ...measureErrors],
   };
 }
