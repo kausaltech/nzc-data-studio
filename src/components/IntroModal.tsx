@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   Box,
@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  Link,
   MobileStepper,
   Stack,
   Typography,
@@ -29,20 +30,20 @@ const STEPS = [
     title: 'Welcome to NetZeroPlanner',
     description: (
       <Typography>
-        NetZeroPlanner helps your city collect the right data, model
-        decarbonization pathways, and build a strong economic case for climate
-        action. With your plan set up, you can forecast your emission
-        reductions, track progress and share outcomes.
+        NetZeroPlanner helps your city design and track its Climate Action Plan
+        (CAP). By entering baseline data and future assumptions, you can model
+        decarbonization pathways, forecast emission reductions, and monitor real
+        progress over time.
       </Typography>
     ),
   },
   {
-    title: 'Create or select your plan',
+    title: 'Create or select your Climate Action Plan (CAP)',
     description: (
       <Typography>
         If your city already has a plan, select it to get started. If not,
-        create a new plan to begin your decarbonization journey. If you don't
-        have permission to create or edit, request access via the Support form.
+        create a new CAP by answering a few setup questions. NetZeroPlanner will
+        generate default values from comparable cities to help you begin.
       </Typography>
     ),
   },
@@ -51,57 +52,70 @@ const STEPS = [
     description: (
       <>
         <Typography gutterBottom>
-          There are two phases in the data collection centre. Together, these
-          are used to forecast your city's carbon reduction potential.
+          Data entry has two main phases. Together they provide the foundation
+          for your forecast and pathway to climate neutrality:
         </Typography>
         <Box component="ol" sx={{ listStylePosition: 'inside' }}>
           <Typography component="li" gutterBottom>
-            <b>Data collection:</b> This phase gathers detailed information
-            about your city's current demographics, energy consumption,
-            transportation usage, and more. This foundational step is crucial
-            for generating accurate forecasts and insights.
+            <b>Baseline data:</b> Provide emissions-related data for your chosen
+            baseline year. Comparable City Values will be used where local data
+            is missing.
           </Typography>
           <Typography component="li">
-            <b>Future assumptions:</b> In this phase, we explore ambitious yet
-            realistic scenarios aligned with your city's Climate Action Plan.
-            For example, assumptions may include targets for reducing motorized
-            transportation or increasing renewable energy adoption.
+            <b>Future assumptions:</b> Add your city's goals (e.g. reduced car
+            travel, increased renewable energy). These targets shape your
+            forecast scenario.
           </Typography>
         </Box>
       </>
     ),
   },
   {
-    title: 'Fill gaps with Comparable City Values',
+    title: 'Use Comparable City Values where needed',
     description: (
       <Typography>
-        When specific data is unavailable, the platform will use Comparable City
-        Values — estimates based on similar cities matched to your plan's input
-        data. This ensures your forecast remains grounded in realistic
-        assumptions.
+        If specific data isn't available, NetZeroPlanner fills the gap with
+        values from similar cities in Europe. These{' '}
+        <em>Comparable City Values</em> are automatically applied and clearly
+        indicated, helping keep your forecast realistic while you gather more
+        precise inputs.
       </Typography>
     ),
   },
   {
-    title: 'Preview your dashboard from the start',
+    title: 'View results and track progress',
     description: (
       <>
         <Typography gutterBottom>
-          Even in the early stages, you can preview your city's dashboard using
-          sample data from a comparable city. Finalizing your dashboard will be
-          an iterative process—keep previewing it as you adjust your city's
-          future assumptions.
+          From the start, you can preview your Outcomes Dashboard to see your
+          city's projected emissions pathway. Over time, you can:
         </Typography>
-        <Box component="ol" sx={{ listStylePosition: 'inside' }}>
+        <Box component="ul" sx={{ listStylePosition: 'inside' }}>
           <Typography component="li" gutterBottom>
-            <em>Export Outcomes to Excel</em> to share results and strengthen
-            your economic case (ROI, costs, and benefits by sub-sector).
+            <em>View Outcomes Dashboard</em> - Visualise emissions reductions
+            and sector breakdowns compared to your baseline.
+          </Typography>
+          <Typography component="li" gutterBottom>
+            <em>Export Outcomes to Excel</em> - Share results, including
+            economic case, ROI, and co-benefits, or generate Climate City
+            Contract tables.
           </Typography>
           <Typography component="li">
-            Open the <em>Outcomes Dashboard</em> to track decarbonization
-            forecast and monitor progress.
+            <em>Use the Progress Tracker</em> - Add observed yearly data to
+            compare actual performance against your plan and stay on target.
           </Typography>
         </Box>
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          Want more detail? See the full{' '}
+          <Link
+            href="https://netzerocities.app/netzeroplanner"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            NetZeroPlanner Quick Start Guide
+          </Link>{' '}
+          on the NetZeroCities portal.
+        </Typography>
       </>
     ),
   },
@@ -125,6 +139,12 @@ export const IntroModal = ({ open, onClose }: IntroModalProps) => {
       setActiveStep((prevStep) => prevStep - 1);
     }
   };
+
+  useEffect(() => {
+    if (open) {
+      setActiveStep(0);
+    }
+  }, [open]);
 
   return (
     <Dialog maxWidth="sm" open={open} onClose={onClose} fullWidth>
