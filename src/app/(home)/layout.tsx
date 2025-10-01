@@ -2,16 +2,31 @@
 
 import { type ReactNode, useEffect, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { Box } from '@mui/material';
+import { useSession } from 'next-auth/react';
 
 import { InstanceControlBar } from '@/components/InstanceControlBar';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import {
+  INTRO_MODAL_VIEWED_KEY,
+  IntroModal,
+  persistIntroModalViewed,
+} from '@/components/IntroModal';
+
 import Loading from '../loading';
 
 type Props = {
   children: ReactNode;
 };
+
+function isIntroModalViewed() {
+  try {
+    return localStorage.getItem(INTRO_MODAL_VIEWED_KEY) === 'true';
+  } catch {
+    return true;
+  }
+}
 
 export default function HomeLayout({ children }: Props) {
   const { status } = useSession();
@@ -19,6 +34,11 @@ export default function HomeLayout({ children }: Props) {
   const [isAuthenticated, setIsAuthenticated] = useState(
     status === 'authenticated'
   );
+  const [introModalOpen, setIntroModalOpen] = useState(false);
+
+  useEffect(() => {
+    setIntroModalOpen(!isIntroModalViewed());
+  }, []);
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -29,12 +49,18 @@ export default function HomeLayout({ children }: Props) {
     }
   }, [status, router]);
 
-  if ((!isAuthenticated && status === 'loading')) {
+  if (!isAuthenticated && status === 'loading') {
     return <Loading />;
+  }
+
+  function handleIntroModalClose() {
+    persistIntroModalViewed();
+    setIntroModalOpen(false);
   }
 
   return (
     <>
+      <IntroModal open={introModalOpen} onClose={handleIntroModalClose} />
       <Box sx={{ mt: -4 }}>
         <InstanceControlBar />
       </Box>

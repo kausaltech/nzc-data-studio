@@ -18,19 +18,20 @@ import { serializeError } from 'serialize-error';
 
 import CompletionScoreCard from '@/components/CompletionScoreCard';
 import DataCollection from '@/components/DataCollection';
+import { HelpText } from '@/components/HelpText';
+import IntroSection from '@/components/IntroSection';
 import { ImportExportActions } from '@/components/import-export/ImportExportActions';
+import { SUPPORT_FORM_URL } from '@/components/links';
+import { usePlans } from '@/components/providers/SelectedPlanProvider';
+import { benefits } from '@/constants/intro-content';
+import { usePermissions } from '@/hooks/use-user-profile';
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
 import type {
   GetMeasureTemplatesQuery,
   GetMeasureTemplatesQueryVariables,
 } from '@/types/__generated__/graphql';
+
 import Loading, { LoadingCard } from '../loading';
-import IntroSection from '@/components/IntroSection';
-import { benefits } from '@/constants/intro-content';
-import { usePermissions } from '@/hooks/use-user-profile';
-import { usePlans } from '@/components/providers/SelectedPlanProvider';
-import { HelpText } from '@/components/HelpText';
-import { SUPPORT_FORM_URL } from '@/components/links';
 
 function CompletionScoreCardWrapper({ instance }: { instance: string }) {
   const { data, error, loading } = useQuery<

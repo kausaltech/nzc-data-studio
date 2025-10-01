@@ -2,22 +2,25 @@
 
 import { useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import {
-  AppBar as MuiAppBar,
+  Box,
   Button,
+  Divider,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
+  AppBar as MuiAppBar,
   Skeleton,
   Stack,
   type SxProps,
   type Theme,
   Toolbar,
   Typography,
-  Divider,
-  ListItemIcon,
-  ListItemText,
-  Box,
 } from '@mui/material';
+import startCase from 'lodash/startCase';
 import type { Session } from 'next-auth';
 import { signIn, useSession } from 'next-auth/react';
 import {
@@ -25,15 +28,15 @@ import {
   PersonCircle,
   QuestionCircle,
 } from 'react-bootstrap-icons';
-import { useRouter } from 'next/navigation';
-import startCase from 'lodash/startCase';
 
+import { getDeploymentType } from '@common/env';
+
+import { handleBackendSignOut } from '@/app/actions';
 import { useUserProfile } from '@/hooks/use-user-profile';
 import { getUserDisplay } from '@/utils/session';
+
 import { Logo } from './Logo';
 import SupportModal from './SupportModal';
-import { handleBackendSignOut } from '@/app/actions';
-import { getDeploymentType } from '@common/env';
 
 const APP_BAR_STYLES: SxProps<Theme> = {
   backgroundColor: 'common.white',
