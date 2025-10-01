@@ -193,7 +193,7 @@ export function formatNumericValue(
     return '-';
   }
 
-  const precision = getDecimalPrecisionByUnit(row.unit.long);
+  const precision = getDecimalPrecisionByUnit(row.unit.standard);
 
   if (isYearMeasure(row.label, row.unit.short)) {
     return Math.round(value).toString();
@@ -298,7 +298,7 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
         disabled={!permissions.edit}
         inputProps={{
           'aria-label': `${row.label} ${field}`,
-          decimalScale: getDecimalPrecisionByUnit(row.unit.long),
+          decimalScale: getDecimalPrecisionByUnit(row.unit.standard),
           ...(isYearMeasure(row.label, row.unit.long) ? yearInputProps : {}),
         }}
       />
@@ -622,7 +622,7 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
         return undefined;
       }
 
-      const precision = getDecimalPrecisionByUnit(row.unit.long);
+      const precision = getDecimalPrecisionByUnit(row.unit.standard);
 
       if (isYearMeasure(row.label, row.unit.long)) {
         return Math.round(value);
