@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   Accordion,
@@ -16,7 +16,9 @@ import {
 } from '@mui/material';
 import { ChevronDown, X } from 'react-bootstrap-icons';
 
-import { FAQS as OtherFAQS } from '@/constants/faqs';
+import { FAQS as otherFAQs } from '@/constants/faqs';
+
+import { IntroModal } from './IntroModal';
 
 interface SupportModalProps {
   open: boolean;
@@ -44,64 +46,93 @@ const FAQS = [
     description:
       'Priority levels indicate the importance of providing data for different measures in NetZeroPlanner. High priority measures are crucial for tracking and achieving climate goals, requiring essential data inputs. Moderate priority measures are important but not critical, enhancing the overall understanding of progress.',
   },
-  ...OtherFAQS,
+  ...otherFAQs,
 ];
 
 const SupportModal = ({ open, onClose }: SupportModalProps) => {
+  const [isQuickStartGuideOpen, setIsQuickStartGuideOpen] = useState(false);
+
+  const handleShowQuickStartGuide = () => {
+    onClose();
+    setIsQuickStartGuideOpen(true);
+  };
+
+  useEffect(() => {
+    if (open) {
+      setIsQuickStartGuideOpen(false);
+    }
+  }, [open]);
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <span>Support</span>
-        <IconButton aria-label="close" onClick={onClose}>
-          <X size={28} />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent sx={{ padding: 3 }}>
-        <Typography variant="h4" paragraph>
-          NetZeroPlanner support
-        </Typography>
-        <Typography paragraph>
-          Welcome to NetZeroPlanner! Here you can find answers to common questions and get the help
-          you need to make the most of our tool. If you can't find what you're looking for, please
-          contact our team at <Link href="mailto:support@kausal.tech">support@kausal.tech</Link> for
-          further assistance.
-        </Typography>
-        <Stack spacing={2} alignItems="flex-start">
-          <div>
-            <Typography variant="h5" gutterBottom>
-              Frequently asked questions
-            </Typography>
-            {FAQS.map((faq) => (
-              <Accordion disableGutters key={faq.title}>
-                <AccordionSummary sx={{ pl: 0 }} expandIcon={<ChevronDown size={20} />}>
-                  <Typography color="primary.main" variant="subtitle2">
-                    {faq.title}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography color="text.secondary">{faq.description}</Typography>
-                </AccordionDetails>
-              </Accordion>
-            ))}
-          </div>
-        </Stack>
-      </DialogContent>
-      <DialogActions
-        sx={{
-          justifyContent: 'flex-end',
-          paddingBottom: 3,
-          paddingRight: 3,
-        }}
-      >
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
+    <>
+      <IntroModal
+        open={isQuickStartGuideOpen}
+        onClose={() => setIsQuickStartGuideOpen(false)}
+      />
+      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span>Support</span>
+          <IconButton aria-label="close" onClick={onClose}>
+            <X size={28} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ padding: 3 }}>
+          <Typography paragraph>
+            Welcome to NetZeroPlanner! Here you can find answers to common
+            questions and get the help you need to make the most of our tool. If
+            you can't find what you're looking for, please contact our team at{' '}
+            <Link href="mailto:support@kausal.tech">support@kausal.tech</Link>{' '}
+            for further assistance.
+          </Typography>
+          <Stack spacing={2} alignItems="flex-start">
+            <Button variant="outlined" onClick={handleShowQuickStartGuide}>
+              Show the Quick Start Guide
+            </Button>
+            <div>
+              <Typography variant="h5" gutterBottom>
+                Frequently asked questions
+              </Typography>
+              {FAQS.map((faq) => (
+                <Accordion disableGutters key={faq.title}>
+                  <AccordionSummary
+                    sx={{ pl: 0 }}
+                    expandIcon={<ChevronDown size={20} />}
+                  >
+                    <Typography color="primary.main" variant="subtitle2">
+                      {faq.title}
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    {'isList' in faq && faq.isList ? (
+                      faq.description
+                    ) : (
+                      <Typography color="text.secondary">
+                        {faq.description}
+                      </Typography>
+                    )}
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+            </div>
+          </Stack>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            justifyContent: 'flex-end',
+            paddingBottom: 3,
+            paddingRight: 3,
+          }}
+        >
+          <Button onClick={onClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

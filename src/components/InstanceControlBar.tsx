@@ -2,47 +2,45 @@
 
 import { useState } from 'react';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
 import { useMutation } from '@apollo/client';
-import type {
-  SelectChangeEvent,
-  SxProps,
-  Theme} from '@mui/material';
+import type { SelectChangeEvent, SxProps, Theme } from '@mui/material';
 import {
   Box,
   Button,
   Container,
+  Divider,
   FormControl,
   InputLabel,
   MenuItem,
+  Link as MuiLink,
   Select,
   Stack,
-  Link as MuiLink,
-  Divider,
   Tooltip,
   Typography,
 } from '@mui/material';
 import kebabCase from 'lodash/kebabCase';
+import { Lock } from 'react-bootstrap-icons';
 
 import { usePermissions } from '@/hooks/use-user-profile';
 import { CREATE_NZC_FRAMEWORK_CONFIG } from '@/queries/framework/create-framework-config';
 import type {
   CreateNzcFrameworkMutation,
   CreateNzcFrameworkMutationVariables,
-  GetFrameworkConfigsQuery} from '@/types/__generated__/graphql';
-import {
-  LowHigh,
+  GetFrameworkConfigsQuery,
 } from '@/types/__generated__/graphql';
+import { LowHigh } from '@/types/__generated__/graphql';
+import { areHistoricalYearsAvailable } from '@/utils/historical-data';
+
 import type { NewPlanData } from './AddPlanDialog';
 import { AddPlanDialog } from './AddPlanDialog';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { areHistoricalYearsAvailable } from '@/utils/historical-data';
+import { SUPPORT_FORM_URL } from './links';
 import {
   usePlans,
   useSuspenseSelectedPlanConfig,
 } from './providers/SelectedPlanProvider';
-import { Lock } from 'react-bootstrap-icons';
-import { SUPPORT_FORM_URL } from './links';
 
 function isTestInstance(name: string) {
   // Note that this is a best guess of test instances until we have a better way to identify them
