@@ -366,7 +366,6 @@ export function AddPlanDialog({ open, onClose, onSubmit, loading, error }: Props
                     </Typography>
                   </FormLabel>
                   <Select
-                    hiddenLabel
                     labelId="climate-select"
                     id="climate-select-component"
                     value={data.climate ?? ''}
@@ -389,7 +388,6 @@ export function AddPlanDialog({ open, onClose, onSubmit, loading, error }: Props
                     </Typography>
                   </FormLabel>
                   <Select
-                    hiddenLabel
                     labelId="electricity-select"
                     id="electricity-select-component"
                     value={data.renewableElectricityMix ?? ''}
