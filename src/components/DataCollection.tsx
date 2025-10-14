@@ -158,7 +158,6 @@ const DataCollection = ({ measureTemplates }: Props) => {
           <DatasheetEditor
             sections={assumptionMeasures}
             allInfluencingMeasureTemplates={allInfluencingMeasureTemplates}
-            withIndexes
           />
         )}
       </CustomTabPanel>
