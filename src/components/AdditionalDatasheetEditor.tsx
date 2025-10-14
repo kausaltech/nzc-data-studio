@@ -122,7 +122,9 @@ function getRowsFromSection(
 ): Row[] {
   const sectionRow: SectionRow = {
     type: 'SECTION',
-    sumTo100: section.maxTotal === 100 && measureTemplates.length > 1,
+    sumMeasureValues:
+      (typeof section.minTotal === 'number' || typeof section.maxTotal === 'number') &&
+      measureTemplates.length > 1,
     isTitle: true,
     label: section.name,
     helpText: section.helpText,
@@ -172,7 +174,7 @@ function getRowsFromSection(
         ),
       })
     ),
-    ...(sectionRow.sumTo100
+    ...(sectionRow.sumMeasureValues
       ? [getSumPercentRow({ measureTemplates, childSections, ...section }, depth + 1)]
       : []),
     ...childSections.flatMap((section) =>

@@ -31,6 +31,10 @@ export const GET_MEASURE_TEMPLATES = gql`
     __typename
     uuid
     name
+    influencingMeasureTemplates {
+      uuid
+    }
+    minTotal
     maxTotal
     helpText
     path
