@@ -24,6 +24,8 @@ type SectionOrMeasure = MainSectionMeasuresFragment['descendants'][0];
 export type Section = BaseSectionOrMeasure & {
   type: 'ACCORDION_SECTION' | 'SECTION';
   childSections: Section[];
+  influencingMeasureTemplates: { uuid: string }[] | null;
+  minTotal: number | null;
   maxTotal: number | null;
   helpText: string | null;
   measureTemplates?: MeasureTemplateFragmentFragment[];
@@ -81,6 +83,8 @@ export function mapMeasureTemplatesToRows(
           name: section.name,
           childSections: createChildren(section.uuid, sections),
           type: section.parent?.uuid === mainSection.uuid ? 'ACCORDION_SECTION' : 'SECTION',
+          influencingMeasureTemplates: section.influencingMeasureTemplates ?? null,
+          minTotal: section.minTotal ?? null,
           maxTotal: section.maxTotal ?? null,
           helpText: section.helpText ?? null,
           measureTemplates,

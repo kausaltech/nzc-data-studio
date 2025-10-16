@@ -404,6 +404,10 @@ function formatTotal(total: number | null) {
 type TotalPercentageProps = {
   total: number | null;
   overrideIsValid?: boolean;
+  min?: number;
+  max?: number;
+  // The names of other measures that are included in the calculated total
+  otherMeasuresInCalculatedTotal?: string[];
 };
 
 /**
@@ -411,12 +415,32 @@ type TotalPercentageProps = {
  * If no measure values have been provided, i.e. the total is null, hide the total.
  * If the total does not equal 100%, show a warning.
  */
-export function TotalPercentage({ total, overrideIsValid = false }: TotalPercentageProps) {
+export function TotalPercentage({
+  total,
+  overrideIsValid = false,
+  min = 0,
+  max = 100,
+  otherMeasuresInCalculatedTotal,
+}: TotalPercentageProps) {
   if (typeof total !== 'number') {
     return null;
   }
 
-  const isValid = total === 100 || overrideIsValid;
+  const isValid = (total >= min && total <= max) || overrideIsValid;
+
+  const errorMessage =
+    min === max
+      ? `The total of percentages in this section should be ${min}%`
+      : `The total of percentages in this section should be between ${min}% and ${max}%`;
+
+  const otherMeasuresIncludedText = otherMeasuresInCalculatedTotal?.length ? (
+    <>
+      This total includes data entered in other sections:{' '}
+      <Typography component="span" variant="body2" sx={{ fontStyle: 'italic' }}>
+        {otherMeasuresInCalculatedTotal.join(', ')}
+      </Typography>
+    </>
+  ) : null;
 
   const percentageLabel = (
     <Typography
@@ -437,9 +461,15 @@ export function TotalPercentage({ total, overrideIsValid = false }: TotalPercent
         placement="top"
         arrow
         title={
-          <Typography variant="body2">
-            The total of percentages in this section should equal 100%
-          </Typography>
+          <>
+            <Typography variant="body2" gutterBottom={!!otherMeasuresIncludedText}>
+              {errorMessage}
+            </Typography>
+
+            {otherMeasuresIncludedText && (
+              <Typography variant="body2">{otherMeasuresIncludedText}</Typography>
+            )}
+          </>
         }
       >
         <Fade in>
@@ -462,6 +492,18 @@ export function TotalPercentage({ total, overrideIsValid = false }: TotalPercent
     );
   }
 
+  if (otherMeasuresIncludedText) {
+    return (
+      <Tooltip
+        placement="top"
+        arrow
+        title={<Typography variant="body2">{otherMeasuresIncludedText}</Typography>}
+      >
+        <Fade in>{percentageLabel}</Fade>
+      </Tooltip>
+    );
+  }
+
   return <Fade in>{percentageLabel}</Fade>;
 }
 
@@ -473,7 +515,16 @@ const EDITABLE_COL: Partial<GridColDef<DatasheetEditorRow>> = {
         return null;
       }
 
-      return <TotalPercentage key={`${rest.field}-${row.id}`} total={row.total} />;
+      // TODO: Add text to explain the other influencing value is added here
+      return (
+        <TotalPercentage
+          key={`${rest.field}-${row.id}`}
+          total={row.total}
+          min={row.min}
+          max={row.max}
+          otherMeasuresInCalculatedTotal={row.otherMeasuresInCalculatedTotal}
+        />
+      );
     }
 
     return (
@@ -680,7 +731,7 @@ export type MeasureRow = BaseMeasureRow & {
 
 export type SectionRow = {
   type: 'SECTION';
-  sumTo100: boolean;
+  sumMeasureValues: boolean;
   isTitle: boolean;
   id: string;
   label: string;
@@ -694,6 +745,9 @@ type SumPercentRow = {
   fallbackTotal: number | null;
   id: string;
   depth: number;
+  min?: number;
+  max?: number;
+  otherMeasuresInCalculatedTotal?: string[];
 };
 
 export type DatasheetEditorRow = MeasureRow | SectionRow | SumPercentRow;
@@ -712,12 +766,18 @@ declare module '@mui/x-data-grid' {
 function getSumPercentRow(
   { measureTemplates = [], ...section }: Section,
   depth: number,
-  baselineYear: number | null
+  baselineYear: number | null,
+  influencingMeasureTemplates?: MeasureTemplateFragmentFragment[]
 ): SumPercentRow {
+  const allMeasureTemplates = [...(influencingMeasureTemplates ?? []), ...measureTemplates];
+
   return {
     type: 'SUM_PERCENT',
+    min: section.minTotal ?? undefined,
+    max: section.maxTotal ?? undefined,
     depth: depth + 1,
-    total: measureTemplates.reduce((total: number | null, measure) => {
+    otherMeasuresInCalculatedTotal: influencingMeasureTemplates?.map((measure) => measure.name),
+    total: allMeasureTemplates.reduce((total: number | null, measure) => {
       const value = getMeasureValue(measure, baselineYear);
 
       if (typeof value === 'number' || typeof total === 'number') {
@@ -726,8 +786,7 @@ function getSumPercentRow(
 
       return null;
     }, null),
-    // TODO: This could be combined with the above total reduce function
-    fallbackTotal: measureTemplates.reduce((total: number | null, measure) => {
+    fallbackTotal: allMeasureTemplates.reduce((total: number | null, measure) => {
       const value = getMeasureFallback(measure, baselineYear);
 
       if (typeof value === 'number' || typeof total === 'number') {
@@ -737,7 +796,7 @@ function getSumPercentRow(
       return null;
     }, null),
     id: `${section.id}_sum`,
-  } as SumPercentRow;
+  };
 }
 
 export function CustomFooter({ count }: NonNullable<GridSlotsComponentsProps['footer']>) {
@@ -759,11 +818,14 @@ function getRowsFromSection(
   { childSections = [], measureTemplates = [], ...section }: Section,
   depth = 0,
   isRoot: boolean = false,
-  baselineYear: number | null = null
+  baselineYear: number | null = null,
+  allInfluencingMeasureTemplates?: MeasureTemplateFragmentFragment[]
 ): DatasheetEditorRow[] {
   const sectionRow: SectionRow = {
     type: 'SECTION',
-    sumTo100: section.maxTotal === 100,
+    sumMeasureValues:
+      (typeof section.minTotal === 'number' || typeof section.maxTotal === 'number') &&
+      measureTemplates.length > 1,
     isTitle: true,
     label: section.name,
     helpText: section.helpText,
@@ -790,11 +852,22 @@ function getRowsFromSection(
         originalMeasureTemplate: measure,
       })
     ),
-    ...(sectionRow.sumTo100
-      ? [getSumPercentRow({ measureTemplates, childSections, ...section }, depth + 1, baselineYear)]
+    ...(sectionRow.sumMeasureValues
+      ? [
+          getSumPercentRow(
+            { measureTemplates, childSections, ...section },
+            depth + 1,
+            baselineYear,
+            allInfluencingMeasureTemplates?.filter((measureTemplate) =>
+              section.influencingMeasureTemplates?.find(
+                (template) => template.uuid === measureTemplate.uuid
+              )
+            )
+          ),
+        ]
       : []),
     ...childSections.flatMap((section) =>
-      getRowsFromSection(section, depth + 1, false, baselineYear)
+      getRowsFromSection(section, depth + 1, false, baselineYear, allInfluencingMeasureTemplates)
     ),
   ];
 }
@@ -816,6 +889,7 @@ type AccordionContentWrapperProps = {
   section: Section;
   index: number;
   withIndexes?: boolean;
+  allInfluencingMeasureTemplates?: MeasureTemplateFragmentFragment[];
 };
 
 function AccordionContentWrapper({
@@ -823,6 +897,7 @@ function AccordionContentWrapper({
   section,
   index,
   withIndexes = false,
+  allInfluencingMeasureTemplates,
 }: AccordionContentWrapperProps) {
   const [rowsFailedToSave, setRowsFailedToSave] = useState<string[]>([]); // UUIDs of rows that failed to save
   const { setNotification } = useSnackbar();
@@ -845,8 +920,8 @@ function AccordionContentWrapper({
   };
 
   const rows = useMemo(
-    () => getRowsFromSection(section, 0, true, baselineYear),
-    [section, baselineYear]
+    () => getRowsFromSection(section, 0, true, baselineYear, allInfluencingMeasureTemplates),
+    [section, baselineYear, allInfluencingMeasureTemplates]
   );
 
   const measureCount = useMemo(() => {
@@ -1002,9 +1077,14 @@ function AccordionContentWrapper({
 type Props = {
   sections: Section[];
   withIndexes?: boolean;
+  allInfluencingMeasureTemplates?: MeasureTemplateFragmentFragment[];
 };
 
-export function DatasheetEditor({ sections, withIndexes = false }: Props) {
+export function DatasheetEditor({
+  sections,
+  withIndexes = false,
+  allInfluencingMeasureTemplates,
+}: Props) {
   const visibleSections = useMemo(() => filterSections(sections), [sections]);
   const expanded = useDataCollectionStore((store) => store.getSelectedAccordion());
 
@@ -1017,6 +1097,7 @@ export function DatasheetEditor({ sections, withIndexes = false }: Props) {
           isExpanded={expanded === i}
           index={i}
           section={section}
+          allInfluencingMeasureTemplates={allInfluencingMeasureTemplates}
         />
       ))}
     </div>
