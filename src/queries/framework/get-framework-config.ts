@@ -11,6 +11,8 @@ export const GET_FRAMEWORK_CONFIG = gql`
         targetYear
         viewUrl
         resultsDownloadUrl
+        # TODO: Add when backend support ready
+        # locked
       }
     }
   }
@@ -27,6 +29,7 @@ export const GET_FRAMEWORK_CONFIGS = gql`
         targetYear
         viewUrl
         resultsDownloadUrl
+        # locked
       }
     }
   }

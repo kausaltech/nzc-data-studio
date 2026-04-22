@@ -75,7 +75,7 @@ export function useUserProfile() {
 
 export function usePermissions() {
   const { loading, profile } = useUserProfile();
-  const { selectedPlanId } = usePlans();
+  const { selectedPlanId, selectedPlan } = usePlans();
 
   const frameworkConfigPermissions = useMemo(() => {
     if (!loading && selectedPlanId) {
@@ -94,12 +94,15 @@ export function usePermissions() {
       )) ??
     false;
 
+  const isLocked = selectedPlan?.locked ?? false;
+
   return {
     isFrameworkAdmin:
       !!profile?.framework?.userRoles?.includes(FRAMEWORK_ADMIN_ROLE),
     isLoading: loading,
     create: canCreate,
-    edit: frameworkConfigPermissions?.change ?? false,
+    edit: (frameworkConfigPermissions?.change ?? false) && !isLocked,
     delete: frameworkConfigPermissions?.delete ?? false,
+    isLocked,
   };
 }

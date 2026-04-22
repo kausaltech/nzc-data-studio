@@ -36,11 +36,10 @@ import { areHistoricalYearsAvailable } from '@/utils/historical-data';
 
 import type { NewPlanData } from './AddPlanDialog';
 import { AddPlanDialog } from './AddPlanDialog';
+import { DeletePlanDialog } from './DeletePlanDialog';
+import { PlanActionsMenu } from './PlanActionsMenu';
 import { SUPPORT_FORM_URL } from './links';
-import {
-  usePlans,
-  useSuspenseSelectedPlanConfig,
-} from './providers/SelectedPlanProvider';
+import { usePlans, useSuspenseSelectedPlanConfig } from './providers/SelectedPlanProvider';
 
 function isTestInstance(name: string) {
   // Note that this is a best guess of test instances until we have a better way to identify them
@@ -87,15 +86,11 @@ function InstanceSelector({
       );
 
   const firstTestInstance = sortTestInstancesLast
-    ? sortedInstances.findIndex((instance) =>
-        isTestInstance(instance.organizationName ?? '')
-      )
+    ? sortedInstances.findIndex((instance) => isTestInstance(instance.organizationName ?? ''))
     : -1;
 
   function handleChange(e: SelectChangeEvent<string>) {
-    const instance = instances.find(
-      (instance) => instance.id === e.target.value
-    );
+    const instance = instances.find((instance) => instance.id === e.target.value);
 
     if (instance) {
       onInstanceChange(instance.id);
@@ -136,9 +131,7 @@ function getNavStyles(isActive: boolean): SxProps<Theme> {
     borderStyle: 'solid',
     borderBottomWidth: isActive ? 2 : 0,
     fontWeight: (theme) =>
-      isActive
-        ? theme.typography.fontWeightBold
-        : theme.typography.fontWeightRegular,
+      isActive ? theme.typography.fontWeightBold : theme.typography.fontWeightRegular,
     '&:hover': {
       borderBottomWidth: 2,
     },
@@ -147,8 +140,8 @@ function getNavStyles(isActive: boolean): SxProps<Theme> {
 
 export function InstanceControlBar() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isRequestEditTooltipOpen, setIsRequestEditTooltipOpen] =
-    useState(true); // Initially true, but will only be shown if the user has no create permissions
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isRequestEditTooltipOpen, setIsRequestEditTooltipOpen] = useState(true); // Initially true, but will only be shown if the user has no create permissions
 
   const permissions = usePermissions();
 
@@ -175,10 +168,7 @@ export function InstanceControlBar() {
           targetYear: Number(data.targetYear),
           slug: kebabCase(data.planName),
           population: Number(data.population),
-          renewableMix:
-            data.renewableElectricityMix === 'high'
-              ? LowHigh.High
-              : LowHigh.Low,
+          renewableMix: data.renewableElectricityMix === 'high' ? LowHigh.High : LowHigh.Low,
           temperature: data.climate === 'warm' ? LowHigh.High : LowHigh.Low,
         },
       });
@@ -192,6 +182,16 @@ export function InstanceControlBar() {
       setIsAddModalOpen(false);
     } catch (error) {
       console.error('Error creating framework config:', error);
+    }
+  }
+
+  function handleDeleteSuccess(deletedId: string) {
+    setIsDeleteDialogOpen(false);
+
+    const remainingInstances = instanceConfigs.filter((c) => c.id !== deletedId);
+
+    if (remainingInstances[0]) {
+      setSelectedPlanId(remainingInstances[0].id);
     }
   }
 
@@ -218,12 +218,7 @@ export function InstanceControlBar() {
         >
           {!!plan && areHistoricalYearsAvailable(plan.baselineYear) && (
             <Stack direction="row" spacing={2}>
-              <MuiLink
-                href="/"
-                component={Link}
-                underline="none"
-                sx={getNavStyles(isActive('/'))}
-              >
+              <MuiLink href="/" component={Link} underline="none" sx={getNavStyles(isActive('/'))}>
                 Overview
               </MuiLink>
 
@@ -238,12 +233,7 @@ export function InstanceControlBar() {
             </Stack>
           )}
 
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            ml="auto"
-            spacing={2}
-          >
+          <Stack direction="row" justifyContent="flex-end" ml="auto" spacing={1}>
             {hasMultipleInstances && plan?.id && (
               <InstanceSelector
                 selectedInstanceId={plan.id}
@@ -251,13 +241,18 @@ export function InstanceControlBar() {
                 onInstanceChange={setSelectedPlanId}
               />
             )}
+            {!permissions.isLoading && permissions.isFrameworkAdmin && plan && (
+              <PlanActionsMenu
+                planId={plan.id}
+                planName={plan.organizationName ?? ''}
+                isLocked={plan.locked ?? false}
+                onDeleteClick={() => setIsDeleteDialogOpen(true)}
+              />
+            )}
             {!permissions.isLoading && (
               <>
                 {permissions.create ? (
-                  <Button
-                    onClick={() => setIsAddModalOpen(true)}
-                    variant="outlined"
-                  >
+                  <Button onClick={() => setIsAddModalOpen(true)} variant="outlined">
                     Create new plan
                   </Button>
                 ) : (
@@ -269,8 +264,8 @@ export function InstanceControlBar() {
                     arrow
                     title={
                       <Typography variant="body2">
-                        You don't have permission to create a plan. To request
-                        edit access, please fill out{' '}
+                        You don't have permission to create a plan. To request edit access, please
+                        fill out{' '}
                         <MuiLink
                           target="_blank"
                           rel="noopener noreferrer"
@@ -284,11 +279,7 @@ export function InstanceControlBar() {
                     }
                   >
                     <Box sx={{ display: 'flex', alignItems: 'stretch' }}>
-                      <Button
-                        variant="outlined"
-                        disabled
-                        startIcon={<Lock size={18} />}
-                      >
+                      <Button variant="outlined" disabled startIcon={<Lock size={18} />}>
                         Create new plan
                       </Button>
                     </Box>
@@ -306,6 +297,14 @@ export function InstanceControlBar() {
         onSubmit={handleSubmit}
         loading={loading}
         error={error}
+      />
+
+      <DeletePlanDialog
+        open={isDeleteDialogOpen}
+        planId={plan?.id ?? null}
+        planName={plan?.organizationName ?? null}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onSuccess={handleDeleteSuccess}
       />
     </>
   );

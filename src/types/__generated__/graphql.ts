@@ -843,6 +843,8 @@ export type FrameworkConfig = {
   uuid: Scalars['UUID']['output'];
   /** Public URL for instance dashboard */
   viewUrl?: Maybe<Scalars['String']['output']>;
+  // Added manually — regenerate once backend supports this field
+  locked?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type FrameworkConfigInput = {
@@ -1466,6 +1468,8 @@ export type MutationSetParameterArgs = {
 export type MutationUpdateFrameworkConfigArgs = {
   baselineYear?: InputMaybe<Scalars['Int']['input']>;
   id: Scalars['ID']['input'];
+  // Added manually — regenerate once backend supports this field
+  locked?: InputMaybe<Scalars['Boolean']['input']>;
   organizationIdentifier?: InputMaybe<Scalars['String']['input']>;
   organizationName?: InputMaybe<Scalars['String']['input']>;
   organizationSlug?: InputMaybe<Scalars['String']['input']>;
@@ -2714,7 +2718,7 @@ export type GetFrameworkConfigQueryVariables = Exact<{
 export type GetFrameworkConfigQuery = (
   { framework?: (
     { id: string, config?: (
-      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null }
+      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null, locked?: boolean | null }
       & { __typename?: 'FrameworkConfig' }
     ) | null }
     & { __typename?: 'Framework' }
@@ -2728,7 +2732,7 @@ export type GetFrameworkConfigsQueryVariables = Exact<{ [key: string]: never; }>
 export type GetFrameworkConfigsQuery = (
   { framework?: (
     { id: string, configs: Array<(
-      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null }
+      { id: string, organizationName?: string | null, baselineYear: number, targetYear?: number | null, viewUrl?: string | null, resultsDownloadUrl?: string | null, locked?: boolean | null }
       & { __typename?: 'FrameworkConfig' }
     )> }
     & { __typename?: 'Framework' }
