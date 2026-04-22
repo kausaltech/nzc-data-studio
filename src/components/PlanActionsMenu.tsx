@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import {
   Box,
-  Button,
   Divider,
   IconButton,
   ListItemIcon,
@@ -13,7 +12,7 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-import { Gear, Lock, ThreeDots, Trash, Unlock } from 'react-bootstrap-icons';
+import { FileEarmarkPlus, Lock, ThreeDots, Trash, Unlock } from 'react-bootstrap-icons';
 
 import {
   LOCK_FRAMEWORK_CONFIG,
@@ -27,10 +26,21 @@ type Props = {
   planId: string;
   planName: string;
   isLocked: boolean;
+  canCreate: boolean;
+  isAdmin: boolean;
+  onCreateClick: () => void;
   onDeleteClick: () => void;
 };
 
-export function PlanActionsMenu({ planId, planName, isLocked, onDeleteClick }: Props) {
+export function PlanActionsMenu({
+  planId,
+  planName,
+  isLocked,
+  canCreate,
+  isAdmin,
+  onCreateClick,
+  onDeleteClick,
+}: Props) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isOpen = !!anchorEl;
   const { setNotification } = useSnackbar();
@@ -72,6 +82,11 @@ export function PlanActionsMenu({ planId, planName, isLocked, onDeleteClick }: P
     onDeleteClick();
   }
 
+  function handleCreateClick() {
+    handleClose();
+    onCreateClick();
+  }
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <IconButton color="inherit" onClick={handleOpen} disabled={loading}>
@@ -85,26 +100,40 @@ export function PlanActionsMenu({ planId, planName, isLocked, onDeleteClick }: P
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         slotProps={{ paper: { sx: { minWidth: 240, mt: 0.75 } } }}
       >
-        <MenuItem onClick={() => void handleLockToggle()}>
-          <ListItemIcon>{isLocked ? <Unlock size={16} /> : <Lock size={16} />}</ListItemIcon>
-          <ListItemText
-            primary={isLocked ? 'Unlock plan' : 'Lock plan'}
-            secondary={isLocked ? 'Allow edits again' : 'Prevent edits until unlocked'}
-          />
-        </MenuItem>
+        {canCreate && (
+          <MenuItem onClick={handleCreateClick}>
+            <ListItemIcon>
+              <FileEarmarkPlus size={16} />
+            </ListItemIcon>
+            <ListItemText primary="Create new plan" />
+          </MenuItem>
+        )}
 
-        <Divider />
+        {canCreate && isAdmin && <Divider />}
 
-        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.dark' }}>
-          <ListItemIcon sx={{ color: 'error.dark' }}>
-            <Trash size={16} />
-          </ListItemIcon>
-          <ListItemText
-            primary="Delete plan"
-            secondary="Permanently remove this plan"
-            slotProps={{ secondary: { color: 'error.dark', sx: { opacity: 0.8 } } }}
-          />
-        </MenuItem>
+        {isAdmin && (
+          <MenuItem onClick={() => void handleLockToggle()}>
+            <ListItemIcon>{isLocked ? <Unlock size={16} /> : <Lock size={16} />}</ListItemIcon>
+            <ListItemText
+              primary={isLocked ? 'Unlock plan' : 'Lock plan'}
+              secondary={isLocked ? 'Allow edits again' : 'Prevent edits until unlocked'}
+            />
+          </MenuItem>
+        )}
+
+        {isAdmin && <Divider />}
+
+        {isAdmin && (
+          <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.dark' }}>
+            <ListItemIcon sx={{ color: 'error.dark' }}>
+              <Trash size={16} />
+            </ListItemIcon>
+            <ListItemText
+              primary="Delete plan"
+              slotProps={{ secondary: { color: 'error.dark', sx: { opacity: 0.8 } } }}
+            />
+          </MenuItem>
+        )}
       </Menu>
     </Box>
   );

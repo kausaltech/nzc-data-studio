@@ -241,15 +241,18 @@ export function InstanceControlBar() {
                 onInstanceChange={setSelectedPlanId}
               />
             )}
-            {!permissions.isLoading && permissions.isFrameworkAdmin && plan && (
+            {!permissions.isLoading && plan && (permissions.create || permissions.isAdmin) && (
               <PlanActionsMenu
                 planId={plan.id}
                 planName={plan.organizationName ?? ''}
                 isLocked={plan.locked ?? false}
+                canCreate={permissions.create}
+                isAdmin={permissions.isAdmin}
+                onCreateClick={() => setIsAddModalOpen(true)}
                 onDeleteClick={() => setIsDeleteDialogOpen(true)}
               />
             )}
-            {!permissions.isLoading && (
+            {!permissions.isLoading && (!plan || (!permissions.create && !permissions.isAdmin)) && (
               <>
                 {permissions.create ? (
                   <Button onClick={() => setIsAddModalOpen(true)} variant="outlined">

@@ -95,14 +95,17 @@ export function usePermissions() {
     false;
 
   const isLocked = selectedPlan?.locked ?? false;
+  const isFrameworkAdmin = !!profile?.framework?.userRoles?.includes(FRAMEWORK_ADMIN_ROLE);
+  const canDelete = frameworkConfigPermissions?.delete ?? false;
 
   return {
-    isFrameworkAdmin:
-      !!profile?.framework?.userRoles?.includes(FRAMEWORK_ADMIN_ROLE),
+    isFrameworkAdmin,
+    // True for both framework-admin (all instances) and instance-admin (this instance)
+    isAdmin: isFrameworkAdmin || canDelete,
     isLoading: loading,
     create: canCreate,
     edit: (frameworkConfigPermissions?.change ?? false) && !isLocked,
-    delete: frameworkConfigPermissions?.delete ?? false,
+    delete: canDelete,
     isLocked,
   };
 }

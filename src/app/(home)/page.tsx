@@ -214,7 +214,7 @@ export default function DashboardContent() {
                     <Alert
                       severity="warning"
                       action={
-                        permissions.isFrameworkAdmin ? (
+                        permissions.isAdmin ? (
                           <Button
                             color="inherit"
                             size="small"
