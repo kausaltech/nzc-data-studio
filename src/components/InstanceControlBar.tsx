@@ -244,8 +244,9 @@ export function InstanceControlBar() {
             {!permissions.isLoading && plan && (permissions.create || permissions.isAdmin) && (
               <PlanActionsMenu
                 planId={plan.id}
+                instanceIdentifier={plan.instanceIdentifier}
                 planName={plan.organizationName ?? ''}
-                isLocked={plan.locked ?? false}
+                isLocked={plan.isLocked ?? false}
                 canCreate={permissions.create}
                 isAdmin={permissions.isAdmin}
                 onCreateClick={() => setIsAddModalOpen(true)}

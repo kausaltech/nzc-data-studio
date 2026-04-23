@@ -65,6 +65,7 @@ export function SelectedPlanProvider({ children, plan: initialPlan }: Props) {
   }
 
   const planCount = data?.framework?.configs.length ?? 0;
+
   if (planCount === 0 && initialPlan) {
     logger.warn('No plans found, removing plan cookie');
     Cookies.remove(PLAN_COOKIE_KEY);
@@ -72,6 +73,7 @@ export function SelectedPlanProvider({ children, plan: initialPlan }: Props) {
   }
 
   const [planId, setPlanId] = useState<string | undefined>(initialPlan);
+
   const selectedPlan = planId
     ? data?.framework?.configs.find((config) => config.id === planId)
     : undefined;

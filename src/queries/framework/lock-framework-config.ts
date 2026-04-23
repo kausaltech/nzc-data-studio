@@ -1,26 +1,32 @@
-import { gql } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
 
-export const LOCK_FRAMEWORK_CONFIG = gql`
-  mutation LockFrameworkConfig($id: ID!, $locked: Boolean!) {
-    updateFrameworkConfig(id: $id, locked: $locked) {
-      ok
-      frameworkConfig {
-        id
-        locked
-      }
+import type {
+  SetInstanceLockedMutation,
+  SetInstanceLockedMutationVariables,
+} from '@/types/__generated__/graphql';
+
+export const SET_INSTANCE_LOCKED = gql`
+  mutation SetInstanceLocked($instanceId: ID!, $isLocked: Boolean!) {
+    setInstanceLocked(instanceId: $instanceId, isLocked: $isLocked) {
+      __typename
     }
   }
 `;
 
-// TODO: Remove this when backend support ready
-export interface LockFrameworkConfigMutation {
-  updateFrameworkConfig: {
-    ok: boolean | null;
-    frameworkConfig: { id: string; locked: boolean } | null;
-  } | null;
-}
+export function useSetInstanceLocked(frameworkConfigId?: string) {
+  return useMutation<SetInstanceLockedMutation, SetInstanceLockedMutationVariables>(
+    SET_INSTANCE_LOCKED,
+    {
+      update(cache, _result, { variables }) {
+        if (!variables || !frameworkConfigId) return;
 
-export interface LockFrameworkConfigMutationVariables {
-  id: string;
-  locked: boolean;
+        cache.modify({
+          id: cache.identify({ __typename: 'FrameworkConfig', id: frameworkConfigId }),
+          fields: {
+            isLocked: () => variables.isLocked,
+          },
+        });
+      },
+    }
+  );
 }

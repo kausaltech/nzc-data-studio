@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import {
   Alert,
   Button,
@@ -27,11 +27,7 @@ import { SUPPORT_FORM_URL } from '@/components/links';
 import { usePlans } from '@/components/providers/SelectedPlanProvider';
 import { benefits } from '@/constants/intro-content';
 import { usePermissions } from '@/hooks/use-user-profile';
-import {
-  LOCK_FRAMEWORK_CONFIG,
-  type LockFrameworkConfigMutation,
-  type LockFrameworkConfigMutationVariables,
-} from '@/queries/framework/lock-framework-config';
+import { useSetInstanceLocked } from '@/queries/framework/lock-framework-config';
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
 import type {
   GetMeasureTemplatesQuery,
@@ -106,7 +102,7 @@ function DataCollectionContent({ instance }: { instance: string }) {
           <Typography gutterBottom variant="h3" component="h2">
             Data collection center
           </Typography>
-          {!!data.framework && permissions.edit && (
+          {!!data.framework && permissions.edit && !permissions.isLocked && (
             <Stack direction="row" spacing={2}>
               <ImportExportActions measureTemplates={data.framework} />
             </Stack>
@@ -123,16 +119,17 @@ export default function DashboardContent() {
   const permissions = usePermissions();
   const { setNotification } = useSnackbar();
 
-  const [unlockPlan, { loading: unlocking }] = useMutation<
-    LockFrameworkConfigMutation,
-    LockFrameworkConfigMutationVariables
-  >(LOCK_FRAMEWORK_CONFIG);
+  const [unlockPlan, { loading: unlocking }] = useSetInstanceLocked(selectedPlan?.id);
 
   async function handleUnlock() {
-    if (!selectedPlan) return;
+    if (!selectedPlan || !selectedPlan.instanceIdentifier) {
+      return;
+    }
 
     try {
-      await unlockPlan({ variables: { id: selectedPlan.id, locked: false } });
+      await unlockPlan({
+        variables: { instanceId: selectedPlan.instanceIdentifier, isLocked: false },
+      });
 
       setNotification({
         message: `"${selectedPlan.organizationName}" unlocked. Editing has been enabled.`,
@@ -210,7 +207,7 @@ export default function DashboardContent() {
                     </Stack>
                   </div>
 
-                  {selectedPlan.locked && (
+                  {selectedPlan.isLocked && (
                     <Alert
                       severity="warning"
                       action={
@@ -219,7 +216,7 @@ export default function DashboardContent() {
                             color="inherit"
                             size="small"
                             startIcon={<Unlock size={14} />}
-                            onClick={void handleUnlock}
+                            onClick={() => void handleUnlock()}
                             disabled={unlocking}
                           >
                             Unlock plan
