@@ -199,6 +199,34 @@ export default function DashboardContent() {
             </Skeleton>
           ) : (
             <Card>
+              {selectedPlan.isLocked && (
+                <Alert
+                  severity="warning"
+                  sx={(theme) => ({
+                    borderTopLeftRadius: Number(theme.shape.borderRadius) * 2,
+                    borderTopRightRadius: Number(theme.shape.borderRadius) * 2,
+                    borderBottomLeftRadius: 0,
+                    borderBottomRightRadius: 0,
+                  })}
+                  action={
+                    permissions.isAdmin ? (
+                      <Button
+                        color="inherit"
+                        size="small"
+                        startIcon={<Unlock size={14} />}
+                        onClick={() => void handleUnlock()}
+                        disabled={unlocking}
+                      >
+                        Unlock plan
+                      </Button>
+                    ) : undefined
+                  }
+                >
+                  <strong>This plan is locked.</strong> Data entry and edits are disabled for all
+                  users until an admin unlocks it.
+                </Alert>
+              )}
+
               <CardContent>
                 <Stack spacing={2}>
                   <div>
@@ -206,28 +234,6 @@ export default function DashboardContent() {
                       <Typography variant="h1">{selectedPlan.organizationName}</Typography>
                     </Stack>
                   </div>
-
-                  {selectedPlan.isLocked && (
-                    <Alert
-                      severity="warning"
-                      action={
-                        permissions.isAdmin ? (
-                          <Button
-                            color="inherit"
-                            size="small"
-                            startIcon={<Unlock size={14} />}
-                            onClick={() => void handleUnlock()}
-                            disabled={unlocking}
-                          >
-                            Unlock plan
-                          </Button>
-                        ) : undefined
-                      }
-                    >
-                      <strong>This plan is locked.</strong> Data entry and edits are disabled for
-                      all users until an admin unlocks it.
-                    </Alert>
-                  )}
 
                   {selectedPlan ? (
                     <CompletionScoreCardWrapper instance={selectedPlan.id} />
