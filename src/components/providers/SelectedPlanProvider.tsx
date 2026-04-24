@@ -24,7 +24,7 @@ type SelectedPlanContextType = {
   setSelectedPlanId: (plan: string | undefined) => void;
 };
 
-const SelectedPlanContext = createContext<SelectedPlanContextType>({
+export const SelectedPlanContext = createContext<SelectedPlanContextType>({
   selectedPlanId: undefined,
   selectedPlan: null,
   allPlans: null,

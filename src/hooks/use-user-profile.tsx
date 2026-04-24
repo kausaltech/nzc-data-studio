@@ -13,7 +13,7 @@ type UserProfileContextType = {
   profile: ProfileQuery | null;
 }
 
-const UserProfileContext = createContext<UserProfileContextType>({
+export const UserProfileContext = createContext<UserProfileContextType>({
   loading: false,
   profile: null,
 });

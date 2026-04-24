@@ -1,5 +1,10 @@
 {
   "extends": "./kausal_common/configs/tsconfig.json",
+  "ts-node": {
+    "compilerOptions": {
+      "verbatimModuleSyntax": false
+    }
+  },
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
