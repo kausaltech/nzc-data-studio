@@ -505,8 +505,8 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
 
   return (
     <DataGrid<Row>
-      key={selectedPlanId} // Force full re-render when the plan changes
-      {...(permissions.edit ? singleClickEditProps : {})}
+      key={`${selectedPlanId}-${String(permissions.isLocked)}`}
+      {...(permissions.edit && !permissions.isLocked ? singleClickEditProps : {})}
       loading={loading}
       slots={{ footer: CustomFooter }}
       slotProps={{
@@ -514,7 +514,12 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
       }}
       sx={DATA_GRID_SX}
       isCellEditable={(params) =>
-        !!(permissions.edit && params.colDef.editable && params.row.type !== 'SUM_PERCENT')
+        !!(
+          permissions.edit &&
+          !permissions.isLocked &&
+          params.colDef.editable &&
+          params.row.type !== 'SUM_PERCENT'
+        )
       }
       getRowClassName={({ row }) => getRowClassName(row.type, row.depth)}
       getCellClassName={(params) =>

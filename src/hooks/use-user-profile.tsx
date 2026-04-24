@@ -13,7 +13,7 @@ type UserProfileContextType = {
   profile: ProfileQuery | null;
 }
 
-const UserProfileContext = createContext<UserProfileContextType>({
+export const UserProfileContext = createContext<UserProfileContextType>({
   loading: false,
   profile: null,
 });
@@ -75,7 +75,7 @@ export function useUserProfile() {
 
 export function usePermissions() {
   const { loading, profile } = useUserProfile();
-  const { selectedPlanId } = usePlans();
+  const { selectedPlanId, selectedPlan } = usePlans();
 
   const frameworkConfigPermissions = useMemo(() => {
     if (!loading && selectedPlanId) {
@@ -94,12 +94,18 @@ export function usePermissions() {
       )) ??
     false;
 
+  const isLocked = selectedPlan?.isLocked ?? false;
+  const isFrameworkAdmin = !!profile?.framework?.userRoles?.includes(FRAMEWORK_ADMIN_ROLE);
+  const canDelete = frameworkConfigPermissions?.delete ?? false;
+
   return {
-    isFrameworkAdmin:
-      !!profile?.framework?.userRoles?.includes(FRAMEWORK_ADMIN_ROLE),
+    isFrameworkAdmin,
+    // True for both framework-admin (all instances) and instance-admin (this instance)
+    isAdmin: isFrameworkAdmin || canDelete,
     isLoading: loading,
     create: canCreate,
-    edit: frameworkConfigPermissions?.change ?? false,
-    delete: frameworkConfigPermissions?.delete ?? false,
+    edit: profile?.framework?.userPermissions?.change ?? false,
+    delete: canDelete,
+    isLocked,
   };
 }

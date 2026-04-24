@@ -232,11 +232,13 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
   const initialValue = useRef(value);
   const [key, setKey] = useState(0);
 
+  const canEdit = permissions.edit && !permissions.isLocked;
+
   useLayoutEffect(() => {
-    if (hasFocus && permissions.edit && ref.current) {
+    if (hasFocus && canEdit && ref.current) {
       ref.current.focus();
     }
-  }, [hasFocus, permissions.edit]);
+  }, [hasFocus, canEdit]);
 
   async function handleValueChange(
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -292,10 +294,10 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
         placeholder={placeholder || undefined}
         onKeyDown={handleEscape}
         onValueChange={
-          permissions.edit ? (value) => void handleNumberValueChange(value) : undefined
+          canEdit ? (value) => void handleNumberValueChange(value) : undefined
         }
         defaultValue={typeof initialValue.current === 'number' ? initialValue.current : ''}
-        disabled={!permissions.edit}
+        disabled={!canEdit}
         inputProps={{
           'aria-label': `${row.label} ${field}`,
           decimalScale: getDecimalPrecisionByUnit(row.unit.standard),
@@ -307,9 +309,9 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
         {...commonProps}
         key={key}
         autoComplete="off"
-        disabled={!permissions.edit}
+        disabled={!canEdit}
         onKeyDown={handleEscape}
-        onChange={permissions.edit ? (value) => void handleValueChange(value) : undefined}
+        onChange={canEdit ? (value) => void handleValueChange(value) : undefined}
         fullWidth
         multiline
         maxRows={6}
@@ -321,13 +323,13 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
       />
     );
 
-  if (!permissions.edit) {
+  if (!canEdit) {
+    const tooltipTitle = permissions.isLocked
+      ? 'This plan is locked by an admin. Unlock the plan to make changes.'
+      : 'Request edit access in the NetZeroCities Portal to make changes.';
+
     return (
-      <Tooltip
-        arrow
-        placement="top"
-        title="Request edit access in the NetZeroCities Portal to make changes."
-      >
+      <Tooltip arrow placement="top" title={tooltipTitle}>
         <div>{inputComponent}</div>
       </Tooltip>
     );
@@ -1041,13 +1043,19 @@ function AccordionContentWrapper({
       <AccordionDetails>
         <Box sx={{ height: 400 }}>
           <DataGrid
-            {...(permissions.edit ? singleClickEditProps : {})}
+            key={String(permissions.isLocked)}
+            {...(permissions.edit && !permissions.isLocked ? singleClickEditProps : {})}
             loading={loading}
             slots={{ footer: CustomFooter }}
             slotProps={{ footer: { count: measureCount } }}
             sx={DATA_GRID_SX}
             isCellEditable={(params: GridCellParams<DatasheetEditorRow>) =>
-              !!(permissions.edit && params.colDef.editable && params.row.type !== 'SUM_PERCENT')
+              !!(
+                permissions.edit &&
+                !permissions.isLocked &&
+                params.colDef.editable &&
+                params.row.type !== 'SUM_PERCENT'
+              )
             }
             getRowClassName={(params: GridRowClassNameParams<DatasheetEditorRow>) =>
               getRowClassName(params.row.type, params.row.depth)

@@ -2,6 +2,7 @@
 
 import { useQuery } from '@apollo/client';
 import {
+  Alert,
   Button,
   Card,
   CardContent,
@@ -13,18 +14,20 @@ import {
   Typography,
 } from '@mui/material';
 import * as Sentry from '@sentry/nextjs';
-import { BoxArrowUpRight, Download } from 'react-bootstrap-icons';
+import { BoxArrowUpRight, Download, Unlock } from 'react-bootstrap-icons';
 import { serializeError } from 'serialize-error';
 
 import CompletionScoreCard from '@/components/CompletionScoreCard';
 import DataCollection from '@/components/DataCollection';
 import { HelpText } from '@/components/HelpText';
 import IntroSection from '@/components/IntroSection';
+import { useSnackbar } from '@/components/SnackbarProvider';
 import { ImportExportActions } from '@/components/import-export/ImportExportActions';
 import { SUPPORT_FORM_URL } from '@/components/links';
 import { usePlans } from '@/components/providers/SelectedPlanProvider';
 import { benefits } from '@/constants/intro-content';
 import { usePermissions } from '@/hooks/use-user-profile';
+import { useSetInstanceLocked } from '@/queries/framework/lock-framework-config';
 import { GET_MEASURE_TEMPLATES } from '@/queries/get-measure-templates';
 import type {
   GetMeasureTemplatesQuery,
@@ -95,23 +98,17 @@ function DataCollectionContent({ instance }: { instance: string }) {
   return (
     <Fade in>
       <div>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-        >
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
           <Typography gutterBottom variant="h3" component="h2">
             Data collection center
           </Typography>
-          {!!data.framework && permissions.edit && (
+          {!!data.framework && permissions.edit && !permissions.isLocked && (
             <Stack direction="row" spacing={2}>
               <ImportExportActions measureTemplates={data.framework} />
             </Stack>
           )}
         </Stack>
-        {!!data.framework && (
-          <DataCollection measureTemplates={data.framework} />
-        )}
+        {!!data.framework && <DataCollection measureTemplates={data.framework} />}
       </div>
     </Fade>
   );
@@ -120,6 +117,31 @@ function DataCollectionContent({ instance }: { instance: string }) {
 export default function DashboardContent() {
   const { allPlans, selectedPlan } = usePlans();
   const permissions = usePermissions();
+  const { setNotification } = useSnackbar();
+
+  const [unlockPlan, { loading: unlocking }] = useSetInstanceLocked(selectedPlan?.id);
+
+  async function handleUnlock() {
+    if (!selectedPlan || !selectedPlan.instanceIdentifier) {
+      return;
+    }
+
+    try {
+      await unlockPlan({
+        variables: { instanceId: selectedPlan.instanceIdentifier, isLocked: false },
+      });
+
+      setNotification({
+        message: `"${selectedPlan.organizationName}" unlocked. Editing has been enabled.`,
+        severity: 'success',
+      });
+    } catch {
+      setNotification({
+        message: 'Failed to unlock the plan. Please try again.',
+        severity: 'error',
+      });
+    }
+  }
 
   if (allPlans === null) {
     return <Loading />;
@@ -139,13 +161,9 @@ export default function DashboardContent() {
                   It looks like there aren't any plans for your city yet.{' '}
                   {!permissions.create ? (
                     <>
-                      You don't currently have permission to create one. To
-                      request edit access, please fill out{' '}
-                      <Link
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={SUPPORT_FORM_URL}
-                      >
+                      You don't currently have permission to create one. To request edit access,
+                      please fill out{' '}
+                      <Link target="_blank" rel="noopener noreferrer" href={SUPPORT_FORM_URL}>
                         this form
                       </Link>
                       .
@@ -181,17 +199,39 @@ export default function DashboardContent() {
             </Skeleton>
           ) : (
             <Card>
+              {selectedPlan.isLocked && (
+                <Alert
+                  severity="warning"
+                  sx={(theme) => ({
+                    borderTopLeftRadius: Number(theme.shape.borderRadius) * 2,
+                    borderTopRightRadius: Number(theme.shape.borderRadius) * 2,
+                    borderBottomLeftRadius: 0,
+                    borderBottomRightRadius: 0,
+                  })}
+                  action={
+                    permissions.isAdmin ? (
+                      <Button
+                        color="inherit"
+                        size="small"
+                        startIcon={<Unlock size={14} />}
+                        onClick={() => void handleUnlock()}
+                        disabled={unlocking}
+                      >
+                        Unlock plan
+                      </Button>
+                    ) : undefined
+                  }
+                >
+                  <strong>This plan is locked.</strong> Data entry and edits are disabled for all
+                  users until an admin unlocks it.
+                </Alert>
+              )}
+
               <CardContent>
                 <Stack spacing={2}>
                   <div>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                    >
-                      <Typography variant="h1">
-                        {selectedPlan.organizationName}
-                      </Typography>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                      <Typography variant="h1">{selectedPlan.organizationName}</Typography>
                     </Stack>
                   </div>
 
@@ -225,13 +265,11 @@ export default function DashboardContent() {
                         <HelpText
                           text={
                             <>
-                              Here you can download tables that are helpful in
-                              building an Economic Case for your Climate Action
-                              Plan. These tables display an analysis of GHG
-                              reduction along with the costs and benefits by
-                              sub-sector and stakeholder group. This will
-                              provide you with both the GHG and financial Return
-                              on Investment for better decision making in your
+                              Here you can download tables that are helpful in building an Economic
+                              Case for your Climate Action Plan. These tables display an analysis of
+                              GHG reduction along with the costs and benefits by sub-sector and
+                              stakeholder group. This will provide you with both the GHG and
+                              financial Return on Investment for better decision making in your
                               Climate Action Plan.
                             </>
                           }
@@ -244,11 +282,7 @@ export default function DashboardContent() {
             </Card>
           )}
 
-          {selectedPlan ? (
-            <DataCollectionContent instance={selectedPlan.id} />
-          ) : (
-            <LoadingCard />
-          )}
+          {selectedPlan ? <DataCollectionContent instance={selectedPlan.id} /> : <LoadingCard />}
         </Stack>
       </Container>
     </Fade>

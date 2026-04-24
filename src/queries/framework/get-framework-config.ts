@@ -11,6 +11,8 @@ export const GET_FRAMEWORK_CONFIG = gql`
         targetYear
         viewUrl
         resultsDownloadUrl
+        instanceIdentifier
+        isLocked
       }
     }
   }
@@ -27,6 +29,8 @@ export const GET_FRAMEWORK_CONFIGS = gql`
         targetYear
         viewUrl
         resultsDownloadUrl
+        instanceIdentifier
+        isLocked
       }
     }
   }
