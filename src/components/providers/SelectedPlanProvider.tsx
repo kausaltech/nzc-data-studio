@@ -92,7 +92,7 @@ export function SelectedPlanProvider({ children, plan: initialPlan }: Props) {
   };
 
   const firstPlan = data?.framework?.configs[0];
-  if (firstPlan && !selectedPlan) {
+  if (firstPlan && !planId) {
     setSelectedPlanId(firstPlan.id);
     logger.info(
       { 'initial-plan': initialPlan, 'plan-id': planId, 'first-plan-id': firstPlan.id },
