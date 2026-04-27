@@ -147,6 +147,17 @@ export default function DashboardContent() {
     return <Loading />;
   }
 
+  if (permissions.isLoading) {
+    return (
+      <Container>
+        <Stack spacing={4}>
+          <Skeleton variant="rounded" height={150} />
+          <LoadingCard />
+        </Stack>
+      </Container>
+    );
+  }
+
   if (allPlans.length === 0) {
     return (
       <Fade in>
@@ -159,7 +170,13 @@ export default function DashboardContent() {
                 </Typography>
                 <Typography variant="subtitle1" sx={{ maxWidth: '80%' }}>
                   It looks like there aren't any plans for your city yet.{' '}
-                  {!permissions.create ? (
+                  {permissions.isLoading ? (
+                    <Skeleton
+                      variant="text"
+                      width="60%"
+                      sx={{ display: 'inline-block', verticalAlign: 'middle' }}
+                    />
+                  ) : !permissions.create ? (
                     <>
                       You don't currently have permission to create one. To request edit access,
                       please fill out{' '}

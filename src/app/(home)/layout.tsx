@@ -49,7 +49,7 @@ export default function HomeLayout({ children }: Props) {
     }
   }, [status, router]);
 
-  if (!isAuthenticated && status === 'loading') {
+  if (!isAuthenticated) {
     return <Loading />;
   }
 

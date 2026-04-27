@@ -17,6 +17,7 @@ import {
   MenuItem,
   Link as MuiLink,
   Select,
+  Skeleton,
   Stack,
   Tooltip,
   Typography,
@@ -141,7 +142,7 @@ function getNavStyles(isActive: boolean): SxProps<Theme> {
 export function InstanceControlBar() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isRequestEditTooltipOpen, setIsRequestEditTooltipOpen] = useState(true); // Initially true, but will only be shown if the user has no create permissions
+  const [isRequestEditTooltipOpen, setIsRequestEditTooltipOpen] = useState(false);
 
   const permissions = usePermissions();
 
@@ -233,7 +234,13 @@ export function InstanceControlBar() {
             </Stack>
           )}
 
-          <Stack direction="row" justifyContent="flex-end" ml="auto" spacing={1}>
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            ml="auto"
+            alignItems="center"
+            spacing={1}
+          >
             {hasMultipleInstances && plan?.id && (
               <InstanceSelector
                 selectedInstanceId={plan.id}
@@ -241,7 +248,9 @@ export function InstanceControlBar() {
                 onInstanceChange={setSelectedPlanId}
               />
             )}
-            {!permissions.isLoading && plan && (permissions.create || permissions.isAdmin) && (
+            {permissions.isLoading ? (
+              <Skeleton variant="rounded" width={80} height={36} />
+            ) : plan && (permissions.create || permissions.isAdmin) ? (
               <PlanActionsMenu
                 planId={plan.id}
                 instanceIdentifier={plan.instanceIdentifier}
@@ -252,8 +261,7 @@ export function InstanceControlBar() {
                 onCreateClick={() => setIsAddModalOpen(true)}
                 onDeleteClick={() => setIsDeleteDialogOpen(true)}
               />
-            )}
-            {!permissions.isLoading && (!plan || (!permissions.create && !permissions.isAdmin)) && (
+            ) : (
               <>
                 {permissions.create ? (
                   <Button onClick={() => setIsAddModalOpen(true)} variant="outlined">
