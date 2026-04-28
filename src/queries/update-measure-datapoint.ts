@@ -9,6 +9,8 @@ export const measureDataPointFragment = gql`
     value
     year
     defaultValue
+    # minValue TODO: Add when backend ready
+    # maxValue TODO: Add when backend ready
   }
 `;
 

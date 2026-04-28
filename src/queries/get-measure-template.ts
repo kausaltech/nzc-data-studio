@@ -16,6 +16,8 @@ export const GET_MEASURE_TEMPLATE = gql`
             value
             year
             defaultValue
+            # minValue TODO: Add when backend ready
+            # maxValue TODO: Add when backend ready
           }
         }
       }

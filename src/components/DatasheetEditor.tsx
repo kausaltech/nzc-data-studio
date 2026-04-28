@@ -8,6 +8,7 @@ import {
   Box,
   Fade,
   Grid,
+  InputAdornment,
   Accordion as MuiAccordion,
   AccordionDetails as MuiAccordionDetails,
   AccordionSummary as MuiAccordionSummary,
@@ -37,6 +38,7 @@ import { useDataCollectionStore } from '@/store/data-collection';
 import type {
   FrameworksMeasureTemplatePriorityChoices,
   MeasureTemplateFragmentFragment,
+  UnitType,
   UpdateMeasureDataPointMutation,
   UpdateMeasureDataPointMutationVariables,
 } from '@/types/__generated__/graphql';
@@ -44,6 +46,7 @@ import type { Section } from '@/utils/measures';
 import {
   getDecimalPrecisionByUnit,
   getMeasureFallback,
+  getMeasureSuggestedBounds,
   getMeasureValue,
   getUnitName,
   isYearMeasure,
@@ -193,7 +196,7 @@ export function formatNumericValue(
     return '-';
   }
 
-  const precision = getDecimalPrecisionByUnit(row.unit.standard);
+  const precision = getDecimalPrecisionByUnit(row.unit);
 
   if (isYearMeasure(row.label, row.unit.short)) {
     return Math.round(value).toString();
@@ -202,6 +205,58 @@ export function formatNumericValue(
   return value.toLocaleString(undefined, {
     maximumFractionDigits: precision,
   });
+}
+
+function isOutOfSuggestedBounds(
+  value: number | null | undefined,
+  suggestedMinValue: number | null | undefined,
+  suggestedMaxValue: number | null | undefined
+): boolean {
+  if (typeof value !== 'number') {
+    return false;
+  }
+
+  if (typeof suggestedMinValue === 'number' && value < suggestedMinValue) {
+    return true;
+  }
+
+  if (typeof suggestedMaxValue === 'number' && value > suggestedMaxValue) {
+    return true;
+  }
+
+  return false;
+}
+
+function getSuggestedBoundsTooltip(
+  suggestedMinValue: number | null | undefined,
+  suggestedMaxValue: number | null | undefined,
+  unit?: Partial<UnitType>
+): string {
+  const formattedUnit = unit?.long ?? '';
+  const precision = unit ? getDecimalPrecisionByUnit(unit) : undefined;
+
+  const formattedMin = suggestedMinValue
+    ? suggestedMinValue.toLocaleString(undefined, { maximumFractionDigits: precision })
+    : null;
+  const formattedMax = suggestedMaxValue
+    ? suggestedMaxValue.toLocaleString(undefined, { maximumFractionDigits: precision })
+    : null;
+
+  const suffix = 'Please check the value is correct and matches the specified unit.';
+
+  if (formattedMin && formattedMax) {
+    return `Value is outside the expected range. Expected: ${formattedMin}-${formattedMax} ${formattedUnit}. ${suffix}`;
+  }
+
+  if (formattedMin) {
+    return `Value is below the expected minimum of ${formattedMin} ${formattedUnit}. ${suffix}`;
+  }
+
+  if (typeof suggestedMaxValue === 'number') {
+    return `Value is above the expected maximum of ${formattedMax} ${formattedUnit}. ${suffix}`;
+  }
+
+  return '';
 }
 
 type CustomEditComponentProps<TMeasureRow extends BaseMeasureRow = MeasureRow> =
@@ -233,6 +288,37 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
   const [key, setKey] = useState(0);
 
   const canEdit = permissions.edit && !permissions.isLocked;
+
+  const suggestedMinValue = row.type === 'MEASURE' ? row.suggestedMinValue : null;
+  const suggestedMaxValue = row.type === 'MEASURE' ? row.suggestedMaxValue : null;
+  const showWarning =
+    colDef.type === 'number' &&
+    isOutOfSuggestedBounds(
+      typeof value === 'number' ? value : null,
+      suggestedMinValue,
+      suggestedMaxValue
+    );
+
+  const warningAdornment = showWarning ? (
+    <InputAdornment position="end">
+      <Tooltip
+        arrow
+        placement="top"
+        title={getSuggestedBoundsTooltip(
+          suggestedMinValue,
+          suggestedMaxValue,
+          row.type === 'MEASURE' ? row.unit : undefined
+        )}
+      >
+        <Box
+          component="span"
+          sx={{ display: 'flex', color: 'warning.main', cursor: 'default', pointerEvents: 'auto' }}
+        >
+          <ExclamationTriangle size={14} />
+        </Box>
+      </Tooltip>
+    </InputAdornment>
+  ) : null;
 
   useLayoutEffect(() => {
     if (hasFocus && canEdit && ref.current) {
@@ -293,16 +379,15 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
         fullWidth
         placeholder={placeholder || undefined}
         onKeyDown={handleEscape}
-        onValueChange={
-          canEdit ? (value) => void handleNumberValueChange(value) : undefined
-        }
+        onValueChange={canEdit ? (value) => void handleNumberValueChange(value) : undefined}
         defaultValue={typeof initialValue.current === 'number' ? initialValue.current : ''}
         disabled={!canEdit}
         inputProps={{
           'aria-label': `${row.label} ${field}`,
-          decimalScale: getDecimalPrecisionByUnit(row.unit.standard),
+          decimalScale: getDecimalPrecisionByUnit(row.unit),
           ...(isYearMeasure(row.label, row.unit.long) ? yearInputProps : {}),
         }}
+        InputProps={warningAdornment ? { endAdornment: warningAdornment } : undefined}
       />
     ) : (
       <TextField
@@ -675,7 +760,7 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
         return undefined;
       }
 
-      const precision = getDecimalPrecisionByUnit(row.unit.standard);
+      const precision = getDecimalPrecisionByUnit(row.unit);
 
       if (isYearMeasure(row.label, row.unit.long)) {
         return Math.round(value);
@@ -722,6 +807,8 @@ export type BaseMeasureRow = {
   depth: number;
   helpText: string | null;
   originalMeasureTemplate: MeasureTemplateFragmentFragment;
+  suggestedMinValue: number | null;
+  suggestedMaxValue: number | null;
 };
 
 export type MeasureRow = BaseMeasureRow & {
@@ -837,8 +924,13 @@ function getRowsFromSection(
 
   return [
     ...(isRoot ? [] : [sectionRow]),
-    ...measureTemplates.flatMap(
-      (measure): MeasureRow => ({
+    ...measureTemplates.map((measure): MeasureRow => {
+      const { suggestedMinValue, suggestedMaxValue } = getMeasureSuggestedBounds(
+        measure,
+        baselineYear
+      );
+
+      return {
         isTitle: false,
         type: 'MEASURE',
         id: measure.uuid,
@@ -852,8 +944,10 @@ function getRowsFromSection(
         notes: measure.measure?.internalNotes ?? null,
         depth: depth + 1,
         originalMeasureTemplate: measure,
-      })
-    ),
+        suggestedMinValue,
+        suggestedMaxValue,
+      };
+    }),
     ...(sectionRow.sumMeasureValues
       ? [
           getSumPercentRow(

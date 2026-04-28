@@ -47,9 +47,12 @@ import { HelpText } from './HelpText';
 import { useSnackbar } from './SnackbarProvider';
 import { usePlans, useSuspenseSelectedPlanConfig } from './providers/SelectedPlanProvider';
 
+type SuggestedBounds = { minValue: number | null; maxValue: number | null };
+
 type AdditionalDatasheetMeasureRow = BaseMeasureRow & {
   baselineValue: number | null;
   placeholderDataPoints: Record<number, null | number>;
+  suggestedBoundsByYear: Record<number, SuggestedBounds>;
   [year: number]: null | number;
 };
 
@@ -163,6 +166,19 @@ function getRowsFromSection(
         unit: measure.unit,
         depth: depth + 1,
         originalMeasureTemplate: measure,
+        suggestedMinValue: null,
+        suggestedMaxValue: null,
+        suggestedBoundsByYear:
+          measure.measure?.dataPoints.reduce<Record<number, SuggestedBounds>>(
+            (acc, dp) => ({
+              ...acc,
+              [dp.year]: {
+                minValue: 200, // || dp.minValue ?? null, TODO: Update when backend ready
+                maxValue: 2000, // ||dp.maxValue ?? null TODO: Update when backend ready
+              },
+            }),
+            {}
+          ) ?? {},
         placeholderDataPoints:
           measure.measure?.placeholderDataPoints?.reduce(
             reduceDataPoints,
@@ -475,10 +491,16 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
                 );
               }
 
+              const bounds = row.suggestedBoundsByYear[year];
+              const rowWithBounds = {
+                ...row,
+                suggestedMinValue: bounds?.minValue ?? null,
+                suggestedMaxValue: bounds?.maxValue ?? null,
+              };
               return (
                 <CustomEditComponent<AdditionalDatasheetMeasureRow>
                   {...rest}
-                  row={row}
+                  row={rowWithBounds}
                   sx={{ mx: 0, my: 1 }}
                   placeholder={getPlaceholder(params.row, year)}
                 />
@@ -489,10 +511,16 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
                 return null;
               }
 
+              const bounds = row.suggestedBoundsByYear[year];
+              const rowWithBounds = {
+                ...row,
+                suggestedMinValue: bounds?.minValue ?? null,
+                suggestedMaxValue: bounds?.maxValue ?? null,
+              };
               return (
                 <CustomEditComponent<AdditionalDatasheetMeasureRow>
                   {...rest}
-                  row={row}
+                  row={rowWithBounds}
                   placeholder={getPlaceholder(row, year)}
                 />
               );
