@@ -681,7 +681,7 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
     display: 'flex',
     headerName: 'Label',
     field: 'label',
-    flex: 2,
+    flex: 4,
     renderCell: (params: GridRenderCellParams<DatasheetEditorRow>) =>
       renderLabelCell(
         params.row.type,
@@ -705,14 +705,14 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
     type: 'number',
     headerAlign: 'left',
     align: 'left',
-    flex: 1,
+    flex: 3,
     ...EDITABLE_COL,
   },
   {
     display: 'flex',
     headerName: 'Unit',
     field: 'unit',
-    flex: 1,
+    flex: 2,
     valueFormatter: (value: UnitFragment, row: MeasureRow | SumPercentRow) =>
       row.type === 'MEASURE' ? value.long : undefined,
     renderCell: (params: GridRenderCellParams<DatasheetEditorRow>) => {
@@ -737,7 +737,7 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
     description:
       'Comparable City Values are developed based on the 3 questions you answered when you created your plan. 1) Population, 2) Climate 3) % Zero Carbon Electricity. The system averages the data for European cities that have similar Climate and % Zero Carbon Electricity and then adjusts for the exact population of your city. Comparable City Values can be used to validate your own data inputs. If you have no information for a given cell, you can leave that cell blank, and the system will default to the Comparable City Value.',
     field: 'fallback',
-    flex: 1,
+    flex: 2,
     renderCell: (params: GridRenderCellParams<DatasheetEditorRow>) => {
       if (params.row.type === 'SUM_PERCENT') {
         return (
@@ -775,7 +775,7 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
     display: 'flex',
     headerName: 'Priority',
     field: 'priority',
-    flex: 1,
+    flex: 2,
     minWidth: 90,
     renderHeader: ({ colDef }) => (
       <HeaderWithHelpText headerName={colDef.headerName!} helpText={colDef.description!} />
@@ -792,7 +792,7 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
     headerName: 'Internal Notes',
     field: 'notes',
     type: 'string',
-    flex: 2,
+    flex: 4,
     ...EDITABLE_COL,
   },
 ];
