@@ -1049,6 +1049,7 @@ export type FrameworkSectionArgs = {
 export type FrameworkConfig = {
   __typename?: 'FrameworkConfig';
   baselineYear: Scalars['Int']['output'];
+  extra: Scalars['JSONString']['output'];
   framework: Framework;
   id: Scalars['ID']['output'];
   instance?: Maybe<InstanceType>;
@@ -1102,6 +1103,12 @@ export type FrameworkLandingBlock = StreamFieldInterface & {
   id?: Maybe<Scalars['String']['output']>;
   rawValue: Scalars['String']['output'];
 };
+
+/** An enumeration. */
+export enum FrameworksMeasureTemplateDefaultValueScalingChoices {
+  /** Population */
+  Population = 'POPULATION'
+}
 
 /** An enumeration. */
 export enum FrameworksMeasureTemplatePriorityChoices {
@@ -1252,6 +1259,7 @@ export type ImpactOverviewType = {
   outcomeDimension?: Maybe<Scalars['String']['output']>;
   plotLimitForIndicator?: Maybe<Scalars['Float']['output']>;
   stakeholderDimension?: Maybe<Scalars['String']['output']>;
+  wedge?: Maybe<Array<WedgeEntryType>>;
 };
 
 export type InputPortBindingUnion = DatasetPortType | NodeEdgeType;
@@ -1743,6 +1751,8 @@ export type MeasureDataPoint = {
   __typename?: 'MeasureDataPoint';
   defaultValue?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
+  probableLowerBound?: Maybe<Scalars['Float']['output']>;
+  probableUpperBound?: Maybe<Scalars['Float']['output']>;
   userPermissions?: Maybe<UserPermissions>;
   userRoles?: Maybe<Array<Scalars['String']['output']>>;
   value?: Maybe<Scalars['Float']['output']>;
@@ -1778,6 +1788,7 @@ export type MeasureInput = {
 export type MeasureTemplate = {
   __typename?: 'MeasureTemplate';
   defaultDataPoints: Array<MeasureTemplateDefaultDataPoint>;
+  defaultValueScaling?: Maybe<FrameworksMeasureTemplateDefaultValueScalingChoices>;
   defaultValueSource: Scalars['String']['output'];
   helpText: Scalars['String']['output'];
   hidden: Scalars['Boolean']['output'];
@@ -1822,6 +1833,8 @@ export type MeasureTemplateMeasureArgs = {
 export type MeasureTemplateDefaultDataPoint = {
   __typename?: 'MeasureTemplateDefaultDataPoint';
   id: Scalars['ID']['output'];
+  probableLowerBound?: Maybe<Scalars['Float']['output']>;
+  probableUpperBound?: Maybe<Scalars['Float']['output']>;
   userPermissions?: Maybe<UserPermissions>;
   userRoles?: Maybe<Array<Scalars['String']['output']>>;
   value: Scalars['Float']['output'];
@@ -3311,6 +3324,14 @@ export type VisualizationNodeOutput = VisualizationEntry & {
   scenarios?: Maybe<Array<Scalars['String']['output']>>;
 };
 
+export type WedgeEntryType = {
+  __typename?: 'WedgeEntryType';
+  id: Scalars['ID']['output'];
+  isScenario: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  metric: DimensionalMetricType;
+};
+
 export type YearlyValue = {
   __typename?: 'YearlyValue';
   value: Scalars['Float']['output'];
@@ -3491,7 +3512,7 @@ export type GetMeasureTemplateQuery = (
     { id: string, measureTemplate?: (
       { id: string, uuid: string, name: string, measure?: (
         { id: string, internalNotes: string, dataPoints: Array<(
-          { id: string, value?: number | null, year: number, defaultValue?: number | null }
+          { id: string, value?: number | null, year: number, defaultValue?: number | null, probableLowerBound?: number | null, probableUpperBound?: number | null }
           & { __typename?: 'MeasureDataPoint' }
         )> }
         & { __typename?: 'Measure' }
@@ -3531,7 +3552,7 @@ export type GetMeasureTemplatesQuery = (
               { year?: number | null, value?: number | null }
               & { __typename: 'PlaceHolderDataPoint' }
             ) | null> | null, dataPoints: Array<(
-              { id: string, value?: number | null, year: number, defaultValue?: number | null }
+              { id: string, value?: number | null, year: number, defaultValue?: number | null, probableLowerBound?: number | null, probableUpperBound?: number | null }
               & { __typename: 'MeasureDataPoint' }
             )> }
             & { __typename: 'Measure' }
@@ -3561,7 +3582,7 @@ export type GetMeasureTemplatesQuery = (
               { year?: number | null, value?: number | null }
               & { __typename: 'PlaceHolderDataPoint' }
             ) | null> | null, dataPoints: Array<(
-              { id: string, value?: number | null, year: number, defaultValue?: number | null }
+              { id: string, value?: number | null, year: number, defaultValue?: number | null, probableLowerBound?: number | null, probableUpperBound?: number | null }
               & { __typename: 'MeasureDataPoint' }
             )> }
             & { __typename: 'Measure' }
@@ -3600,7 +3621,7 @@ export type MainSectionMeasuresFragment = (
           { year?: number | null, value?: number | null }
           & { __typename: 'PlaceHolderDataPoint' }
         ) | null> | null, dataPoints: Array<(
-          { id: string, value?: number | null, year: number, defaultValue?: number | null }
+          { id: string, value?: number | null, year: number, defaultValue?: number | null, probableLowerBound?: number | null, probableUpperBound?: number | null }
           & { __typename: 'MeasureDataPoint' }
         )> }
         & { __typename: 'Measure' }
@@ -3631,7 +3652,7 @@ export type SectionFragmentFragment = (
         { year?: number | null, value?: number | null }
         & { __typename: 'PlaceHolderDataPoint' }
       ) | null> | null, dataPoints: Array<(
-        { id: string, value?: number | null, year: number, defaultValue?: number | null }
+        { id: string, value?: number | null, year: number, defaultValue?: number | null, probableLowerBound?: number | null, probableUpperBound?: number | null }
         & { __typename: 'MeasureDataPoint' }
       )> }
       & { __typename: 'Measure' }
@@ -3653,7 +3674,7 @@ export type MeasureTemplateFragmentFragment = (
       { year?: number | null, value?: number | null }
       & { __typename: 'PlaceHolderDataPoint' }
     ) | null> | null, dataPoints: Array<(
-      { id: string, value?: number | null, year: number, defaultValue?: number | null }
+      { id: string, value?: number | null, year: number, defaultValue?: number | null, probableLowerBound?: number | null, probableUpperBound?: number | null }
       & { __typename: 'MeasureDataPoint' }
     )> }
     & { __typename: 'Measure' }
@@ -3698,7 +3719,7 @@ export type GetMeasuresQuery = (
 );
 
 export type DataPointFragmentFragment = (
-  { id: string, value?: number | null, year: number, defaultValue?: number | null }
+  { id: string, value?: number | null, year: number, defaultValue?: number | null, probableLowerBound?: number | null, probableUpperBound?: number | null }
   & { __typename: 'MeasureDataPoint' }
 );
 
@@ -3714,7 +3735,7 @@ export type UpdateMeasureDataPointMutationVariables = Exact<{
 export type UpdateMeasureDataPointMutation = (
   { updateMeasureDataPoint?: (
     { measureDataPoint?: (
-      { id: string, value?: number | null, year: number, defaultValue?: number | null }
+      { id: string, value?: number | null, year: number, defaultValue?: number | null, probableLowerBound?: number | null, probableUpperBound?: number | null }
       & { __typename: 'MeasureDataPoint' }
     ) | null }
     & { __typename?: 'UpdateMeasureDataPoint' }

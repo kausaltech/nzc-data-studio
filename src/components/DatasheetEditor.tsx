@@ -25,6 +25,7 @@ import type {
   GridRenderCellParams,
   GridRenderEditCellParams,
   GridRowClassNameParams,
+  GridRowId,
   GridSlotsComponentsProps,
 } from '@mui/x-data-grid';
 import { DataGrid, GridCellModes, useGridApiContext } from '@mui/x-data-grid';
@@ -46,7 +47,7 @@ import type { Section } from '@/utils/measures';
 import {
   getDecimalPrecisionByUnit,
   getMeasureFallback,
-  getMeasureSuggestedBounds,
+  getMeasureProbableBounds,
   getMeasureValue,
   getUnitName,
   isYearMeasure,
@@ -207,39 +208,39 @@ export function formatNumericValue(
   });
 }
 
-function isOutOfSuggestedBounds(
+function isOutOfProbableBounds(
   value: number | null | undefined,
-  suggestedMinValue: number | null | undefined,
-  suggestedMaxValue: number | null | undefined
+  probableLowerBound: number | null | undefined,
+  probableUpperBound: number | null | undefined
 ): boolean {
   if (typeof value !== 'number') {
     return false;
   }
 
-  if (typeof suggestedMinValue === 'number' && value < suggestedMinValue) {
+  if (typeof probableLowerBound === 'number' && value < probableLowerBound) {
     return true;
   }
 
-  if (typeof suggestedMaxValue === 'number' && value > suggestedMaxValue) {
+  if (typeof probableUpperBound === 'number' && value > probableUpperBound) {
     return true;
   }
 
   return false;
 }
 
-function getSuggestedBoundsTooltip(
-  suggestedMinValue: number | null | undefined,
-  suggestedMaxValue: number | null | undefined,
+function getProbableBoundsTooltip(
+  probableLowerBound: number | null | undefined,
+  probableUpperBound: number | null | undefined,
   unit?: Partial<UnitType>
 ): string {
   const formattedUnit = unit?.long ?? '';
   const precision = unit ? getDecimalPrecisionByUnit(unit) : undefined;
 
-  const formattedMin = suggestedMinValue
-    ? suggestedMinValue.toLocaleString(undefined, { maximumFractionDigits: precision })
+  const formattedMin = probableLowerBound
+    ? probableLowerBound.toLocaleString(undefined, { maximumFractionDigits: precision })
     : null;
-  const formattedMax = suggestedMaxValue
-    ? suggestedMaxValue.toLocaleString(undefined, { maximumFractionDigits: precision })
+  const formattedMax = probableUpperBound
+    ? probableUpperBound.toLocaleString(undefined, { maximumFractionDigits: precision })
     : null;
 
   const suffix = 'Please check the value is correct and matches the specified unit.';
@@ -252,7 +253,7 @@ function getSuggestedBoundsTooltip(
     return `Value is below the expected minimum of ${formattedMin} ${formattedUnit}. ${suffix}`;
   }
 
-  if (typeof suggestedMaxValue === 'number') {
+  if (typeof probableUpperBound === 'number') {
     return `Value is above the expected maximum of ${formattedMax} ${formattedUnit}. ${suffix}`;
   }
 
@@ -289,14 +290,14 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
 
   const canEdit = permissions.edit && !permissions.isLocked;
 
-  const suggestedMinValue = row.type === 'MEASURE' ? row.suggestedMinValue : null;
-  const suggestedMaxValue = row.type === 'MEASURE' ? row.suggestedMaxValue : null;
+  const probableLowerBound = row.type === 'MEASURE' ? row.probableLowerBound : null;
+  const probableUpperBound = row.type === 'MEASURE' ? row.probableUpperBound : null;
   const showWarning =
     colDef.type === 'number' &&
-    isOutOfSuggestedBounds(
+    isOutOfProbableBounds(
       typeof value === 'number' ? value : null,
-      suggestedMinValue,
-      suggestedMaxValue
+      probableLowerBound,
+      probableUpperBound
     );
 
   const warningAdornment = showWarning ? (
@@ -304,9 +305,9 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
       <Tooltip
         arrow
         placement="top"
-        title={getSuggestedBoundsTooltip(
-          suggestedMinValue,
-          suggestedMaxValue,
+        title={getProbableBoundsTooltip(
+          probableLowerBound,
+          probableUpperBound,
           row.type === 'MEASURE' ? row.unit : undefined
         )}
       >
@@ -676,6 +677,43 @@ export function renderLabelCell(
   );
 }
 
+function NotesViewCell({
+  id,
+  field,
+  value,
+  isEditable,
+}: {
+  id: GridRowId;
+  field: string;
+  value: string;
+  isEditable: boolean | undefined;
+}) {
+  const apiRef = useGridApiContext();
+
+  function handleFocus() {
+    if (isEditable) {
+      apiRef.current.startCellEditMode({ id, field });
+    }
+  }
+
+  return (
+    <Typography
+      tabIndex={0}
+      onFocus={handleFocus}
+      variant="body2"
+      sx={{
+        m: 1,
+        fontSize: '0.9em',
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+        color: 'text.secondary',
+      }}
+    >
+      {value}
+    </Typography>
+  );
+}
+
 const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
   {
     display: 'flex',
@@ -794,6 +832,35 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
     type: 'string',
     flex: 4,
     ...EDITABLE_COL,
+    /**
+     * In view mode, render static text instead of a multiline TextField.
+     * A multiline TextField uses TextareaAutosize (ResizeObserver) which creates
+     * a feedback loop with DataGrid's auto row height when long non-breaking text
+     * causes horizontal overflow, making the row shake it like a polaroid picture.
+     *
+     * This also allows the notes to be smaller and more subtle while not editing.
+     */
+    renderCell: ({ row, value, ...rest }: GridRenderCellParams<DatasheetEditorRow>) => {
+      if (row.type === 'SUM_PERCENT') {
+        return null;
+      }
+
+      if (!value) {
+        return (
+          <CustomEditComponent
+            key={`${rest.field}-${row.id}`}
+            row={row}
+            value={value}
+            {...rest}
+            sx={{ mx: 0, my: 1 }}
+          />
+        );
+      }
+
+      return (
+        <NotesViewCell id={rest.id} field={rest.field} value={value as string} isEditable={rest.isEditable} />
+      );
+    },
   },
 ];
 
@@ -807,8 +874,8 @@ export type BaseMeasureRow = {
   depth: number;
   helpText: string | null;
   originalMeasureTemplate: MeasureTemplateFragmentFragment;
-  suggestedMinValue: number | null;
-  suggestedMaxValue: number | null;
+  probableLowerBound: number | null;
+  probableUpperBound: number | null;
 };
 
 export type MeasureRow = BaseMeasureRow & {
@@ -925,7 +992,7 @@ function getRowsFromSection(
   return [
     ...(isRoot ? [] : [sectionRow]),
     ...measureTemplates.map((measure): MeasureRow => {
-      const { suggestedMinValue, suggestedMaxValue } = getMeasureSuggestedBounds(
+      const { probableLowerBound, probableUpperBound } = getMeasureProbableBounds(
         measure,
         baselineYear
       );
@@ -944,8 +1011,8 @@ function getRowsFromSection(
         notes: measure.measure?.internalNotes ?? null,
         depth: depth + 1,
         originalMeasureTemplate: measure,
-        suggestedMinValue,
-        suggestedMaxValue,
+        probableLowerBound,
+        probableUpperBound,
       };
     }),
     ...(sectionRow.sumMeasureValues

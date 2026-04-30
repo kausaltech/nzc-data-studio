@@ -129,14 +129,14 @@ export function getMeasureValue(
   return null;
 }
 
-export function getMeasureSuggestedBounds(
+export function getMeasureProbableBounds(
   measureTemplate: MeasureTemplateFragmentFragment,
   baselineYear: number | null
-): { suggestedMinValue: number | null; suggestedMaxValue: number | null } {
+): { probableLowerBound: number | null; probableUpperBound: number | null } {
   const dataPoints = measureTemplate.measure?.dataPoints;
 
   if (!dataPoints?.length) {
-    return { suggestedMinValue: null, suggestedMaxValue: null };
+    return { probableLowerBound: null, probableUpperBound: null };
   }
 
   const dataPoint =
@@ -145,8 +145,8 @@ export function getMeasureSuggestedBounds(
       : dataPoints[0];
 
   return {
-    suggestedMinValue: 200, // dataPoint?.minValue ?? null, // TODO: Update when backend ready
-    suggestedMaxValue: 1000, // dataPoint?.maxValue ?? null,// TODO: Update when backend ready
+    probableLowerBound: dataPoint?.probableLowerBound ?? null,
+    probableUpperBound: dataPoint?.probableUpperBound ?? null,
   };
 }
 

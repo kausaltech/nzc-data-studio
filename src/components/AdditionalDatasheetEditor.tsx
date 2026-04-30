@@ -47,12 +47,12 @@ import { HelpText } from './HelpText';
 import { useSnackbar } from './SnackbarProvider';
 import { usePlans, useSuspenseSelectedPlanConfig } from './providers/SelectedPlanProvider';
 
-type SuggestedBounds = { minValue: number | null; maxValue: number | null };
+type ProbableBounds = { probableLowerBound: number | null; probableUpperBound: number | null };
 
 type AdditionalDatasheetMeasureRow = BaseMeasureRow & {
   baselineValue: number | null;
   placeholderDataPoints: Record<number, null | number>;
-  suggestedBoundsByYear: Record<number, SuggestedBounds>;
+  probableBoundsByYear: Record<number, ProbableBounds>;
   [year: number]: null | number;
 };
 
@@ -166,15 +166,15 @@ function getRowsFromSection(
         unit: measure.unit,
         depth: depth + 1,
         originalMeasureTemplate: measure,
-        suggestedMinValue: null,
-        suggestedMaxValue: null,
-        suggestedBoundsByYear:
-          measure.measure?.dataPoints.reduce<Record<number, SuggestedBounds>>(
-            (acc, dp) => ({
+        probableLowerBound: null,
+        probableUpperBound: null,
+        probableBoundsByYear:
+          measure.measure?.dataPoints.reduce<Record<number, ProbableBounds>>(
+            (acc, dataPoint) => ({
               ...acc,
-              [dp.year]: {
-                minValue: 200, // || dp.minValue ?? null, TODO: Update when backend ready
-                maxValue: 2000, // ||dp.maxValue ?? null TODO: Update when backend ready
+              [dataPoint.year]: {
+                probableLowerBound: dataPoint.probableLowerBound ?? null,
+                probableUpperBound: dataPoint.probableUpperBound ?? null,
               },
             }),
             {}
@@ -491,11 +491,11 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
                 );
               }
 
-              const bounds = row.suggestedBoundsByYear[year];
+              const bounds = row.probableBoundsByYear[year];
               const rowWithBounds = {
                 ...row,
-                suggestedMinValue: bounds?.minValue ?? null,
-                suggestedMaxValue: bounds?.maxValue ?? null,
+                probableLowerBound: bounds?.probableLowerBound ?? null,
+                probableUpperBound: bounds?.probableUpperBound ?? null,
               };
               return (
                 <CustomEditComponent<AdditionalDatasheetMeasureRow>
@@ -511,11 +511,11 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
                 return null;
               }
 
-              const bounds = row.suggestedBoundsByYear[year];
+              const bounds = row.probableBoundsByYear[year];
               const rowWithBounds = {
                 ...row,
-                suggestedMinValue: bounds?.minValue ?? null,
-                suggestedMaxValue: bounds?.maxValue ?? null,
+                probableLowerBound: bounds?.probableLowerBound ?? null,
+                probableUpperBound: bounds?.probableUpperBound ?? null,
               };
               return (
                 <CustomEditComponent<AdditionalDatasheetMeasureRow>
