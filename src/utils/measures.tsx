@@ -108,25 +108,21 @@ export function getMeasureValue(
   measureTemplate: MeasureTemplateFragmentFragment,
   baselineYear: number | null
 ) {
-  const firstDataPoint = measureTemplate.measure?.dataPoints[0];
+  const dataPoints = measureTemplate.measure?.dataPoints;
 
-  if (firstDataPoint?.value == null) {
+  if (!dataPoints?.length) {
     return null;
   }
 
-  if (baselineYear === null) {
-    return firstDataPoint.value;
+  if (baselineYear !== null) {
+    const baselineDataPoint = dataPoints.find((dataPoint) => dataPoint.year === baselineYear);
+
+    if (baselineDataPoint) {
+      return baselineDataPoint.value ?? null;
+    }
   }
 
-  if (measureTemplate.measure?.dataPoints.length) {
-    const measure = measureTemplate.measure.dataPoints.find(
-      (dataPoint) => dataPoint.year === baselineYear
-    );
-
-    return measure?.value ?? firstDataPoint.value;
-  }
-
-  return null;
+  return dataPoints[0]?.value ?? null;
 }
 
 export function getMeasureProbableBounds(
@@ -154,25 +150,21 @@ export function getMeasureFallback(
   measureTemplate: MeasureTemplateFragmentFragment,
   baselineYear: number | null
 ) {
-  const firstDataPoint = measureTemplate.measure?.dataPoints[0];
+  const dataPoints = measureTemplate.measure?.dataPoints;
 
-  if (!firstDataPoint?.defaultValue) {
+  if (!dataPoints?.length) {
     return null;
   }
 
-  if (baselineYear === null) {
-    return firstDataPoint.defaultValue;
+  if (baselineYear !== null) {
+    const baselineDataPoint = dataPoints.find((dataPoint) => dataPoint.year === baselineYear);
+
+    if (baselineDataPoint) {
+      return baselineDataPoint.defaultValue ?? null;
+    }
   }
 
-  if (measureTemplate.measure?.dataPoints.length) {
-    const measure = measureTemplate.measure.dataPoints.find(
-      (dataPoint) => dataPoint.year === baselineYear
-    );
-
-    return measure?.defaultValue ?? firstDataPoint.defaultValue ?? undefined;
-  }
-
-  return null;
+  return dataPoints[0]?.defaultValue ?? null;
 }
 
 export type MeasureForDownloadV1 = {
