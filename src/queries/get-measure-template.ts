@@ -16,6 +16,8 @@ export const GET_MEASURE_TEMPLATE = gql`
             value
             year
             defaultValue
+            probableLowerBound
+            probableUpperBound
           }
         }
       }

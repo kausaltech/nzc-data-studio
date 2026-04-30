@@ -6,6 +6,7 @@ import type {
   MainSectionMeasuresFragment,
   MeasureFragmentFragment,
   MeasureTemplateFragmentFragment,
+  UnitType,
 } from '@/types/__generated__/graphql';
 
 import { createFilterByTypename } from './filter';
@@ -128,6 +129,27 @@ export function getMeasureValue(
   return null;
 }
 
+export function getMeasureProbableBounds(
+  measureTemplate: MeasureTemplateFragmentFragment,
+  baselineYear: number | null
+): { probableLowerBound: number | null; probableUpperBound: number | null } {
+  const dataPoints = measureTemplate.measure?.dataPoints;
+
+  if (!dataPoints?.length) {
+    return { probableLowerBound: null, probableUpperBound: null };
+  }
+
+  const dataPoint =
+    baselineYear != null
+      ? (dataPoints.find((dp) => dp.year === baselineYear) ?? dataPoints[0])
+      : dataPoints[0];
+
+  return {
+    probableLowerBound: dataPoint?.probableLowerBound ?? null,
+    probableUpperBound: dataPoint?.probableUpperBound ?? null,
+  };
+}
+
 export function getMeasureFallback(
   measureTemplate: MeasureTemplateFragmentFragment,
   baselineYear: number | null
@@ -183,8 +205,10 @@ export type ExportedDataV2 = {
  * the appropriate decimal precision for various units. If the unit is not found
  * in the mapping, it returns undefined.
  */
-export function getDecimalPrecisionByUnit(unit: string): number | undefined {
-  return DECIMAL_PRECISION_BY_UNIT[unit as keyof typeof DECIMAL_PRECISION_BY_UNIT] ?? undefined;
+export function getDecimalPrecisionByUnit(unit: Partial<UnitType>): number | undefined {
+  return (
+    DECIMAL_PRECISION_BY_UNIT[unit.standard as keyof typeof DECIMAL_PRECISION_BY_UNIT] ?? undefined
+  );
 }
 
 export function getUnitName(unit: string): ReactNode {

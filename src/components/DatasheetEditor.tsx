@@ -8,6 +8,7 @@ import {
   Box,
   Fade,
   Grid,
+  InputAdornment,
   Accordion as MuiAccordion,
   AccordionDetails as MuiAccordionDetails,
   AccordionSummary as MuiAccordionSummary,
@@ -24,6 +25,7 @@ import type {
   GridRenderCellParams,
   GridRenderEditCellParams,
   GridRowClassNameParams,
+  GridRowId,
   GridSlotsComponentsProps,
 } from '@mui/x-data-grid';
 import { DataGrid, GridCellModes, useGridApiContext } from '@mui/x-data-grid';
@@ -37,6 +39,7 @@ import { useDataCollectionStore } from '@/store/data-collection';
 import type {
   FrameworksMeasureTemplatePriorityChoices,
   MeasureTemplateFragmentFragment,
+  UnitType,
   UpdateMeasureDataPointMutation,
   UpdateMeasureDataPointMutationVariables,
 } from '@/types/__generated__/graphql';
@@ -44,6 +47,7 @@ import type { Section } from '@/utils/measures';
 import {
   getDecimalPrecisionByUnit,
   getMeasureFallback,
+  getMeasureProbableBounds,
   getMeasureValue,
   getUnitName,
   isYearMeasure,
@@ -193,7 +197,7 @@ export function formatNumericValue(
     return '-';
   }
 
-  const precision = getDecimalPrecisionByUnit(row.unit.standard);
+  const precision = getDecimalPrecisionByUnit(row.unit);
 
   if (isYearMeasure(row.label, row.unit.short)) {
     return Math.round(value).toString();
@@ -202,6 +206,58 @@ export function formatNumericValue(
   return value.toLocaleString(undefined, {
     maximumFractionDigits: precision,
   });
+}
+
+function isOutOfProbableBounds(
+  value: number | null | undefined,
+  probableLowerBound: number | null | undefined,
+  probableUpperBound: number | null | undefined
+): boolean {
+  if (typeof value !== 'number') {
+    return false;
+  }
+
+  if (typeof probableLowerBound === 'number' && value < probableLowerBound) {
+    return true;
+  }
+
+  if (typeof probableUpperBound === 'number' && value > probableUpperBound) {
+    return true;
+  }
+
+  return false;
+}
+
+function getProbableBoundsTooltip(
+  probableLowerBound: number | null | undefined,
+  probableUpperBound: number | null | undefined,
+  unit?: Partial<UnitType>
+): string {
+  const formattedUnit = unit?.long ?? '';
+  const precision = unit ? getDecimalPrecisionByUnit(unit) : undefined;
+
+  const formattedMin = probableLowerBound
+    ? probableLowerBound.toLocaleString(undefined, { maximumFractionDigits: precision })
+    : null;
+  const formattedMax = probableUpperBound
+    ? probableUpperBound.toLocaleString(undefined, { maximumFractionDigits: precision })
+    : null;
+
+  const suffix = 'Please check the value is correct and matches the specified unit.';
+
+  if (formattedMin && formattedMax) {
+    return `Value is outside the expected range. Expected: ${formattedMin}-${formattedMax} ${formattedUnit}. ${suffix}`;
+  }
+
+  if (formattedMin) {
+    return `Value is below the expected minimum of ${formattedMin} ${formattedUnit}. ${suffix}`;
+  }
+
+  if (typeof probableUpperBound === 'number') {
+    return `Value is above the expected maximum of ${formattedMax} ${formattedUnit}. ${suffix}`;
+  }
+
+  return '';
 }
 
 type CustomEditComponentProps<TMeasureRow extends BaseMeasureRow = MeasureRow> =
@@ -233,6 +289,37 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
   const [key, setKey] = useState(0);
 
   const canEdit = permissions.edit && !permissions.isLocked;
+
+  const probableLowerBound = row.type === 'MEASURE' ? row.probableLowerBound : null;
+  const probableUpperBound = row.type === 'MEASURE' ? row.probableUpperBound : null;
+  const showWarning =
+    colDef.type === 'number' &&
+    isOutOfProbableBounds(
+      typeof value === 'number' ? value : null,
+      probableLowerBound,
+      probableUpperBound
+    );
+
+  const warningAdornment = showWarning ? (
+    <InputAdornment position="end">
+      <Tooltip
+        arrow
+        placement="top"
+        title={getProbableBoundsTooltip(
+          probableLowerBound,
+          probableUpperBound,
+          row.type === 'MEASURE' ? row.unit : undefined
+        )}
+      >
+        <Box
+          component="span"
+          sx={{ display: 'flex', color: 'warning.main', cursor: 'default', pointerEvents: 'auto' }}
+        >
+          <ExclamationTriangle size={14} />
+        </Box>
+      </Tooltip>
+    </InputAdornment>
+  ) : null;
 
   useLayoutEffect(() => {
     if (hasFocus && canEdit && ref.current) {
@@ -293,16 +380,15 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
         fullWidth
         placeholder={placeholder || undefined}
         onKeyDown={handleEscape}
-        onValueChange={
-          canEdit ? (value) => void handleNumberValueChange(value) : undefined
-        }
+        onValueChange={canEdit ? (value) => void handleNumberValueChange(value) : undefined}
         defaultValue={typeof initialValue.current === 'number' ? initialValue.current : ''}
         disabled={!canEdit}
         inputProps={{
           'aria-label': `${row.label} ${field}`,
-          decimalScale: getDecimalPrecisionByUnit(row.unit.standard),
+          decimalScale: getDecimalPrecisionByUnit(row.unit),
           ...(isYearMeasure(row.label, row.unit.long) ? yearInputProps : {}),
         }}
+        InputProps={warningAdornment ? { endAdornment: warningAdornment } : undefined}
       />
     ) : (
       <TextField
@@ -591,12 +677,49 @@ export function renderLabelCell(
   );
 }
 
+function NotesViewCell({
+  id,
+  field,
+  value,
+  isEditable,
+}: {
+  id: GridRowId;
+  field: string;
+  value: string;
+  isEditable: boolean | undefined;
+}) {
+  const apiRef = useGridApiContext();
+
+  function handleFocus() {
+    if (isEditable) {
+      apiRef.current.startCellEditMode({ id, field });
+    }
+  }
+
+  return (
+    <Typography
+      tabIndex={0}
+      onFocus={handleFocus}
+      variant="body2"
+      sx={{
+        m: 1,
+        fontSize: '0.9em',
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+        color: 'text.secondary',
+      }}
+    >
+      {value}
+    </Typography>
+  );
+}
+
 const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
   {
     display: 'flex',
     headerName: 'Label',
     field: 'label',
-    flex: 2,
+    flex: 4,
     renderCell: (params: GridRenderCellParams<DatasheetEditorRow>) =>
       renderLabelCell(
         params.row.type,
@@ -620,14 +743,14 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
     type: 'number',
     headerAlign: 'left',
     align: 'left',
-    flex: 1,
+    flex: 3,
     ...EDITABLE_COL,
   },
   {
     display: 'flex',
     headerName: 'Unit',
     field: 'unit',
-    flex: 1,
+    flex: 2,
     valueFormatter: (value: UnitFragment, row: MeasureRow | SumPercentRow) =>
       row.type === 'MEASURE' ? value.long : undefined,
     renderCell: (params: GridRenderCellParams<DatasheetEditorRow>) => {
@@ -652,7 +775,7 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
     description:
       'Comparable City Values are developed based on the 3 questions you answered when you created your plan. 1) Population, 2) Climate 3) % Zero Carbon Electricity. The system averages the data for European cities that have similar Climate and % Zero Carbon Electricity and then adjusts for the exact population of your city. Comparable City Values can be used to validate your own data inputs. If you have no information for a given cell, you can leave that cell blank, and the system will default to the Comparable City Value.',
     field: 'fallback',
-    flex: 1,
+    flex: 2,
     renderCell: (params: GridRenderCellParams<DatasheetEditorRow>) => {
       if (params.row.type === 'SUM_PERCENT') {
         return (
@@ -675,7 +798,7 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
         return undefined;
       }
 
-      const precision = getDecimalPrecisionByUnit(row.unit.standard);
+      const precision = getDecimalPrecisionByUnit(row.unit);
 
       if (isYearMeasure(row.label, row.unit.long)) {
         return Math.round(value);
@@ -690,7 +813,7 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
     display: 'flex',
     headerName: 'Priority',
     field: 'priority',
-    flex: 1,
+    flex: 2,
     minWidth: 90,
     renderHeader: ({ colDef }) => (
       <HeaderWithHelpText headerName={colDef.headerName!} helpText={colDef.description!} />
@@ -707,8 +830,37 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
     headerName: 'Internal Notes',
     field: 'notes',
     type: 'string',
-    flex: 2,
+    flex: 4,
     ...EDITABLE_COL,
+    /**
+     * In view mode, render static text instead of a multiline TextField.
+     * A multiline TextField uses TextareaAutosize (ResizeObserver) which creates
+     * a feedback loop with DataGrid's auto row height when long non-breaking text
+     * causes horizontal overflow, making the row shake it like a polaroid picture.
+     *
+     * This also allows the notes to be smaller and more subtle while not editing.
+     */
+    renderCell: ({ row, value, ...rest }: GridRenderCellParams<DatasheetEditorRow>) => {
+      if (row.type === 'SUM_PERCENT') {
+        return null;
+      }
+
+      if (!value) {
+        return (
+          <CustomEditComponent
+            key={`${rest.field}-${row.id}`}
+            row={row}
+            value={value}
+            {...rest}
+            sx={{ mx: 0, my: 1 }}
+          />
+        );
+      }
+
+      return (
+        <NotesViewCell id={rest.id} field={rest.field} value={value as string} isEditable={rest.isEditable} />
+      );
+    },
   },
 ];
 
@@ -722,6 +874,8 @@ export type BaseMeasureRow = {
   depth: number;
   helpText: string | null;
   originalMeasureTemplate: MeasureTemplateFragmentFragment;
+  probableLowerBound: number | null;
+  probableUpperBound: number | null;
 };
 
 export type MeasureRow = BaseMeasureRow & {
@@ -837,8 +991,13 @@ function getRowsFromSection(
 
   return [
     ...(isRoot ? [] : [sectionRow]),
-    ...measureTemplates.flatMap(
-      (measure): MeasureRow => ({
+    ...measureTemplates.map((measure): MeasureRow => {
+      const { probableLowerBound, probableUpperBound } = getMeasureProbableBounds(
+        measure,
+        baselineYear
+      );
+
+      return {
         isTitle: false,
         type: 'MEASURE',
         id: measure.uuid,
@@ -852,8 +1011,10 @@ function getRowsFromSection(
         notes: measure.measure?.internalNotes ?? null,
         depth: depth + 1,
         originalMeasureTemplate: measure,
-      })
-    ),
+        probableLowerBound,
+        probableUpperBound,
+      };
+    }),
     ...(sectionRow.sumMeasureValues
       ? [
           getSumPercentRow(

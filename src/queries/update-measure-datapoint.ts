@@ -9,6 +9,8 @@ export const measureDataPointFragment = gql`
     value
     year
     defaultValue
+    probableLowerBound
+    probableUpperBound
   }
 `;
 

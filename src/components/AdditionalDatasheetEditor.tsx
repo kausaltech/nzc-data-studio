@@ -47,9 +47,12 @@ import { HelpText } from './HelpText';
 import { useSnackbar } from './SnackbarProvider';
 import { usePlans, useSuspenseSelectedPlanConfig } from './providers/SelectedPlanProvider';
 
+type ProbableBounds = { probableLowerBound: number | null; probableUpperBound: number | null };
+
 type AdditionalDatasheetMeasureRow = BaseMeasureRow & {
   baselineValue: number | null;
   placeholderDataPoints: Record<number, null | number>;
+  probableBoundsByYear: Record<number, ProbableBounds>;
   [year: number]: null | number;
 };
 
@@ -163,6 +166,19 @@ function getRowsFromSection(
         unit: measure.unit,
         depth: depth + 1,
         originalMeasureTemplate: measure,
+        probableLowerBound: null,
+        probableUpperBound: null,
+        probableBoundsByYear:
+          measure.measure?.dataPoints.reduce<Record<number, ProbableBounds>>(
+            (acc, dataPoint) => ({
+              ...acc,
+              [dataPoint.year]: {
+                probableLowerBound: dataPoint.probableLowerBound ?? null,
+                probableUpperBound: dataPoint.probableUpperBound ?? null,
+              },
+            }),
+            {}
+          ) ?? {},
         placeholderDataPoints:
           measure.measure?.placeholderDataPoints?.reduce(
             reduceDataPoints,
@@ -475,10 +491,16 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
                 );
               }
 
+              const bounds = row.probableBoundsByYear[year];
+              const rowWithBounds = {
+                ...row,
+                probableLowerBound: bounds?.probableLowerBound ?? null,
+                probableUpperBound: bounds?.probableUpperBound ?? null,
+              };
               return (
                 <CustomEditComponent<AdditionalDatasheetMeasureRow>
                   {...rest}
-                  row={row}
+                  row={rowWithBounds}
                   sx={{ mx: 0, my: 1 }}
                   placeholder={getPlaceholder(params.row, year)}
                 />
@@ -489,10 +511,16 @@ function DatasheetSection({ section, baselineYear }: DatasheetSectionProps) {
                 return null;
               }
 
+              const bounds = row.probableBoundsByYear[year];
+              const rowWithBounds = {
+                ...row,
+                probableLowerBound: bounds?.probableLowerBound ?? null,
+                probableUpperBound: bounds?.probableUpperBound ?? null,
+              };
               return (
                 <CustomEditComponent<AdditionalDatasheetMeasureRow>
                   {...rest}
-                  row={row}
+                  row={rowWithBounds}
                   placeholder={getPlaceholder(row, year)}
                 />
               );
