@@ -311,12 +311,19 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
           row.type === 'MEASURE' ? row.unit : undefined
         )}
       >
-        <Box
-          component="span"
-          sx={{ display: 'flex', color: 'warning.main', cursor: 'default', pointerEvents: 'auto' }}
-        >
-          <ExclamationTriangle size={14} />
-        </Box>
+        <Fade in>
+          <Box
+            component="span"
+            sx={{
+              display: 'flex',
+              color: 'warning.main',
+              cursor: 'default',
+              pointerEvents: 'auto',
+            }}
+          >
+            <ExclamationTriangle size={14} />
+          </Box>
+        </Fade>
       </Tooltip>
     </InputAdornment>
   ) : null;
@@ -858,7 +865,12 @@ const GRID_COL_DEFS: GridColDef<DatasheetEditorRow>[] = [
       }
 
       return (
-        <NotesViewCell id={rest.id} field={rest.field} value={value as string} isEditable={rest.isEditable} />
+        <NotesViewCell
+          id={rest.id}
+          field={rest.field}
+          value={value as string}
+          isEditable={rest.isEditable}
+        />
       );
     },
   },
