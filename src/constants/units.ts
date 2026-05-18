@@ -6,6 +6,7 @@ export const DECIMAL_PRECISION_BY_UNIT = {
   'Mpkm/a': 0,
   'p/v': 1,
   'g/vkm': 2,
+  'gram/vehicle-km': 2,
   v: 0, // vehicle
   '%': 1,
   'Mkm·t/a': 0,
