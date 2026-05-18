@@ -1,15 +1,16 @@
+import type { ReactNode } from 'react';
+
 import '@testing-library/jest-dom';
+import { renderHook } from '@testing-library/react';
+
+import { usePlans } from '@/components/providers/SelectedPlanProvider';
+import { UserProfileContext, usePermissions } from '@/hooks/use-user-profile';
+import type { ProfileQuery } from '@/types/__generated__/graphql';
 
 // These packages use ESM-only builds that Jest (CJS mode) cannot parse.
 // Mock the whole module to keep the import chain CJS-compatible.
 jest.mock('next-auth/react', () => ({ useSession: jest.fn(() => ({ status: 'authenticated' })) }));
 jest.mock('@/components/providers/SelectedPlanProvider', () => ({ usePlans: jest.fn() }));
-
-import type { ReactNode } from 'react';
-import { renderHook } from '@testing-library/react';
-import type { ProfileQuery } from '@/types/__generated__/graphql';
-import { UserProfileContext, usePermissions } from '@/hooks/use-user-profile';
-import { usePlans } from '@/components/providers/SelectedPlanProvider';
 
 const mockUsePlans = usePlans as jest.MockedFunction<typeof usePlans>;
 
@@ -30,12 +31,14 @@ function makePlan(overrides: Partial<SelectedPlan> = {}): SelectedPlan {
   };
 }
 
-function makeProfile(overrides: {
-  change?: boolean;
-  creatableRelatedModels?: string[];
-  userRoles?: string[];
-  configs?: Array<{ id: string; change?: boolean; delete?: boolean }>;
-} = {}): ProfileQuery {
+function makeProfile(
+  overrides: {
+    change?: boolean;
+    creatableRelatedModels?: string[];
+    userRoles?: string[];
+    configs?: Array<{ id: string; change?: boolean; delete?: boolean }>;
+  } = {}
+): ProfileQuery {
   return {
     __typename: 'Query',
     me: null,
@@ -86,20 +89,67 @@ describe('usePermissions', () => {
   });
 
   describe('edit permission', () => {
-    it('returns true when framework.userPermissions.change is true, even if plan is locked', () => {
+    it('returns true when the selected config userPermissions.change is true, even if plan is locked', () => {
       const plan = makePlan({ isLocked: true });
-      mockUsePlans.mockReturnValue({ selectedPlanId: 'plan-1', selectedPlan: plan, allPlans: [plan], setSelectedPlanId: jest.fn() });
+      mockUsePlans.mockReturnValue({
+        selectedPlanId: 'plan-1',
+        selectedPlan: plan,
+        allPlans: [plan],
+        setSelectedPlanId: jest.fn(),
+      });
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: makeWrapper(false, makeProfile({ change: true })),
+        wrapper: makeWrapper(false, makeProfile({ configs: [{ id: 'plan-1', change: true }] })),
       });
       expect(result.current.edit).toBe(true);
     });
 
-    it('returns false when framework.userPermissions.change is false', () => {
+    it('returns false when the selected config userPermissions.change is false', () => {
       const plan = makePlan();
-      mockUsePlans.mockReturnValue({ selectedPlanId: 'plan-1', selectedPlan: plan, allPlans: [plan], setSelectedPlanId: jest.fn() });
+
+      mockUsePlans.mockReturnValue({
+        selectedPlanId: 'plan-1',
+        selectedPlan: plan,
+        allPlans: [plan],
+        setSelectedPlanId: jest.fn(),
+      });
+
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: makeWrapper(false, makeProfile({ change: false })),
+        wrapper: makeWrapper(false, makeProfile({ configs: [{ id: 'plan-1', change: false }] })),
+      });
+
+      expect(result.current.edit).toBe(false);
+    });
+
+    it('returns false when framework-level change is true but selected config change is false', () => {
+      const plan = makePlan();
+
+      mockUsePlans.mockReturnValue({
+        selectedPlanId: 'plan-1',
+        selectedPlan: plan,
+        allPlans: [plan],
+        setSelectedPlanId: jest.fn(),
+      });
+
+      const { result } = renderHook(() => usePermissions(), {
+        wrapper: makeWrapper(
+          false,
+          makeProfile({ change: true, configs: [{ id: 'plan-1', change: false }] })
+        ),
+      });
+
+      expect(result.current.edit).toBe(false);
+    });
+
+    it('returns false when there is no matching config for the selected plan', () => {
+      const plan = makePlan();
+      mockUsePlans.mockReturnValue({
+        selectedPlanId: 'plan-1',
+        selectedPlan: plan,
+        allPlans: [plan],
+        setSelectedPlanId: jest.fn(),
+      });
+      const { result } = renderHook(() => usePermissions(), {
+        wrapper: makeWrapper(false, makeProfile({ configs: [{ id: 'other-plan', change: true }] })),
       });
       expect(result.current.edit).toBe(false);
     });
@@ -108,7 +158,12 @@ describe('usePermissions', () => {
   describe('isLocked', () => {
     it('returns true when the selected plan has isLocked:true', () => {
       const plan = makePlan({ isLocked: true });
-      mockUsePlans.mockReturnValue({ selectedPlanId: 'plan-1', selectedPlan: plan, allPlans: [plan], setSelectedPlanId: jest.fn() });
+      mockUsePlans.mockReturnValue({
+        selectedPlanId: 'plan-1',
+        selectedPlan: plan,
+        allPlans: [plan],
+        setSelectedPlanId: jest.fn(),
+      });
       const { result } = renderHook(() => usePermissions(), {
         wrapper: makeWrapper(false, makeProfile()),
       });
@@ -117,7 +172,12 @@ describe('usePermissions', () => {
 
     it('returns false when the selected plan has isLocked:false', () => {
       const plan = makePlan({ isLocked: false });
-      mockUsePlans.mockReturnValue({ selectedPlanId: 'plan-1', selectedPlan: plan, allPlans: [plan], setSelectedPlanId: jest.fn() });
+      mockUsePlans.mockReturnValue({
+        selectedPlanId: 'plan-1',
+        selectedPlan: plan,
+        allPlans: [plan],
+        setSelectedPlanId: jest.fn(),
+      });
       const { result } = renderHook(() => usePermissions(), {
         wrapper: makeWrapper(false, makeProfile()),
       });
@@ -135,7 +195,12 @@ describe('usePermissions', () => {
   describe('isAdmin', () => {
     it('returns true for a framework-admin user', () => {
       const plan = makePlan();
-      mockUsePlans.mockReturnValue({ selectedPlanId: 'plan-1', selectedPlan: plan, allPlans: [plan], setSelectedPlanId: jest.fn() });
+      mockUsePlans.mockReturnValue({
+        selectedPlanId: 'plan-1',
+        selectedPlan: plan,
+        allPlans: [plan],
+        setSelectedPlanId: jest.fn(),
+      });
       const { result } = renderHook(() => usePermissions(), {
         wrapper: makeWrapper(false, makeProfile({ userRoles: ['framework-admin'] })),
       });
@@ -144,7 +209,12 @@ describe('usePermissions', () => {
 
     it('returns true for a user with config-level delete permission (instance-admin)', () => {
       const plan = makePlan();
-      mockUsePlans.mockReturnValue({ selectedPlanId: 'plan-1', selectedPlan: plan, allPlans: [plan], setSelectedPlanId: jest.fn() });
+      mockUsePlans.mockReturnValue({
+        selectedPlanId: 'plan-1',
+        selectedPlan: plan,
+        allPlans: [plan],
+        setSelectedPlanId: jest.fn(),
+      });
       const { result } = renderHook(() => usePermissions(), {
         wrapper: makeWrapper(false, makeProfile({ configs: [{ id: 'plan-1', delete: true }] })),
       });
@@ -153,7 +223,12 @@ describe('usePermissions', () => {
 
     it('returns false when neither framework-admin nor config delete permission', () => {
       const plan = makePlan();
-      mockUsePlans.mockReturnValue({ selectedPlanId: 'plan-1', selectedPlan: plan, allPlans: [plan], setSelectedPlanId: jest.fn() });
+      mockUsePlans.mockReturnValue({
+        selectedPlanId: 'plan-1',
+        selectedPlan: plan,
+        allPlans: [plan],
+        setSelectedPlanId: jest.fn(),
+      });
       const { result } = renderHook(() => usePermissions(), {
         wrapper: makeWrapper(false, makeProfile({ configs: [{ id: 'plan-1', delete: false }] })),
       });
