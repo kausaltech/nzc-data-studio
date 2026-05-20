@@ -104,7 +104,7 @@ export function usePermissions() {
     isAdmin: isFrameworkAdmin || canDelete,
     isLoading: loading,
     create: canCreate,
-    edit: profile?.framework?.userPermissions?.change ?? false,
+    edit: frameworkConfigPermissions?.change ?? false,
     delete: canDelete,
     isLocked,
   };
