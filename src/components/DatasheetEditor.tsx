@@ -212,23 +212,24 @@ function isOutOfProbableBounds(
   value: number | null | undefined,
   probableLowerBound: number | null | undefined,
   probableUpperBound: number | null | undefined
-): boolean {
+): false | 'below' | 'above' {
   if (typeof value !== 'number') {
     return false;
   }
 
   if (typeof probableLowerBound === 'number' && value < probableLowerBound) {
-    return true;
+    return 'below';
   }
 
   if (typeof probableUpperBound === 'number' && value > probableUpperBound) {
-    return true;
+    return 'above';
   }
 
   return false;
 }
 
 function getProbableBoundsTooltip(
+  violation: 'below' | 'above',
   probableLowerBound: number | null | undefined,
   probableUpperBound: number | null | undefined,
   unit?: Partial<UnitType>
@@ -236,28 +237,22 @@ function getProbableBoundsTooltip(
   const formattedUnit = unit?.long ?? '';
   const precision = unit ? getDecimalPrecisionByUnit(unit) : undefined;
 
-  const formattedMin = probableLowerBound
-    ? probableLowerBound.toLocaleString(undefined, { maximumFractionDigits: precision })
-    : null;
-  const formattedMax = probableUpperBound
-    ? probableUpperBound.toLocaleString(undefined, { maximumFractionDigits: precision })
-    : null;
+  const formattedMin =
+    typeof probableLowerBound === 'number'
+      ? probableLowerBound.toLocaleString(undefined, { maximumFractionDigits: precision })
+      : null;
+  const formattedMax =
+    typeof probableUpperBound === 'number'
+      ? probableUpperBound.toLocaleString(undefined, { maximumFractionDigits: precision })
+      : null;
 
   const suffix = 'Please check the value is correct and matches the specified unit.';
 
-  if (formattedMin && formattedMax) {
-    return `Value is outside the expected range. Expected: ${formattedMin}-${formattedMax} ${formattedUnit}. ${suffix}`;
-  }
-
-  if (formattedMin) {
+  if (violation === 'below') {
     return `Value is below the expected minimum of ${formattedMin} ${formattedUnit}. ${suffix}`;
   }
 
-  if (typeof probableUpperBound === 'number') {
-    return `Value is above the expected maximum of ${formattedMax} ${formattedUnit}. ${suffix}`;
-  }
-
-  return '';
+  return `Value is above the expected maximum of ${formattedMax} ${formattedUnit}. ${suffix}`;
 }
 
 type CustomEditComponentProps<TMeasureRow extends BaseMeasureRow = MeasureRow> =
@@ -292,20 +287,22 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
 
   const probableLowerBound = row.type === 'MEASURE' ? row.probableLowerBound : null;
   const probableUpperBound = row.type === 'MEASURE' ? row.probableUpperBound : null;
-  const showWarning =
-    colDef.type === 'number' &&
-    isOutOfProbableBounds(
-      typeof value === 'number' ? value : null,
-      probableLowerBound,
-      probableUpperBound
-    );
+  const boundsViolation =
+    colDef.type === 'number'
+      ? isOutOfProbableBounds(
+          typeof value === 'number' ? value : null,
+          probableLowerBound,
+          probableUpperBound
+        )
+      : false;
 
-  const warningAdornment = showWarning ? (
+  const warningAdornment = boundsViolation ? (
     <InputAdornment position="end">
       <Tooltip
         arrow
         placement="top"
         title={getProbableBoundsTooltip(
+          boundsViolation,
           probableLowerBound,
           probableUpperBound,
           row.type === 'MEASURE' ? row.unit : undefined
