@@ -228,6 +228,28 @@ function isOutOfProbableBounds(
   return false;
 }
 
+function getProbableOrStrictBound(
+  bound: 'lower' | 'upper',
+  probable?: number | null,
+  strict?: number | null
+) {
+  const minOrMax = bound === 'lower' ? Math.max : Math.min;
+
+  if (typeof probable === 'number' && typeof strict === 'number') {
+    return minOrMax(probable, strict);
+  }
+
+  if (typeof strict === 'number') {
+    return strict;
+  }
+
+  if (typeof probable === 'number') {
+    return probable;
+  }
+
+  return null;
+}
+
 function getProbableBoundsTooltip(
   violation: 'below' | 'above',
   probableLowerBound: number | null | undefined,
@@ -285,8 +307,23 @@ export default function CustomEditComponent<TMeasureRow extends BaseMeasureRow =
 
   const canEdit = permissions.edit && !permissions.isLocked;
 
-  const probableLowerBound = row.type === 'MEASURE' ? row.probableLowerBound : null;
-  const probableUpperBound = row.type === 'MEASURE' ? row.probableUpperBound : null;
+  const probableLowerBound =
+    row.type === 'MEASURE'
+      ? getProbableOrStrictBound(
+          'lower',
+          row.probableLowerBound,
+          row.originalMeasureTemplate.minValue
+        )
+      : null;
+  const probableUpperBound =
+    row.type === 'MEASURE'
+      ? getProbableOrStrictBound(
+          'upper',
+          row.probableUpperBound,
+          row.originalMeasureTemplate.maxValue
+        )
+      : null;
+
   const boundsViolation =
     colDef.type === 'number'
       ? isOutOfProbableBounds(
