@@ -102,7 +102,7 @@ function DataCollectionContent({ instance }: { instance: string }) {
           <Typography gutterBottom variant="h3" component="h2">
             Data collection center
           </Typography>
-          {!!data.framework && permissions.edit && !permissions.isLocked && (
+          {!!data.framework && permissions.edit && (
             <Stack direction="row" spacing={2}>
               <ImportExportActions measureTemplates={data.framework} />
             </Stack>

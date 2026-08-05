@@ -1,12 +1,15 @@
-import type { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
-import { Dialog, IconButton, Stack, Tab, Tabs, Tooltip } from '@mui/material';
-import type { SyntheticEvent} from 'react';
+import type { SyntheticEvent } from 'react';
 import { useState } from 'react';
+
+import { Dialog, IconButton, Stack, Tab, Tabs, Tooltip } from '@mui/material';
 import { Download, Upload } from 'react-bootstrap-icons';
+
+import { usePermissions } from '@/hooks/use-user-profile';
+import type { GetMeasureTemplatesQuery } from '@/types/__generated__/graphql';
+
+import { UploadLegacyDataButton } from '../UploadLegacyDataButton';
 import { ExportPlanDialogContent } from './ExportPlanDialogContent';
 import { ImportPlanDialogContent } from './ImportPlanDialogContent';
-import { UploadLegacyDataButton } from '../UploadLegacyDataButton';
-import { usePermissions } from '@/hooks/use-user-profile';
 
 type Props = {
   measureTemplates: NonNullable<GetMeasureTemplatesQuery['framework']>;
@@ -42,7 +45,7 @@ function tabA11yProps(tabId: string) {
 export function ImportExportActions({ measureTemplates }: Props) {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'export' | 'import'>('export');
-  const { isFrameworkAdmin } = usePermissions();
+  const { isFrameworkAdmin, isLocked } = usePermissions();
 
   function handleClose() {
     setModalOpen(false);
@@ -70,12 +73,12 @@ export function ImportExportActions({ measureTemplates }: Props) {
             <Download size={24} />
           </Tooltip>
         </IconButton>
-        <IconButton color="primary" onClick={handleClickImport}>
+        <IconButton disabled={isLocked} color="primary" onClick={handleClickImport}>
           <Tooltip title="Import plan data" placement="top">
             <Upload size={24} />
           </Tooltip>
         </IconButton>
-        {isFrameworkAdmin && (
+        {isFrameworkAdmin && !isLocked && (
           <UploadLegacyDataButton measureTemplates={measureTemplates} />
         )}
       </Stack>
@@ -92,10 +95,7 @@ export function ImportExportActions({ measureTemplates }: Props) {
         </Tabs>
 
         <TabPanel activeTab={activeTab} tabId="export">
-          <ExportPlanDialogContent
-            measureTemplates={measureTemplates}
-            onClose={handleClose}
-          />
+          <ExportPlanDialogContent measureTemplates={measureTemplates} onClose={handleClose} />
         </TabPanel>
         <TabPanel activeTab={activeTab} tabId="import">
           <ImportPlanDialogContent onClose={handleClose} />
